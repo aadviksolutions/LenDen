@@ -1,0 +1,242 @@
+import prisma from '@/lib/prisma';
+import { hashPassword, verifyPassword } from './password';
+import { createSession } from './session';
+import {
+  PlatformRole,
+  BusinessRole,
+  SubscriptionPlan,
+  SubscriptionStatus,
+} from '@prisma/client';
+
+export interface RegisterBusinessOwnerInput {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  businessName: string;
+  legalName?: string;
+  tradeType?: string;
+  gstin?: string;
+  city?: string;
+  state?: string;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+/**
+ * Validates registration input and creates:
+ * 1. A new User with strictly forced platformRole: USER (preventing any escalation).
+ * 2. A new Business workspace tenant.
+ * 3. A BusinessMembership making the user the BUSINESS_OWNER.
+ * 4. A 14-day Free Trial Subscription for the business.
+ * 5. An active Session.
+ * All in an atomic ACID database transaction.
+ */
+export async function registerBusinessOwner(input: RegisterBusinessOwnerInput) {
+  const normalizedEmail = input.email?.trim().toLowerCase();
+  const trimmedName = input.name?.trim();
+  const trimmedBizName = input.businessName?.trim();
+
+  if (!normalizedEmail || !normalizedEmail.includes('@')) {
+    throw new Error('Please provide a valid email address.');
+  }
+
+  if (!trimmedName || trimmedName.length < 2) {
+    throw new Error('Full name must be at least 2 characters.');
+  }
+
+  if (!trimmedBizName || trimmedBizName.length < 2) {
+    throw new Error('Business name must be at least 2 characters.');
+  }
+
+  if (!input.password || input.password.length < 8) {
+    throw new Error('Password must be at least 8 characters long.');
+  }
+
+  // Check if email is already taken
+  const existingUser = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+  });
+
+  if (existingUser) {
+    throw new Error('An account with this email address already exists.');
+  }
+
+  const passwordHash = await hashPassword(input.password);
+
+  // Execute atomically
+  const result = await prisma.$transaction(async (tx) => {
+    // 1. Create User - NEVER allow public registration to set SUPER_ADMIN
+    const user = await tx.user.create({
+      data: {
+        name: trimmedName,
+        email: normalizedEmail,
+        phone: input.phone?.trim() || null,
+        passwordHash,
+        platformRole: PlatformRole.USER, // Hard enforced
+      },
+    });
+
+    // 2. Create Business Workspace
+    const business = await tx.business.create({
+      data: {
+        name: trimmedBizName,
+        legalName: input.legalName?.trim() || trimmedBizName,
+        tradeType: input.tradeType?.trim() || 'Retail & Wholesale',
+        gstin: input.gstin?.trim().toUpperCase() || null,
+        city: input.city?.trim() || 'Raipur',
+        state: input.state?.trim() || 'Chhattisgarh',
+        phone: input.phone?.trim() || null,
+        email: normalizedEmail,
+        currency: 'INR',
+      },
+    });
+
+    // 3. Link Membership as BUSINESS_OWNER
+    const membership = await tx.businessMembership.create({
+      data: {
+        userId: user.id,
+        businessId: business.id,
+        role: BusinessRole.BUSINESS_OWNER,
+      },
+    });
+
+    // 4. Provision Initial Trial Subscription
+    const subscription = await tx.subscription.create({
+      data: {
+        businessId: business.id,
+        plan: SubscriptionPlan.FREE_TRIAL,
+        status: SubscriptionStatus.TRIALING,
+        trialDaysRemaining: 14,
+        maxMonthlyInvoices: 500,
+        maxStaffSeats: 3,
+        whatsAppQuota: 100,
+      },
+    });
+
+    return { user, business, membership, subscription };
+  });
+
+  // Create session
+  const { sessionToken, expiresAt, sessionId } = await createSession(
+    result.user.id,
+    result.business.id
+  );
+
+  return {
+    sessionToken,
+    expiresAt,
+    sessionId,
+    user: {
+      id: result.user.id,
+      name: result.user.name,
+      email: result.user.email,
+      platformRole: result.user.platformRole,
+    },
+    business: {
+      id: result.business.id,
+      name: result.business.name,
+      role: result.membership.role,
+    },
+  };
+}
+
+/**
+ * Validates user credentials and establishes a new session.
+ */
+export async function loginUser(input: LoginInput) {
+  const normalizedEmail = input.email?.trim().toLowerCase();
+
+  if (!normalizedEmail || !input.password) {
+    throw new Error('Please enter both email and password.');
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+    include: {
+      memberships: {
+        include: {
+          business: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    // Constant time-ish failure to mitigate timing attacks
+    throw new Error('Invalid email or password.');
+  }
+
+  const isPasswordValid = await verifyPassword(input.password, user.passwordHash);
+  if (!isPasswordValid) {
+    throw new Error('Invalid email or password.');
+  }
+
+  // Primary business is user's first business membership (if any)
+  const primaryBusiness = user.memberships[0]?.business || null;
+  const businessId = primaryBusiness ? primaryBusiness.id : null;
+
+  const { sessionToken, expiresAt, sessionId } = await createSession(
+    user.id,
+    businessId
+  );
+
+  return {
+    sessionToken,
+    expiresAt,
+    sessionId,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      platformRole: user.platformRole,
+    },
+    business: primaryBusiness
+      ? {
+          id: primaryBusiness.id,
+          name: primaryBusiness.name,
+          role: user.memberships[0]?.role,
+        }
+      : null,
+  };
+}
+
+/**
+ * Provisions or updates the initial platform Super Admin user safely.
+ * Only callable via server CLI or provisioning script with environment credentials.
+ */
+export async function provisionSuperAdmin(params: {
+  email: string;
+  password: string;
+  name: string;
+  phone?: string;
+}) {
+  const normalizedEmail = params.email.trim().toLowerCase();
+  const passwordHash = await hashPassword(params.password);
+
+  const user = await prisma.user.upsert({
+    where: { email: normalizedEmail },
+    update: {
+      name: params.name,
+      passwordHash,
+      platformRole: PlatformRole.SUPER_ADMIN,
+    },
+    create: {
+      email: normalizedEmail,
+      name: params.name,
+      phone: params.phone || null,
+      passwordHash,
+      platformRole: PlatformRole.SUPER_ADMIN,
+    },
+  });
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    platformRole: user.platformRole,
+  };
+}

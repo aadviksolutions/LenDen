@@ -1,0 +1,169 @@
+'use client';
+
+import React, { Suspense } from 'react';
+import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { SummaryCards } from '@/components/dashboard/SummaryCards';
+import { QuickActions } from '@/components/dashboard/QuickActions';
+import { SalesCollectionsChart } from '@/components/dashboard/SalesCollectionsChart';
+import { RecentTransactionsTable } from '@/components/dashboard/RecentTransactionsTable';
+import { OutstandingWatchlist } from '@/components/dashboard/OutstandingWatchlist';
+import { LowStockAlertCard } from '@/components/dashboard/LowStockAlertCard';
+import { SubscriptionUsageCard } from '@/components/dashboard/SubscriptionUsageCard';
+import { GstOverviewCard } from '@/components/dashboard/GstOverviewCard';
+import { useActionModal } from '@/context/ActionModalContext';
+import { useAuth } from '@/context/AuthContext';
+import { Shield, AlertTriangle, PlusCircle, Building2 } from 'lucide-react';
+
+function DashboardContent() {
+  const router = useRouter();
+  const { openAction } = useActionModal();
+  const { activeBusiness, user } = useAuth();
+  const searchParams = useSearchParams();
+  const hasForbiddenError = searchParams.get('error') === 'forbidden_admin_access';
+
+  const isSuperAdmin = user?.platformRole === 'SUPER_ADMIN';
+
+  return (
+    <div className="space-y-6 pb-8">
+      {/* Forbidden access notice if redirected from platform admin */}
+      {hasForbiddenError && (
+        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-2.5">
+          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+          <span>
+            <strong>Access Restricted:</strong> Platform Administration is accessible only to SUPER_ADMIN platform owners.
+          </span>
+        </div>
+      )}
+
+      {/* Super Admin Notice Banner */}
+      {isSuperAdmin && (
+        <div className="p-3.5 rounded-xl bg-purple-50/80 border border-purple-200 text-purple-950 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <Shield className="w-4 h-4 text-purple-600 shrink-0" />
+            <span>
+              Signed in as <strong>SUPER_ADMIN</strong>. Platform workspace isolation remains active.
+            </span>
+          </div>
+          <Link
+            href="/platform-admin"
+            className="px-3 py-1.5 bg-purple-900 text-white font-semibold rounded-lg hover:bg-purple-950 transition-colors shrink-0"
+          >
+            Open Admin Panel
+          </Link>
+        </div>
+      )}
+
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl sm:text-2xl font-black text-[#071F38] tracking-tight">
+              Dashboard
+            </h1>
+            <span className="text-[11px] font-bold text-[#00B887] bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+              {activeBusiness ? 'Workspace Active' : 'Ready'}
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
+            <span>Overview for</span>
+            <strong className="text-[#071F38] font-bold">
+              {activeBusiness?.name || 'My Business'}
+            </strong>
+            {activeBusiness?.gstin && (
+              <>
+                <span className="text-slate-300">•</span>
+                <span>GSTIN:</span>
+                <span className="font-mono text-slate-700 font-semibold">{activeBusiness.gstin}</span>
+              </>
+            )}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Link
+            href="/invoices/new"
+            className="inline-flex items-center gap-1.5 bg-[#00B887] hover:bg-[#009E74] text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+          >
+            <PlusCircle className="w-4 h-4 text-white" />
+            <span>Create Bill</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* 4 Summary KPI Cards */}
+      <SummaryCards />
+
+      {/* Quick Action Buttons */}
+      <QuickActions
+        onTriggerAction={(type) => {
+          if (type === 'new_invoice') {
+            router.push('/invoices/new');
+          } else if (type === 'add_customer') {
+            router.push('/customers?action=new');
+          } else if (type === 'record_udhaar') {
+            router.push('/invoices?view=payments');
+          } else if (type === 'new_item') {
+            router.push('/inventory?action=new');
+          } else if (type === 'whatsapp_reminder') {
+            router.push('/whatsapp');
+          } else {
+            openAction(type);
+          }
+        }}
+      />
+
+      {/* Main Two-Column Grid: Charts & Tables on Left, Widgets on Right */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column (2 spans): Sales & Collections Chart + Recent Invoices Table */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Sales & Collections Chart */}
+          <SalesCollectionsChart />
+
+          {/* Recent Invoices Table */}
+          <RecentTransactionsTable
+            onViewInvoice={(tx) => {
+              if (tx?.id) router.push(`/invoices/${tx.id}`);
+            }}
+          />
+        </div>
+
+        {/* Right Column (1 span): Subscription Status, Udhaar Watchlist & Low Stock Alerts */}
+        <div className="lg:col-span-1 space-y-5">
+          {/* Subscription Usage & Renewal Card */}
+          <SubscriptionUsageCard />
+
+          {/* Outstanding Udhaar Watchlist */}
+          <OutstandingWatchlist
+            onSendReminder={(cust) =>
+              openAction('whatsapp_reminder', {
+                name: cust.name,
+                phone: cust.phone,
+                amount: cust.totalOutstanding,
+              })
+            }
+            onRecordCredit={(cust) =>
+              openAction('record_udhaar', {
+                name: cust.name,
+              })
+            }
+          />
+
+          {/* Low Stock Alerts */}
+          <LowStockAlertCard />
+        </div>
+      </div>
+
+      {/* GST Filing & Tax Overview */}
+      <GstOverviewCard />
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-xs text-slate-400">Loading dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
+  );
+}

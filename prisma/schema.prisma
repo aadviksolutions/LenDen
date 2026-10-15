@@ -1,0 +1,604 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum PlatformRole {
+  SUPER_ADMIN
+  USER
+}
+
+enum BusinessRole {
+  BUSINESS_OWNER
+  BILLING_STAFF
+  ACCOUNTANT
+  INVENTORY_MANAGER
+}
+
+enum SubscriptionPlan {
+  FREE_TRIAL
+  STARTER
+  GROWTH_PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  SUSPENDED
+  EXPIRED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  UNPAID
+  PARTIAL
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  BANK_TRANSFER
+  CHEQUE
+  OTHER
+}
+
+enum GstType {
+  CGST_SGST
+  IGST
+  EXEMPT
+}
+
+enum WhatsAppConfigStatus {
+  NOT_CONFIGURED
+  CONNECTED
+  ERROR
+}
+
+enum WhatsAppMessageType {
+  INVOICE_SHARE
+  PAYMENT_RECEIPT
+  ACCOUNT_STATEMENT
+  PAYMENT_REMINDER
+}
+
+enum WhatsAppMessageStatus {
+  QUEUED
+  SUBMITTED
+  DELIVERED
+  READ
+  FAILED
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String
+  phone        String?
+  passwordHash String
+  platformRole PlatformRole @default(USER)
+  isDemo       Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  memberships  BusinessMembership[]
+  sessions     Session[]
+
+  @@index([email])
+  @@index([platformRole])
+}
+
+model Business {
+  id                 String             @id @default(cuid())
+  name               String
+  legalName          String?
+  tradeType          String?
+  gstin              String?
+  city               String?
+  state              String?
+  phone              String?
+  email              String?
+  currency           String             @default("INR")
+  address            String?
+  pincode            String?
+  bankName           String?
+  bankAccountNumber  String?
+  bankIfsc           String?
+  bankUpiId          String?
+  invoiceTerms       String?
+  allowNegativeStock Boolean            @default(false)
+  isDemo             Boolean            @default(false)
+  logoUrl            String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  memberships        BusinessMembership[]
+  subscriptions      Subscription[]
+  sessions           Session[]
+  customers          Customer[]
+  invoices           Invoice[]
+  payments           Payment[]
+  invoiceSequence    InvoiceSequence?
+  products           Product[]
+  stockMovements     StockMovement[]
+  suppliers          Supplier[]
+  purchases          Purchase[]
+  supplierPayments   SupplierPayment[]
+  purchaseSequence   PurchaseSequence?
+  whatsAppConfig     WhatsAppConfig?
+  whatsAppLogs       WhatsAppMessageLog[]
+  expenses           Expense[]
+
+  @@index([name])
+}
+
+model BusinessMembership {
+  id         String       @id @default(cuid())
+  userId     String
+  businessId String
+  role       BusinessRole @default(BUSINESS_OWNER)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business   Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([userId])
+  @@index([businessId])
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  businessId         String
+  plan               SubscriptionPlan   @default(FREE_TRIAL)
+  status             SubscriptionStatus @default(TRIALING)
+  startDate          DateTime           @default(now())
+  endDate            DateTime?
+  trialDaysRemaining Int                @default(14)
+  monthlyPrice       Float              @default(0)
+  maxMonthlyInvoices Int                @default(500)
+  maxCounters        Int                @default(1)
+  maxBranches        Int                @default(1)
+  maxStaffSeats      Int                @default(3)
+  whatsAppQuota      Int                @default(100)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+}
+
+model Session {
+  id           String    @id @default(cuid())
+  sessionToken String    @unique
+  userId       String
+  businessId   String?
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business     Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+
+  @@index([sessionToken])
+  @@index([userId])
+  @@index([businessId])
+}
+
+model Customer {
+  id              String       @id @default(cuid())
+  businessId      String
+  name            String
+  mobile          String
+  email           String?
+  billingAddress  String?
+  shippingAddress String?
+  gstin           String?
+  openingBalance  Float        @default(0)
+  notes           String?
+  optedOutWhatsApp Boolean     @default(false)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  business        Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  invoices        Invoice[]
+  payments        Payment[]
+  whatsAppLogs    WhatsAppMessageLog[]
+
+  @@index([businessId])
+  @@index([name])
+  @@index([mobile])
+}
+
+model InvoiceSequence {
+  id            String   @id @default(cuid())
+  businessId    String   @unique
+  prefix        String   @default("INV")
+  fiscalYear    String
+  currentNumber Int      @default(0)
+  updatedAt     DateTime @updatedAt
+
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id                 String        @id @default(cuid())
+  businessId         String
+  customerId         String
+  invoiceNumber      String
+  invoiceDate        DateTime      @default(now())
+  dueDate            DateTime
+  status             InvoiceStatus @default(UNPAID)
+
+  // GST & Tax Configuration
+  gstType            GstType       @default(CGST_SGST)
+  isTaxInclusive     Boolean       @default(false)
+  isGstInvoice       Boolean       @default(true)
+
+  // Financial figures (calculated strictly server-side with decimal safety)
+  subtotal           Float         @default(0)
+  discountTotal      Float         @default(0)
+  taxTotal           Float         @default(0)
+  cgstTotal          Float         @default(0)
+  sgstTotal          Float         @default(0)
+  igstTotal          Float         @default(0)
+  rounding           Float         @default(0)
+  total              Float         @default(0)
+  paidAmount         Float         @default(0)
+  balanceDue         Float         @default(0)
+
+  // Historical snapshot for audit integrity (preserves profile changes)
+  customerName       String
+  customerMobile     String
+  customerGstin      String?
+  customerBillingAddress String?
+  businessName       String
+  businessGstin      String?
+  businessAddress    String?
+  businessLogoUrl    String?
+
+  notes              String?
+  termsAndConditions String?
+
+  // Cancellation & Void Audit Trail
+  cancelledAt        DateTime?
+  cancellationReason String?
+  cancelledBy        String?
+
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  business           Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customer           Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  items              InvoiceItem[]
+  payments           Payment[]
+  whatsAppLogs       WhatsAppMessageLog[]
+
+  @@unique([businessId, invoiceNumber])
+  @@index([businessId])
+  @@index([customerId])
+  @@index([status])
+  @@index([invoiceDate])
+}
+
+model InvoiceItem {
+  id             String   @id @default(cuid())
+  invoiceId      String
+  productId      String?
+  description    String
+  quantity       Float
+  unit           String   @default("Pcs")
+  rate           Float
+  discount       Float    @default(0)
+  discountType   String   @default("AMOUNT")
+  taxRate        Float    @default(0)
+  taxAmount      Float    @default(0)
+  cgstRate       Float    @default(0)
+  cgstAmount     Float    @default(0)
+  sgstRate       Float    @default(0)
+  sgstAmount     Float    @default(0)
+  igstRate       Float    @default(0)
+  igstAmount     Float    @default(0)
+  lineTotal      Float
+
+  invoice        Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  product        Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([productId])
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  businessId      String
+  invoiceId       String
+  customerId      String
+  amount          Float
+  paymentDate     DateTime      @default(now())
+  paymentMethod   PaymentMethod @default(CASH)
+  referenceNumber String?
+  notes           String?
+  idempotencyKey  String?       @unique
+  createdAt       DateTime      @default(now())
+
+  business        Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  invoice         Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  customer        Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
+  @@index([businessId])
+  @@index([invoiceId])
+  @@index([customerId])
+  @@index([paymentDate])
+}
+
+enum StockMovementType {
+  OPENING_STOCK
+  PURCHASE_RECEIVED
+  SALE_DEDUCTION
+  SALE_RETURN
+  PURCHASE_RETURN
+  MANUAL_ADJUSTMENT
+}
+
+enum PurchaseStatus {
+  DRAFT
+  RECEIVED
+  CANCELLED
+}
+
+model Product {
+  id             String          @id @default(cuid())
+  businessId     String
+  name           String
+  sku            String
+  barcode        String?
+  category       String          @default("General")
+  unit           String          @default("Pcs")
+  purchasePrice  Float           @default(0)
+  sellingPrice   Float           @default(0)
+  taxRate        Float           @default(0)
+  currentStock   Float           @default(0)
+  openingStock   Float           @default(0)
+  lowStockAlert  Float           @default(10)
+  description    String?
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  business       Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  stockMovements StockMovement[]
+  invoiceItems   InvoiceItem[]
+  purchaseItems  PurchaseItem[]
+
+  @@unique([businessId, sku])
+  @@index([businessId])
+  @@index([name])
+  @@index([category])
+  @@index([barcode])
+  @@index([isActive])
+}
+
+model StockMovement {
+  id                 String            @id @default(cuid())
+  businessId         String
+  productId          String
+  type               StockMovementType
+  quantity           Float
+  previousStock      Float
+  newStock           Float
+  sourceDocumentType String?           // 'INVOICE', 'PURCHASE', 'MANUAL_ADJUSTMENT', 'RETURN'
+  sourceDocumentId   String?
+  reason             String?
+  actorName          String?
+  createdAt          DateTime          @default(now())
+
+  business           Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product            Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([productId])
+  @@index([type])
+  @@index([sourceDocumentType, sourceDocumentId])
+  @@index([createdAt])
+}
+
+model Supplier {
+  id              String            @id @default(cuid())
+  businessId      String
+  name            String
+  phone           String
+  email           String?
+  address         String?
+  gstin           String?
+  openingBalance  Float             @default(0)
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  business        Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  purchases       Purchase[]
+  payments        SupplierPayment[]
+
+  @@index([businessId])
+  @@index([name])
+  @@index([phone])
+}
+
+model PurchaseSequence {
+  id            String   @id @default(cuid())
+  businessId    String   @unique
+  prefix        String   @default("PUR")
+  fiscalYear    String
+  currentNumber Int      @default(0)
+  updatedAt     DateTime @updatedAt
+
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model Purchase {
+  id                     String            @id @default(cuid())
+  businessId             String
+  supplierId             String
+  purchaseNumber         String
+  supplierInvoiceNumber  String?
+  purchaseDate           DateTime          @default(now())
+  dueDate                DateTime?
+  status                 PurchaseStatus    @default(DRAFT)
+
+  subtotal               Float             @default(0)
+  discountTotal          Float             @default(0)
+  taxTotal               Float             @default(0)
+  total                  Float             @default(0)
+  paidAmount             Float             @default(0)
+  balanceDue             Float             @default(0)
+
+  notes                  String?
+  receivedAt             DateTime?
+  receivedBy             String?
+  cancelledAt            DateTime?
+  cancelledBy            String?
+  cancellationReason     String?
+
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  business               Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  supplier               Supplier          @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  items                  PurchaseItem[]
+  payments               SupplierPayment[]
+
+  @@unique([businessId, purchaseNumber])
+  @@index([businessId])
+  @@index([supplierId])
+  @@index([status])
+  @@index([purchaseDate])
+}
+
+model PurchaseItem {
+  id           String    @id @default(cuid())
+  purchaseId   String
+  productId    String?
+  description  String
+  quantity     Float
+  unit         String    @default("Pcs")
+  purchaseRate Float
+  discount     Float     @default(0)
+  taxRate      Float     @default(0)
+  taxAmount    Float     @default(0)
+  lineTotal    Float
+
+  purchase     Purchase  @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  product      Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([purchaseId])
+  @@index([productId])
+}
+
+model SupplierPayment {
+  id              String        @id @default(cuid())
+  businessId      String
+  purchaseId      String
+  supplierId      String
+  amount          Float
+  paymentDate     DateTime      @default(now())
+  paymentMethod   PaymentMethod @default(BANK_TRANSFER)
+  referenceNumber String?
+  notes           String?
+  idempotencyKey  String?       @unique
+  recordedBy      String?
+  createdAt       DateTime      @default(now())
+
+  business        Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  purchase        Purchase      @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  supplier        Supplier      @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+
+  @@index([businessId])
+  @@index([purchaseId])
+  @@index([supplierId])
+  @@index([paymentDate])
+}
+
+model WhatsAppConfig {
+  id                    String               @id @default(cuid())
+  businessId            String               @unique
+  status                WhatsAppConfigStatus @default(NOT_CONFIGURED)
+  phoneNumberId         String?
+  wabaId                String?
+  accessToken           String?
+  webhookVerifyToken    String?
+  businessDisplayName   String?
+  autoRemindersEnabled  Boolean              @default(false)
+  reminderDaysBeforeDue Int                  @default(3)
+  reminderOnDueDate     Boolean              @default(true)
+  reminderDaysAfterDue  Int                  @default(3)
+  quietHoursStart       Int                  @default(21) // 9 PM (24h)
+  quietHoursEnd         Int                  @default(9)  // 9 AM (24h)
+  isPaused              Boolean              @default(false)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  business              Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model WhatsAppMessageLog {
+  id                 String                @id @default(cuid())
+  businessId         String
+  customerId         String?
+  invoiceId          String?
+  recipientPhone     String
+  recipientName      String?
+  messageType        WhatsAppMessageType
+  status             WhatsAppMessageStatus @default(SUBMITTED)
+  providerMessageId  String?
+  contentSummary     String
+  idempotencyKey     String?               @unique
+  errorMessage       String?
+  sentAt             DateTime              @default(now())
+  deliveredAt        DateTime?
+  readAt             DateTime?
+  actor              String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  business           Business              @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customer           Customer?             @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  invoice            Invoice?              @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  @@index([businessId])
+  @@index([customerId])
+  @@index([invoiceId])
+  @@index([status])
+  @@index([providerMessageId])
+  @@index([createdAt])
+}
+
+model Expense {
+  id              String        @id @default(cuid())
+  businessId      String
+  category        String
+  payee           String
+  amount          Float
+  paymentMethod   PaymentMethod @default(CASH)
+  expenseDate     DateTime      @default(now())
+  referenceNumber String?
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  business        Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([category])
+  @@index([expenseDate])
+}
+

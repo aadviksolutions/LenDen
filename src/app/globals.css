@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #F6F9FC;
+    --foreground: #071F38;
+    --surface: #ffffff;
+    --surface-subtle: #f8fafc;
+    --border-subtle: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --brand-navy: #071F38;
+    --brand-navy-secondary: #0D2C4D;
+    --brand-emerald: #00B887;
+    --brand-emerald-hover: #00A377;
+    --brand-emerald-subtle: #e6f8f3;
+    --brand-teal: #008F91;
+    --brand-teal-subtle: #e6f4f4;
+    --slate-muted: #64748b;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Accessible focus visible styling */
+  *:focus-visible {
+    outline: 2px solid #071F38;
+    outline-offset: 2px;
+  }
+}
+
+/* Indian Rupee tabular formatting and numbers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Restrained scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Print utility styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  @page {
+    margin: 12mm;
+    size: A4 portrait;
+  }
+}
