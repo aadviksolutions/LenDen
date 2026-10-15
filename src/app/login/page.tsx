@@ -99,45 +99,46 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen bg-[#F6F9FC] text-slate-800 relative overflow-x-hidden selection:bg-[#00B887]/20 selection:text-[#071F38] flex flex-col justify-between">
-      {/* ================= BACKGROUND DECORATIVE ELEMENTS ================= */}
+      
+      {/* ================= GLOBAL BACKGROUND DECORATIVE ELEMENTS ================= */}
 
-      {/* Top-Right Restrained Abstract Curved Waves (Teal & Emerald ribbons) */}
-      <div className="absolute top-0 right-0 w-[420px] sm:w-[500px] lg:w-[620px] h-[480px] sm:h-[580px] lg:h-[720px] pointer-events-none overflow-hidden z-0">
+      {/* Top-Right Restrained Abstract Curved Waves (Flowing Teal, Emerald & Navy ribbons) */}
+      <div className="absolute top-0 right-0 w-[380px] sm:w-[500px] md:w-[600px] lg:w-[680px] xl:w-[750px] h-[450px] sm:h-[580px] lg:h-[720px] pointer-events-none overflow-hidden z-0 select-none">
         <svg
           viewBox="0 0 500 700"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-top-right"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           {/* Emerald Green Ribbon Wave (Innermost) */}
           <path
-            d="M500 80 C 340 130, 240 280, 260 450 C 280 580, 380 660, 500 690 Z"
+            d="M500 70 C 340 120, 230 270, 255 450 C 275 590, 380 670, 500 695 Z"
             fill="url(#emeraldRibbon)"
             opacity="0.9"
           />
           {/* Deep Teal Ribbon Wave (Middle) */}
           <path
-            d="M500 160 C 370 210, 290 340, 310 490 C 330 600, 410 670, 500 700 Z"
+            d="M500 150 C 370 200, 280 340, 305 490 C 325 610, 410 680, 500 705 Z"
             fill="url(#tealRibbon)"
             opacity="0.95"
           />
-          {/* Deep Navy Curved Wave Accent (Edge) */}
+          {/* Deep Navy Curved Wave Accent (Outer edge) */}
           <path
-            d="M500 250 C 420 290, 350 400, 370 530 C 390 620, 440 680, 500 710 Z"
+            d="M500 240 C 420 280, 345 400, 365 530 C 385 630, 440 690, 500 715 Z"
             fill="url(#navyRibbon)"
             opacity="0.85"
           />
 
           <defs>
-            <linearGradient id="emeraldRibbon" x1="260" y1="80" x2="500" y2="690" gradientUnits="userSpaceOnUse">
+            <linearGradient id="emeraldRibbon" x1="250" y1="70" x2="500" y2="695" gradientUnits="userSpaceOnUse">
               <stop stopColor="#00B887" />
               <stop offset="1" stopColor="#008F91" />
             </linearGradient>
-            <linearGradient id="tealRibbon" x1="290" y1="160" x2="500" y2="700" gradientUnits="userSpaceOnUse">
+            <linearGradient id="tealRibbon" x1="280" y1="150" x2="500" y2="705" gradientUnits="userSpaceOnUse">
               <stop stopColor="#008F91" />
               <stop offset="1" stopColor="#071F38" />
             </linearGradient>
-            <linearGradient id="navyRibbon" x1="350" y1="250" x2="500" y2="710" gradientUnits="userSpaceOnUse">
+            <linearGradient id="navyRibbon" x1="345" y1="240" x2="500" y2="715" gradientUnits="userSpaceOnUse">
               <stop stopColor="#0D2C4D" />
               <stop offset="1" stopColor="#071F38" />
             </linearGradient>
@@ -145,108 +146,68 @@ function LoginForm() {
         </svg>
       </div>
 
-      {/* Top-Right Dot Matrix Pattern */}
-      <div className="absolute top-6 right-6 sm:top-10 sm:right-12 w-28 h-28 pointer-events-none opacity-25 z-0 hidden sm:block">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <pattern id="dot-grid" x="0" y="0" width="14" height="14" patternUnits="userSpaceOnUse">
-            <circle cx="2" cy="2" r="1.5" fill="#008F91" />
-          </pattern>
-          <rect width="100%" height="100%" fill="url(#dot-grid)" />
-        </svg>
-      </div>
+      {/* Mid-Background Soft Radial Glow Behind Form Card */}
+      <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-[520px] h-[520px] rounded-full bg-gradient-to-tr from-[#00B887]/8 via-[#008F91]/5 to-transparent blur-3xl pointer-events-none z-0" />
 
-      {/* Top-Right "Trusted by Indian Businesses" Badge */}
-      <div className="absolute top-5 right-8 sm:top-8 sm:right-24 lg:right-32 z-10 pointer-events-none hidden md:block text-right">
-        <div className="inline-block transform -rotate-3">
-          <span className="font-serif italic text-xs sm:text-sm text-slate-700 font-medium tracking-wide">
-            Trusted by
-          </span>
-          <br />
-          <span className="font-serif italic font-bold text-sm sm:text-base text-[#00B887] tracking-wide">
-            Indian Businesses
-          </span>
-          {/* Curved green flourish underline */}
-          <svg className="w-28 h-2 text-[#00B887] mt-0.5 ml-auto" viewBox="0 0 100 8" fill="none">
-            <path d="M2 6C30 1 70 1 98 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+      {/* ================= HERO TWO-COLUMN EXPERIENCE ================= */}
+      <section className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-6 sm:pt-8 lg:pt-12 pb-8 sm:pb-12 z-10 flex-1 flex flex-col justify-center">
+        
+        {/* Bottom-Left Organic Botanical Leaves Motif (anchored to hero section) */}
+        <div className="absolute -bottom-6 -left-6 sm:bottom-0 sm:left-0 w-36 sm:w-52 md:w-64 lg:w-72 h-36 sm:h-52 md:h-64 lg:h-72 pointer-events-none z-0 select-none opacity-80 sm:opacity-100">
+          <svg viewBox="0 0 260 260" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+            {/* Deep Forest Green Base Leaf */}
+            <path
+              d="M-20 280 C -10 170, 50 100, 150 85 C 130 150, 90 220, -20 280 Z"
+              fill="#062F24"
+              fillOpacity="0.9"
+            />
+            {/* Mid Layer Leaf */}
+            <path
+              d="M-30 280 C 15 190, 95 130, 200 120 C 155 185, 80 240, -30 280 Z"
+              fill="#005A44"
+              fillOpacity="0.95"
+            />
+            {/* Rich Emerald Main Leaf */}
+            <path
+              d="M-10 280 C 35 200, 120 160, 230 170 C 175 225, 95 255, -10 280 Z"
+              fill="#00B887"
+            />
+            {/* Central Leaf Vein Accent */}
+            <path
+              d="M-10 280 C 50 230, 130 195, 230 170"
+              stroke="#A7F3D0"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              opacity="0.75"
+            />
+            {/* Foreground Petite Sprout Leaf */}
+            <path
+              d="M0 280 C 15 235, 60 205, 130 210 C 90 245, 45 268, 0 280 Z"
+              fill="#008F91"
+            />
+            {/* Accent Leaf Blade */}
+            <path
+              d="M-25 210 C 10 160, 65 130, 120 140 C 75 180, 30 200, -25 210 Z"
+              fill="#10B981"
+              fillOpacity="0.95"
+            />
           </svg>
         </div>
-      </div>
 
-      {/* Floating Emerald Leaf Accent between left text and right card */}
-      <div className="absolute top-[18%] right-[45%] lg:right-[43%] w-12 h-14 pointer-events-none hidden xl:block z-0 transform -rotate-12">
-        <svg viewBox="0 0 60 70" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full filter drop-shadow-xs">
-          <path
-            d="M8 58 C 4 32, 24 8, 54 4 C 54 32, 38 52, 8 58 Z"
-            fill="url(#floatingLeafGrad)"
-          />
-          <defs>
-            <linearGradient id="floatingLeafGrad" x1="8" y1="58" x2="54" y2="4" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#00B887" />
-              <stop offset="1" stopColor="#008F91" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-
-      {/* Bottom-Left Organic Botanical Leaves Motif */}
-      <div className="absolute bottom-0 left-0 w-48 sm:w-60 lg:w-72 h-48 sm:h-60 lg:h-72 pointer-events-none z-0">
-        <svg viewBox="0 0 260 260" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-          {/* Deep Forest Green Base Leaf */}
-          <path
-            d="M-20 280 C -10 170, 50 100, 150 85 C 130 150, 90 220, -20 280 Z"
-            fill="#062F24"
-            fillOpacity="0.9"
-          />
-          {/* Mid Layer Leaf */}
-          <path
-            d="M-30 280 C 15 190, 95 130, 200 120 C 155 185, 80 240, -30 280 Z"
-            fill="#005A44"
-            fillOpacity="0.95"
-          />
-          {/* Rich Emerald Main Leaf */}
-          <path
-            d="M-10 280 C 35 200, 120 160, 230 170 C 175 225, 95 255, -10 280 Z"
-            fill="#00B887"
-          />
-          {/* Central Leaf Vein Accent */}
-          <path
-            d="M-10 280 C 50 230, 130 195, 230 170"
-            stroke="#A7F3D0"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            opacity="0.75"
-          />
-          {/* Foreground Petite Sprout Leaf */}
-          <path
-            d="M0 280 C 15 235, 60 205, 130 210 C 90 245, 45 268, 0 280 Z"
-            fill="#008F91"
-          />
-          {/* Accent Leaf Blade */}
-          <path
-            d="M-25 210 C 10 160, 65 130, 120 140 C 75 180, 30 200, -25 210 Z"
-            fill="#10B981"
-            fillOpacity="0.95"
-          />
-        </svg>
-      </div>
-
-      {/* Mid-Background Soft Radial Glow Behind Form Card */}
-      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[480px] h-[480px] rounded-full bg-gradient-to-tr from-[#00B887]/8 via-[#008F91]/5 to-transparent blur-3xl pointer-events-none z-0" />
-
-      {/* ================= MAIN HERO TWO-COLUMN CONTAINER ================= */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 relative z-10 flex-1 flex flex-col justify-center">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
+        {/* 12-Column Responsive Layout Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 xl:gap-12 items-center relative z-10">
           
-          {/* ================= LEFT SECTION (55% Width) ================= */}
-          <div className="w-full lg:w-[55%] space-y-4 sm:space-y-5 lg:space-y-6">
+          {/* ================= LEFT SECTION (7 Cols = ~58% width) ================= */}
+          <div className="lg:col-span-7 space-y-4 sm:space-y-5 lg:space-y-6">
             
             {/* 1. Lenden Horizontal Logo & Tagline */}
             <div className="space-y-1.5">
-              <Link href="/" className="inline-flex items-center group">
+              <Link href="/" className="inline-flex items-center group focus:outline-hidden">
                 <img
                   src="/logo-horizontal.png"
                   alt="Lenden"
                   className="h-10 sm:h-11 lg:h-12 w-auto object-contain transition-transform group-hover:scale-[1.01]"
+                  loading="eager"
                 />
               </Link>
               <p className="text-xs sm:text-[13px] font-medium text-slate-500 tracking-tight pl-0.5">
@@ -264,7 +225,7 @@ function LoginForm() {
 
             {/* 3. Main Headline */}
             <div>
-              <h1 className="text-4xl sm:text-5xl lg:text-[58px] xl:text-[64px] font-black tracking-tight leading-[1.06]">
+              <h1 className="text-3xl sm:text-5xl lg:text-[54px] xl:text-[62px] font-black tracking-tight leading-[1.08] sm:leading-[1.06]">
                 <span className="text-[#071F38] block">Har Hisab,</span>
                 <span className="text-[#00B887] block">Ab Aasaan.</span>
               </h1>
@@ -283,10 +244,10 @@ function LoginForm() {
                   <FileText className="w-5 h-5 text-[#00B887]" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-sm text-[#071F38]">
+                  <h3 className="font-bold text-sm text-[#071F38] leading-tight">
                     Simple Billing
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5 leading-snug">
+                  <p className="text-xs text-slate-500 mt-1 leading-snug">
                     Create professional invoices in seconds.
                   </p>
                 </div>
@@ -298,10 +259,10 @@ function LoginForm() {
                   <Users className="w-5 h-5 text-[#2563EB]" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-sm text-[#071F38]">
+                  <h3 className="font-bold text-sm text-[#071F38] leading-tight">
                     Udhaar & Payments
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5 leading-snug">
+                  <p className="text-xs text-slate-500 mt-1 leading-snug">
                     Track outstanding balances and collections.
                   </p>
                 </div>
@@ -313,10 +274,10 @@ function LoginForm() {
                   <Package className="w-5 h-5 text-[#7C3AED]" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-sm text-[#071F38]">
+                  <h3 className="font-bold text-sm text-[#071F38] leading-tight">
                     Inventory Control
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5 leading-snug">
+                  <p className="text-xs text-slate-500 mt-1 leading-snug">
                     Manage stock, purchases and suppliers.
                   </p>
                 </div>
@@ -328,10 +289,10 @@ function LoginForm() {
                   <BarChart3 className="w-5 h-5 text-[#D97706]" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-sm text-[#071F38]">
+                  <h3 className="font-bold text-sm text-[#071F38] leading-tight">
                     Business Insights
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5 leading-snug">
+                  <p className="text-xs text-slate-500 mt-1 leading-snug">
                     Understand sales, expenses and profit at a glance.
                   </p>
                 </div>
@@ -348,9 +309,9 @@ function LoginForm() {
                 </span>
               </div>
 
-              {/* 4 Category Badges with Icons */}
-              <div className="grid grid-cols-4 gap-2 text-center">
-                <div className="flex flex-col items-center">
+              {/* 4 Category Badges (2x2 on mobile, 4-in-a-row on desktop) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 text-center">
+                <div className="flex flex-col items-center p-2 rounded-xl bg-white/70 sm:bg-transparent border border-slate-200/50 sm:border-transparent">
                   <div className="w-9 h-9 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1.5">
                     <Store className="w-4 h-4 text-[#071F38]" />
                   </div>
@@ -359,7 +320,7 @@ function LoginForm() {
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center p-2 rounded-xl bg-white/70 sm:bg-transparent border border-slate-200/50 sm:border-transparent">
                   <div className="w-9 h-9 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1.5">
                     <Building2 className="w-4 h-4 text-[#071F38]" />
                   </div>
@@ -368,7 +329,7 @@ function LoginForm() {
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center p-2 rounded-xl bg-white/70 sm:bg-transparent border border-slate-200/50 sm:border-transparent">
                   <div className="w-9 h-9 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1.5">
                     <Truck className="w-4 h-4 text-[#071F38]" />
                   </div>
@@ -377,7 +338,7 @@ function LoginForm() {
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center p-2 rounded-xl bg-white/70 sm:bg-transparent border border-slate-200/50 sm:border-transparent">
                   <div className="w-9 h-9 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1.5">
                     <Briefcase className="w-4 h-4 text-[#071F38]" />
                   </div>
@@ -390,10 +351,56 @@ function LoginForm() {
 
           </div>
 
-          {/* ================= RIGHT SECTION (45% Width) ================= */}
-          <div className="w-full lg:w-[45%] flex justify-center lg:justify-end">
+          {/* ================= RIGHT SECTION (5 Cols = ~42% width) ================= */}
+          <div className="lg:col-span-5 flex justify-center lg:justify-end relative">
+            
+            {/* Contextual Desktop Accents Anchored Specifically to Login Card */}
+            
+            {/* 1. Dot Grid Matrix (Top-Right Shoulder of Card) */}
+            <div className="absolute -top-12 -right-4 sm:-right-8 w-24 h-24 pointer-events-none opacity-30 z-0 hidden lg:block select-none">
+              <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <pattern id="card-dot-grid" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
+                  <circle cx="2" cy="2" r="1.5" fill="#008F91" />
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#card-dot-grid)" />
+              </svg>
+            </div>
+
+            {/* 2. "Trusted by Indian Businesses" Handwritten Callout */}
+            <div className="absolute -top-12 right-2 sm:right-6 z-20 pointer-events-none hidden lg:block text-right select-none">
+              <div className="inline-block transform -rotate-3">
+                <span className="font-serif italic text-xs text-slate-700 font-medium tracking-wide">
+                  Trusted by
+                </span>
+                <br />
+                <span className="font-serif italic font-bold text-sm text-[#00B887] tracking-wide">
+                  Indian Businesses
+                </span>
+                {/* Curved green flourish underline */}
+                <svg className="w-24 h-2 text-[#00B887] mt-0.5 ml-auto" viewBox="0 0 100 8" fill="none">
+                  <path d="M2 6C30 1 70 1 98 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              </div>
+            </div>
+
+            {/* 3. Floating Emerald Petal Accent (Top-Left Shoulder of Card) */}
+            <div className="absolute top-1 -left-8 w-11 h-13 pointer-events-none hidden xl:block z-20 transform -rotate-12 select-none">
+              <svg viewBox="0 0 60 70" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full filter drop-shadow-xs">
+                <path
+                  d="M8 58 C 4 32, 24 8, 54 4 C 54 32, 38 52, 8 58 Z"
+                  fill="url(#cardFloatingLeafGrad)"
+                />
+                <defs>
+                  <linearGradient id="cardFloatingLeafGrad" x1="8" y1="58" x2="54" y2="4" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#00B887" />
+                    <stop offset="1" stopColor="#008F91" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+
             {/* White Floating Login Card */}
-            <div className="w-full max-w-[460px] lg:max-w-[480px] bg-white rounded-3xl p-7 sm:p-9 lg:p-10 shadow-[0_20px_60px_-15px_rgba(7,31,56,0.08)] border border-slate-100 relative">
+            <div className="w-full max-w-[440px] sm:max-w-[460px] lg:max-w-[470px] bg-white rounded-3xl p-6 sm:p-8 lg:p-9 shadow-[0_20px_60px_-15px_rgba(7,31,56,0.08)] border border-slate-100 relative z-10">
               
               {/* Top: Actual Lenden Horizontal Logo Centered */}
               <div className="flex justify-center mb-3">
@@ -405,8 +412,8 @@ function LoginForm() {
               </div>
 
               {/* Heading & Subtitle */}
-              <div className="text-center mb-6">
-                <h2 className="text-2xl sm:text-[27px] font-black tracking-tight text-[#071F38]">
+              <div className="text-center mb-5 sm:mb-6">
+                <h2 className="text-2xl sm:text-[26px] font-black tracking-tight text-[#071F38]">
                   Welcome back
                 </h2>
                 <p className="text-xs sm:text-[13px] text-slate-500 mt-1 font-normal">
@@ -576,17 +583,17 @@ function LoginForm() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* ================= EXPLORE DEMO WORKSPACES SECTION ================= */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 border-t border-slate-200/90 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-10 sm:py-14 border-t border-slate-200/90 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/90 text-[10px] sm:text-[11px] font-bold text-[#00B887] uppercase tracking-wider mb-2">
               <Sparkles className="w-3.5 h-3.5 text-[#00B887]" />
               <span>INSTANT EVALUATION • NO REGISTRATION REQUIRED</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-[#071F38] tracking-tight">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#071F38] tracking-tight">
               Explore Lenden Live Demo
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl leading-relaxed">
@@ -597,25 +604,25 @@ function LoginForm() {
 
           <Link
             href="/pricing"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#008F91] hover:text-[#00B887] transition-colors self-start md:self-auto bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#008F91] hover:text-[#00B887] transition-colors self-start md:self-auto bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-xs"
           >
             <span>View Full Pricing & Plans</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Card A: Explore Starter */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
+          <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
                   Starter Plan
                 </span>
                 <span className="text-xs text-slate-400 font-semibold">1 User • 1 Location</span>
               </div>
 
-              <div className="mt-3 flex items-baseline gap-1">
+              <div className="mt-3.5 flex items-baseline gap-1">
                 <span className="text-2xl sm:text-3xl font-black text-[#071F38]">₹199</span>
                 <span className="text-xs text-slate-500 font-semibold">/ month</span>
               </div>
@@ -624,7 +631,7 @@ function LoginForm() {
                 Single-counter billing, customer ledger & udhaar tracking for solo shop owners.
               </p>
 
-              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
                 <div className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
                   <span>Unlimited Invoices & GST Bills</span>
@@ -649,7 +656,7 @@ function LoginForm() {
                 type="button"
                 onClick={() => handleEnterDemo('STARTER')}
                 disabled={demoLoading !== null}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
               >
                 {demoLoading === 'STARTER' ? (
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -664,20 +671,20 @@ function LoginForm() {
           </div>
 
           {/* Card B: Explore Growth (Recommended) */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 border-2 border-[#00B887] shadow-lg shadow-emerald-500/10 flex flex-col justify-between transition-all relative">
+          <div className="bg-white rounded-2xl p-6 sm:p-7 border-2 border-[#00B887] shadow-lg shadow-emerald-500/10 flex flex-col justify-between transition-all relative">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#00B887] text-white px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-2xs">
               Recommended
             </div>
 
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
                   Growth Plan
                 </span>
                 <span className="text-xs text-slate-500 font-semibold">3 Users • 1 Location</span>
               </div>
 
-              <div className="mt-3 flex items-baseline gap-1">
+              <div className="mt-3.5 flex items-baseline gap-1">
                 <span className="text-2xl sm:text-3xl font-black text-[#071F38]">₹499</span>
                 <span className="text-xs text-slate-500 font-semibold">/ month</span>
               </div>
@@ -686,7 +693,7 @@ function LoginForm() {
                 Multi-user commercial suite with purchases, supplier khata, and low-stock alerts.
               </p>
 
-              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
                 <div className="flex items-center gap-2 text-emerald-700 font-medium">
                   <Sparkles className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
                   <span>Everything in Starter, plus:</span>
@@ -711,7 +718,7 @@ function LoginForm() {
                 type="button"
                 onClick={() => handleEnterDemo('GROWTH')}
                 disabled={demoLoading !== null}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#00B887] hover:bg-[#009E74] text-white text-xs font-bold shadow-md shadow-emerald-500/20 transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#00B887] hover:bg-[#009E74] text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-500/20 transition-all cursor-pointer disabled:opacity-50"
               >
                 {demoLoading === 'GROWTH' ? (
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -726,16 +733,16 @@ function LoginForm() {
           </div>
 
           {/* Card C: Explore Scale */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
+          <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded border border-purple-200">
                   Scale Plan
                 </span>
                 <span className="text-xs text-slate-400 font-semibold">10 Users • 3 Branches</span>
               </div>
 
-              <div className="mt-3 flex items-baseline gap-1">
+              <div className="mt-3.5 flex items-baseline gap-1">
                 <span className="text-2xl sm:text-3xl font-black text-[#071F38]">₹999</span>
                 <span className="text-xs text-slate-500 font-semibold">/ month</span>
               </div>
@@ -744,7 +751,7 @@ function LoginForm() {
                 Multi-branch chain operations with consolidated reporting & granular staff roles.
               </p>
 
-              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
                 <div className="flex items-center gap-2 text-purple-700 font-medium">
                   <Sparkles className="w-3.5 h-3.5 text-purple-600 shrink-0" />
                   <span>Everything in Growth, plus:</span>
@@ -769,7 +776,7 @@ function LoginForm() {
                 type="button"
                 onClick={() => handleEnterDemo('SCALE')}
                 disabled={demoLoading !== null}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
               >
                 {demoLoading === 'SCALE' ? (
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -783,7 +790,7 @@ function LoginForm() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Forgot Password Modal */}
       {showForgotModal && (
