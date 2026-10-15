@@ -19,12 +19,20 @@ import {
   BarChart3,
   Store,
   Building2,
+  UtensilsCrossed,
+  Factory,
   Truck,
   Briefcase,
   HelpCircle,
   X,
   Sparkles,
   Check,
+  Menu,
+  ChevronRight,
+  Zap,
+  MessageSquare,
+  Clock,
+  Smartphone,
 } from 'lucide-react';
 
 function LoginForm() {
@@ -40,6 +48,7 @@ function LoginForm() {
   const [demoLoading, setDemoLoading] = useState<'STARTER' | 'GROWTH' | 'SCALE' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showForgotModal, setShowForgotModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleEnterDemo = async (plan: 'STARTER' | 'GROWTH' | 'SCALE') => {
     try {
@@ -97,13 +106,29 @@ function LoginForm() {
     }
   };
 
+  const scrollToLogin = () => {
+    const el = document.getElementById('login-card');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+    setMobileMenuOpen(false);
+  };
+
+  const scrollToDemo = () => {
+    const el = document.getElementById('demo-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+    setMobileMenuOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-[#F6F9FC] text-slate-800 relative overflow-x-hidden selection:bg-[#00B887]/20 selection:text-[#071F38] flex flex-col justify-between">
       
       {/* ================= BACKGROUND DECORATIVE ELEMENTS ================= */}
 
-      {/* Top-Right Restrained Abstract Curved Waves (Teal & Emerald ribbons) */}
-      <div className="absolute top-0 right-0 w-[420px] sm:w-[520px] md:w-[620px] lg:w-[720px] xl:w-[780px] h-[480px] sm:h-[580px] lg:h-[720px] pointer-events-none overflow-hidden z-0 select-none">
+      {/* Top-Right Restrained Abstract Curved Waves (Hidden or low-contrast on small screens) */}
+      <div className="absolute top-0 right-0 w-[300px] sm:w-[480px] md:w-[600px] lg:w-[720px] xl:w-[780px] h-[360px] sm:h-[540px] lg:h-[720px] pointer-events-none overflow-hidden z-0 select-none opacity-40 sm:opacity-90">
         <svg
           viewBox="0 0 500 700"
           className="w-full h-full object-cover object-top-right"
@@ -146,8 +171,8 @@ function LoginForm() {
         </svg>
       </div>
 
-      {/* Bottom-Left Organic Botanical Leaves Motif (Anchored directly to bottom-left corner of page) */}
-      <div className="absolute bottom-0 left-0 w-48 sm:w-60 md:w-72 lg:w-80 xl:w-92 h-48 sm:h-60 md:h-72 lg:h-80 xl:h-92 pointer-events-none z-0 select-none opacity-90 sm:opacity-100">
+      {/* Bottom-Left Botanical Leaves Motif (Desktop & Tablet only to avoid mobile overlapping) */}
+      <div className="hidden md:block absolute bottom-0 left-0 w-48 sm:w-60 md:w-72 lg:w-80 xl:w-92 h-48 sm:h-60 md:h-72 lg:h-80 xl:h-92 pointer-events-none z-0 select-none opacity-80 lg:opacity-100">
         <svg viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
           {/* Deep Forest Green Base Leaf */}
           <path
@@ -185,49 +210,129 @@ function LoginForm() {
             fill="#10B981"
             fillOpacity="0.95"
           />
-          {/* Secondary Vein Accent */}
-          <path
-            d="M-25 210 C 15 175, 60 150, 125 140"
-            stroke="#D1FAE5"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            opacity="0.75"
-          />
         </svg>
       </div>
 
-      {/* Soft Ambient Left Corner Glow */}
-      <div className="absolute bottom-0 left-0 w-[440px] h-[440px] rounded-full bg-gradient-to-tr from-[#00B887]/8 via-[#008F91]/4 to-transparent blur-3xl pointer-events-none z-0" />
+      {/* Soft Ambient Corner Glow */}
+      <div className="absolute top-1/4 right-0 w-[360px] sm:w-[500px] h-[360px] sm:h-[500px] rounded-full bg-gradient-to-tr from-[#00B887]/8 via-[#008F91]/4 to-transparent blur-3xl pointer-events-none z-0" />
 
-      {/* Mid-Background Soft Radial Glow Behind Form Card */}
-      <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-[520px] h-[520px] rounded-full bg-gradient-to-tr from-[#00B887]/8 via-[#008F91]/5 to-transparent blur-3xl pointer-events-none z-0" />
+      {/* ================= MOBILE / DESKTOP HEADER ================= */}
+      <header className="w-full relative z-30 pt-4 sm:pt-6 px-5 sm:px-6 lg:px-8 xl:px-12 max-w-[1280px] mx-auto">
+        <div className="flex items-center justify-between">
+          {/* Logo & Tagline */}
+          <div className="space-y-0.5">
+            <Link href="/" className="inline-flex items-center group focus:outline-hidden">
+              <img
+                src="/logo-horizontal.png"
+                alt="Lenden"
+                className="h-8.5 sm:h-9.5 lg:h-10.5 w-auto object-contain transition-transform group-hover:scale-[1.01]"
+                loading="eager"
+              />
+            </Link>
+            <p className="text-[11px] sm:text-xs font-medium text-slate-500 tracking-tight pl-0.5 hidden xs:block">
+              Billing • Inventory • Customers • Growing Business
+            </p>
+          </div>
+
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-6 text-xs font-bold text-slate-600">
+            <Link href="/pricing" className="hover:text-[#00B887] transition-colors">
+              Pricing
+            </Link>
+            <button
+              onClick={scrollToDemo}
+              className="hover:text-[#00B887] transition-colors cursor-pointer"
+            >
+              Live Demo
+            </button>
+            <Link
+              href="/register"
+              className="px-3.5 py-1.5 rounded-xl border border-[#00B887] text-[#00B887] hover:bg-emerald-50 transition-colors font-bold"
+            >
+              Register Business
+            </Link>
+          </nav>
+
+          {/* Mobile Hamburger Menu Button */}
+          <div className="lg:hidden">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="w-10 h-10 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 hover:text-[#00B887] hover:border-emerald-300 focus:outline-hidden transition-all cursor-pointer"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Tagline (for ultra-compact screens where hidden above) */}
+        <p className="text-[10.5px] font-medium text-slate-500 tracking-tight mt-1 xs:hidden">
+          Billing • Inventory • Customers • Growing Business
+        </p>
+
+        {/* Mobile Dropdown Menu Drawer */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden mt-3 p-4 rounded-2xl bg-white border border-slate-200 shadow-xl space-y-2.5 animate-in fade-in slide-in-from-top-2">
+            <button
+              onClick={scrollToLogin}
+              className="w-full flex items-center justify-between p-2.5 rounded-xl bg-emerald-50/80 text-[#008F91] font-bold text-xs cursor-pointer hover:bg-emerald-100/80 transition-colors text-left"
+            >
+              <div className="flex items-center gap-2">
+                <Lock className="w-4 h-4 text-[#00B887]" />
+                <span>Sign in to Workspace</span>
+              </div>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            <Link
+              href="/register"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-between p-2.5 rounded-xl text-slate-700 hover:bg-slate-50 font-bold text-xs transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <UserPlus className="w-4 h-4 text-[#00B887]" />
+                <span>Register New Business</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </Link>
+
+            <button
+              onClick={scrollToDemo}
+              className="w-full flex items-center justify-between p-2.5 rounded-xl text-slate-700 hover:bg-slate-50 font-bold text-xs cursor-pointer transition-colors text-left"
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#00B887]" />
+                <span>Explore Live Demo Plans</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </button>
+
+            <Link
+              href="/pricing"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-between p-2.5 rounded-xl text-slate-700 hover:bg-slate-50 font-bold text-xs transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-[#00B887]" />
+                <span>Pricing & Plans (Starter, Growth, Scale)</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </Link>
+          </div>
+        )}
+      </header>
 
       {/* ================= HERO TWO-COLUMN EXPERIENCE ================= */}
-      {/* 54% Left Branding / 46% Right Login Card with balanced margins */}
-      <section className="relative w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-6 sm:pt-8 lg:pt-10 pb-6 sm:pb-8 z-10 flex-1 flex flex-col justify-center">
+      {/* Mobile-first layout with 20px padding (px-5), adapting to 12-col layout on desktop */}
+      <section className="relative w-full max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-8 xl:px-12 pt-5 sm:pt-7 lg:pt-9 pb-6 sm:pb-8 z-10 flex-1 flex flex-col justify-center">
 
-        {/* 12-Column Responsive Layout Grid (7 cols left ~55%, 5 cols right ~45%) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 xl:gap-14 items-center relative z-10">
           
-          {/* ================= LEFT SECTION (7 Cols = ~55% width) ================= */}
-          <div className="lg:col-span-7 space-y-3.5 sm:space-y-4 lg:space-y-4.5">
+          {/* ================= LEFT SECTION (Mobile: Full Width | Desktop: 7 Cols ~55%) ================= */}
+          <div className="lg:col-span-7 space-y-4 sm:space-y-4.5">
             
-            {/* 1. Lenden Horizontal Logo & Tagline */}
-            <div className="space-y-0.5">
-              <Link href="/" className="inline-flex items-center group focus:outline-hidden">
-                <img
-                  src="/logo-horizontal.png"
-                  alt="Lenden"
-                  className="h-9 sm:h-10 lg:h-10.5 xl:h-11 w-auto object-contain transition-transform group-hover:scale-[1.01]"
-                  loading="eager"
-                />
-              </Link>
-              <p className="text-xs sm:text-[12.5px] font-medium text-slate-500 tracking-tight pl-0.5">
-                Billing • Inventory • Customers • Growing Business
-              </p>
-            </div>
-
-            {/* 2. Compact Outlined Pill: ALL-IN-ONE BUSINESS MANAGEMENT */}
+            {/* 1. Compact Outlined Pill: ALL-IN-ONE BUSINESS MANAGEMENT */}
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6F7F0] border border-[#A7F3D0] text-[10px] sm:text-[11px] font-bold tracking-wider text-[#008F91] uppercase shadow-2xs">
                 <BarChart2 className="w-3.5 h-3.5 text-[#00B887]" />
@@ -235,7 +340,7 @@ function LoginForm() {
               </div>
             </div>
 
-            {/* 3. Main Headline (Bold, prominent, responsive) */}
+            {/* 2. Main Headline (Bold, prominent, responsive) */}
             <div>
               <h1 className="text-3xl sm:text-4xl lg:text-[46px] xl:text-[52px] font-black tracking-tight leading-[1.06]">
                 <span className="text-[#071F38] block">Har Hisab,</span>
@@ -243,118 +348,176 @@ function LoginForm() {
               </h1>
             </div>
 
-            {/* 4. Supporting Description */}
+            {/* 3. Supporting Description */}
             <p className="text-xs sm:text-sm lg:text-[14.5px] text-slate-600 font-normal leading-relaxed max-w-xl">
               Billing, inventory, customer ledgers and payments — designed for growing Indian businesses.
             </p>
 
-            {/* 5. 2x2 Feature Cards Grid (Equal height, aligned content, pale accent backgrounds) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5 max-w-xl pt-0.5">
+            {/* 4. Quick Mobile CTA Buttons (Mobile only) */}
+            <div className="flex flex-wrap items-center gap-2.5 pt-1 lg:hidden">
+              <button
+                type="button"
+                onClick={scrollToLogin}
+                className="flex-1 min-w-[140px] flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#00B887] text-white font-bold text-xs shadow-md shadow-emerald-500/20 active:scale-[0.98] transition-all cursor-pointer"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Sign In Now</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={scrollToDemo}
+                className="flex-1 min-w-[140px] flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs shadow-2xs active:scale-[0.98] transition-all cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#00B887]" />
+                <span>Try Free Demo</span>
+              </button>
+            </div>
+
+            {/* 5. 4 Equally Styled Feature Cards */}
+            {/* Compact cards with ~18px rounded corners, 48-56px icon container on left, title & desc, chevron */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5 max-w-xl pt-1">
               {/* Card 1: Simple Billing */}
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-start gap-3.5">
-                <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-xl bg-[#E6F7F0] text-[#00B887] border border-[#A7F3D0]/60 flex items-center justify-center shrink-0">
-                  <FileText className="w-5 h-5 text-[#00B887]" />
+              <div className="p-3.5 sm:p-4 rounded-[18px] bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-center justify-between gap-3 group">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="w-12 h-12 rounded-2xl bg-[#E6F7F0] text-[#00B887] border border-[#A7F3D0]/60 flex items-center justify-center shrink-0">
+                    <FileText className="w-5 h-5 text-[#00B887]" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
+                      Simple Billing
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
+                      Create professional invoices in seconds.
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
-                    Simple Billing
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
-                    Create professional invoices in seconds.
-                  </p>
-                </div>
+                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 shrink-0" />
               </div>
 
               {/* Card 2: Udhaar & Payments */}
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-start gap-3.5">
-                <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-xl bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]/60 flex items-center justify-center shrink-0">
-                  <Users className="w-5 h-5 text-[#2563EB]" />
+              <div className="p-3.5 sm:p-4 rounded-[18px] bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-center justify-between gap-3 group">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="w-12 h-12 rounded-2xl bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]/60 flex items-center justify-center shrink-0">
+                    <Users className="w-5 h-5 text-[#2563EB]" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
+                      Udhaar & Payments
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
+                      Track outstanding balances and collections.
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
-                    Udhaar & Payments
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
-                    Track outstanding balances and collections.
-                  </p>
-                </div>
+                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 shrink-0" />
               </div>
 
               {/* Card 3: Inventory Control */}
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-start gap-3.5">
-                <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-xl bg-[#F5F3FF] text-[#7C3AED] border border-[#DDD6FE]/60 flex items-center justify-center shrink-0">
-                  <Package className="w-5 h-5 text-[#7C3AED]" />
+              <div className="p-3.5 sm:p-4 rounded-[18px] bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-center justify-between gap-3 group">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="w-12 h-12 rounded-2xl bg-[#F5F3FF] text-[#7C3AED] border border-[#DDD6FE]/60 flex items-center justify-center shrink-0">
+                    <Package className="w-5 h-5 text-[#7C3AED]" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
+                      Inventory Control
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
+                      Manage stock, purchases and suppliers.
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
-                    Inventory Control
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
-                    Manage stock, purchases and suppliers.
-                  </p>
-                </div>
+                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 shrink-0" />
               </div>
 
               {/* Card 4: Business Insights */}
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-start gap-3.5">
-                <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-xl bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]/60 flex items-center justify-center shrink-0">
-                  <BarChart3 className="w-5 h-5 text-[#D97706]" />
+              <div className="p-3.5 sm:p-4 rounded-[18px] bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-center justify-between gap-3 group">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="w-12 h-12 rounded-2xl bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]/60 flex items-center justify-center shrink-0">
+                    <BarChart3 className="w-5 h-5 text-[#D97706]" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
+                      Business Insights
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
+                      Understand sales, expenses and profit at a glance.
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
-                    Business Insights
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
-                    Understand sales, expenses and profit at a glance.
-                  </p>
-                </div>
+                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 shrink-0" />
               </div>
             </div>
 
-            {/* 6. Built for Growing Indian Businesses (Categories) */}
-            <div className="pt-2 max-w-xl">
+            {/* 6. Built for Growing Indian Businesses (6 Categories in clean 2-column mobile grid) */}
+            <div className="pt-3 max-w-xl">
               {/* Divider with centered title */}
-              <div className="relative flex items-center justify-center mb-2.5">
+              <div className="relative flex items-center justify-center mb-3">
                 <div className="w-full border-t border-slate-200/90" />
                 <span className="absolute px-3 bg-[#F6F9FC] text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   BUILT FOR GROWING INDIAN BUSINESSES
                 </span>
               </div>
 
-              {/* 4 Category Badges */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                <div className="flex flex-col items-center p-1.5 rounded-xl bg-white/70 sm:bg-transparent border border-slate-200/50 sm:border-transparent">
-                  <div className="w-8.5 sm:w-9 h-8.5 sm:h-9 rounded-lg bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1">
-                    <Store className="w-4 h-4 text-[#071F38]" />
+              {/* 6 Categories: Retail, Wholesalers, Restaurants, Manufacturers, Distributors, Service */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 text-center">
+                {/* 1. Retail Stores */}
+                <div className="flex flex-col items-center p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="w-8.5 h-8.5 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-slate-700 mb-1">
+                    <Store className="w-4 h-4 text-[#00B887]" />
                   </div>
-                  <span className="text-[10px] sm:text-[10.5px] font-medium text-slate-700">
+                  <span className="text-[11px] font-semibold text-slate-700 leading-tight">
                     Retail Stores
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center p-1.5 rounded-xl bg-white/70 sm:bg-transparent border border-slate-200/50 sm:border-transparent">
-                  <div className="w-8.5 sm:w-9 h-8.5 sm:h-9 rounded-lg bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1">
-                    <Building2 className="w-4 h-4 text-[#071F38]" />
+                {/* 2. Wholesalers */}
+                <div className="flex flex-col items-center p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="w-8.5 h-8.5 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-slate-700 mb-1">
+                    <Building2 className="w-4 h-4 text-[#2563EB]" />
                   </div>
-                  <span className="text-[10px] sm:text-[10.5px] font-medium text-slate-700">
+                  <span className="text-[11px] font-semibold text-slate-700 leading-tight">
                     Wholesalers
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center p-1.5 rounded-xl bg-white/70 sm:bg-transparent border border-slate-200/50 sm:border-transparent">
-                  <div className="w-8.5 sm:w-9 h-8.5 sm:h-9 rounded-lg bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1">
-                    <Truck className="w-4 h-4 text-[#071F38]" />
+                {/* 3. Restaurants & Cafes */}
+                <div className="flex flex-col items-center p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="w-8.5 h-8.5 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-slate-700 mb-1">
+                    <UtensilsCrossed className="w-4 h-4 text-[#D97706]" />
                   </div>
-                  <span className="text-[10px] sm:text-[10.5px] font-medium text-slate-700">
+                  <span className="text-[11px] font-semibold text-slate-700 leading-tight">
+                    Restaurants & Cafes
+                  </span>
+                </div>
+
+                {/* 4. Manufacturers */}
+                <div className="flex flex-col items-center p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="w-8.5 h-8.5 rounded-lg bg-purple-50 border border-purple-100 flex items-center justify-center text-slate-700 mb-1">
+                    <Factory className="w-4 h-4 text-[#7C3AED]" />
+                  </div>
+                  <span className="text-[11px] font-semibold text-slate-700 leading-tight">
+                    Manufacturers
+                  </span>
+                </div>
+
+                {/* 5. Distributors */}
+                <div className="flex flex-col items-center p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="w-8.5 h-8.5 rounded-lg bg-teal-50 border border-teal-100 flex items-center justify-center text-slate-700 mb-1">
+                    <Truck className="w-4 h-4 text-[#008F91]" />
+                  </div>
+                  <span className="text-[11px] font-semibold text-slate-700 leading-tight">
                     Distributors
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center p-1.5 rounded-xl bg-white/70 sm:bg-transparent border border-slate-200/50 sm:border-transparent">
-                  <div className="w-8.5 sm:w-9 h-8.5 sm:h-9 rounded-lg bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1">
-                    <Briefcase className="w-4 h-4 text-[#071F38]" />
+                {/* 6. Service Businesses */}
+                <div className="flex flex-col items-center p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="w-8.5 h-8.5 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-slate-700 mb-1">
+                    <Briefcase className="w-4 h-4 text-[#4F46E5]" />
                   </div>
-                  <span className="text-[10px] sm:text-[10.5px] font-medium text-slate-700">
+                  <span className="text-[11px] font-semibold text-slate-700 leading-tight">
                     Service Businesses
                   </span>
                 </div>
@@ -363,8 +526,8 @@ function LoginForm() {
 
           </div>
 
-          {/* ================= RIGHT SECTION (5 Cols = ~45% width) ================= */}
-          <div className="lg:col-span-5 flex justify-center lg:justify-end relative">
+          {/* ================= RIGHT SECTION (Mobile: Below left | Desktop: 5 Cols ~45%) ================= */}
+          <div className="lg:col-span-5 flex justify-center lg:justify-end relative mt-4 lg:mt-0" id="login-card">
             
             {/* Desktop Accents Anchored to Login Card */}
             
@@ -411,8 +574,8 @@ function LoginForm() {
               </svg>
             </div>
 
-            {/* White Floating Login Card (Proportionate, clean, premium) */}
-            <div className="w-full max-w-[420px] sm:max-w-[440px] lg:max-w-[460px] xl:max-w-[475px] bg-white rounded-3xl p-6 sm:p-7 lg:p-8 shadow-[0_20px_50px_-10px_rgba(7,31,56,0.08)] border border-slate-100 relative z-10">
+            {/* White Floating Login Card (Proportionate, clean, premium on both mobile and desktop) */}
+            <div className="w-full max-w-[420px] sm:max-w-[440px] lg:max-w-[460px] xl:max-w-[475px] bg-white rounded-3xl p-5 sm:p-7 lg:p-8 shadow-[0_20px_50px_-10px_rgba(7,31,56,0.08)] border border-slate-100 relative z-10">
               
               {/* Top: Actual Lenden Horizontal Logo Centered */}
               <div className="flex justify-center mb-3">
@@ -533,7 +696,7 @@ function LoginForm() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl shadow-md shadow-emerald-500/20 text-xs sm:text-sm font-bold text-white bg-[#00B887] hover:bg-[#009E74] focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-[#00B887] transition-all disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed mt-1.5"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl shadow-md shadow-emerald-500/20 text-xs sm:text-sm font-bold text-white bg-[#00B887] hover:bg-[#009E74] focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-[#00B887] transition-all disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed mt-1.5 active:scale-[0.99]"
                 >
                   {loading ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -557,7 +720,7 @@ function LoginForm() {
               {/* Outlined Green Button: Register your business */}
               <Link
                 href="/register"
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border-2 border-[#00B887] text-[#00B887] hover:bg-emerald-50/70 font-bold text-xs sm:text-sm transition-all text-center cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border-2 border-[#00B887] text-[#00B887] hover:bg-emerald-50/70 font-bold text-xs sm:text-sm transition-all text-center cursor-pointer active:scale-[0.99]"
               >
                 <UserPlus className="w-4 h-4" />
                 <span>Register your business</span>
@@ -571,21 +734,21 @@ function LoginForm() {
               {/* Trust Indicators at Bottom of Card */}
               <div className="mt-4 pt-3.5 border-t border-slate-100 grid grid-cols-3 gap-1.5 text-center">
                 <div className="flex flex-col items-center">
-                  <ShieldCheck className="w-4 h-4 text-[#00B887] mb-1" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#00B887] mb-1" />
                   <span className="text-[9.5px] sm:text-[10px] font-medium text-slate-600 leading-tight">
                     Secure &<br />Encrypted
                   </span>
                 </div>
 
                 <div className="flex flex-col items-center border-x border-slate-100 px-1">
-                  <Lock className="w-4 h-4 text-[#00B887] mb-1" />
+                  <Lock className="w-3.5 h-3.5 text-[#00B887] mb-1" />
                   <span className="text-[9.5px] sm:text-[10px] font-medium text-slate-600 leading-tight">
                     Your Data<br />Stays Private
                   </span>
                 </div>
 
                 <div className="flex flex-col items-center">
-                  <Users className="w-4 h-4 text-[#00B887] mb-1" />
+                  <Users className="w-3.5 h-3.5 text-[#00B887] mb-1" />
                   <span className="text-[9.5px] sm:text-[10px] font-medium text-slate-600 leading-tight">
                     Built for<br />Indian Businesses
                   </span>
@@ -608,9 +771,78 @@ function LoginForm() {
         </div>
       </section>
 
+      {/* ================= COMPACT "EVERYTHING IN ONE PLACE" BENEFITS SECTION ================= */}
+      <section className="w-full max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-8 xl:px-12 py-8 sm:py-10 border-t border-slate-200/90 relative z-10">
+        <div className="text-center max-w-xl mx-auto mb-6">
+          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#008F91] bg-[#E6F7F0] px-3 py-1 rounded-full border border-[#A7F3D0]">
+            POWERFUL FEATURES • ZERO COMPLEXITY
+          </span>
+          <h2 className="text-xl sm:text-2xl font-black text-[#071F38] tracking-tight mt-2.5">
+            Everything in One Place
+          </h2>
+          <p className="text-xs sm:text-[13px] text-slate-500 mt-1">
+            Replace multiple notebooks, complex spreadsheets, and expensive software with one easy app.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Benefit 1 */}
+          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#00B887] border border-emerald-100 flex items-center justify-center shrink-0">
+              <Zap className="w-4.5 h-4.5 text-[#00B887]" />
+            </div>
+            <div>
+              <h4 className="font-bold text-xs text-[#071F38]">10-Second Billing</h4>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                GST & non-GST professional invoices printed or shared in seconds.
+              </p>
+            </div>
+          </div>
+
+          {/* Benefit 2 */}
+          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#2563EB] border border-blue-100 flex items-center justify-center shrink-0">
+              <MessageSquare className="w-4.5 h-4.5 text-[#2563EB]" />
+            </div>
+            <div>
+              <h4 className="font-bold text-xs text-[#071F38]">WhatsApp Invoices</h4>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                Send invoice PDFs & automated payment reminders on customer WhatsApp.
+              </p>
+            </div>
+          </div>
+
+          {/* Benefit 3 */}
+          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100 flex items-center justify-center shrink-0">
+              <Clock className="w-4.5 h-4.5 text-[#7C3AED]" />
+            </div>
+            <div>
+              <h4 className="font-bold text-xs text-[#071F38]">Live Udhaar Tracker</h4>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                Never lose track of who owes you with automated digital khata.
+              </p>
+            </div>
+          </div>
+
+          {/* Benefit 4 */}
+          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-teal-50 text-[#008F91] border border-teal-100 flex items-center justify-center shrink-0">
+              <Smartphone className="w-4.5 h-4.5 text-[#008F91]" />
+            </div>
+            <div>
+              <h4 className="font-bold text-xs text-[#071F38]">Mobile & Web Sync</h4>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                Access your shop data from your phone, tablet or desktop computer anytime.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ================= EXPLORE DEMO WORKSPACES SECTION ================= */}
       {/* Placed clearly beneath the main login experience with 3 isolated plans */}
-      <section className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-10 sm:py-12 border-t border-slate-200/90 relative z-10">
+      <section className="w-full max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-8 xl:px-12 py-8 sm:py-12 border-t border-slate-200/90 relative z-10" id="demo-section">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/90 text-[10.5px] font-bold text-[#00B887] uppercase tracking-wider mb-2">
@@ -635,9 +867,9 @@ function LoginForm() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
           {/* Card A: Starter Demo */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[10.5px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
@@ -675,12 +907,12 @@ function LoginForm() {
               </div>
             </div>
 
-            <div className="mt-6 pt-1">
+            <div className="mt-5 pt-1">
               <button
                 type="button"
                 onClick={() => handleEnterDemo('STARTER')}
                 disabled={demoLoading !== null}
-                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50 active:scale-[0.99]"
               >
                 {demoLoading === 'STARTER' ? (
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -695,7 +927,7 @@ function LoginForm() {
           </div>
 
           {/* Card B: Growth Demo (Recommended) */}
-          <div className="bg-white rounded-2xl p-6 border-2 border-[#00B887] shadow-lg shadow-emerald-500/10 flex flex-col justify-between transition-all relative">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border-2 border-[#00B887] shadow-lg shadow-emerald-500/10 flex flex-col justify-between transition-all relative">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#00B887] text-white px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-2xs">
               Recommended
             </div>
@@ -737,12 +969,12 @@ function LoginForm() {
               </div>
             </div>
 
-            <div className="mt-6 pt-1">
+            <div className="mt-5 pt-1">
               <button
                 type="button"
                 onClick={() => handleEnterDemo('GROWTH')}
                 disabled={demoLoading !== null}
-                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-[#00B887] hover:bg-[#009E74] text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-500/20 transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-[#00B887] hover:bg-[#009E74] text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-500/20 transition-all cursor-pointer disabled:opacity-50 active:scale-[0.99]"
               >
                 {demoLoading === 'GROWTH' ? (
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -757,7 +989,7 @@ function LoginForm() {
           </div>
 
           {/* Card C: Scale Demo */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[10.5px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded border border-purple-200">
@@ -795,12 +1027,12 @@ function LoginForm() {
               </div>
             </div>
 
-            <div className="mt-6 pt-1">
+            <div className="mt-5 pt-1">
               <button
                 type="button"
                 onClick={() => handleEnterDemo('SCALE')}
                 disabled={demoLoading !== null}
-                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50 active:scale-[0.99]"
               >
                 {demoLoading === 'SCALE' ? (
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -817,28 +1049,42 @@ function LoginForm() {
       </section>
 
       {/* ================= PAGE FOOTER ================= */}
-      <footer className="w-full border-t border-slate-200/90 bg-white/80 backdrop-blur-xs py-4 px-4 sm:px-6 lg:px-8 relative z-10 mt-auto">
-        <div className="max-w-[1280px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-[#071F38]">Lenden</span>
-            <span>•</span>
-            <span className="text-slate-500">Billing, Inventory & Business Management for Indian Businesses</span>
+      <footer className="w-full border-t border-slate-200/90 bg-white/80 backdrop-blur-xs py-5 px-5 sm:px-6 lg:px-8 relative z-10 mt-auto">
+        <div className="max-w-[1280px] mx-auto space-y-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <span className="font-bold text-[#071F38]">Lenden</span>
+              <span>•</span>
+              <span className="text-slate-500">Billing, Inventory & Business Management for India</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-[11.5px] sm:text-xs font-medium text-slate-500">
+                Developed by -
+              </span>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all">
+                <img
+                  src="/aadvik-solutions-logo.png"
+                  alt="Aadvik Solutions"
+                  className="h-5 sm:h-5.5 w-auto object-contain rounded-xs"
+                />
+                <span className="font-bold text-[#071F38] text-xs tracking-tight">
+                  Aadvik Solutions
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-[11.5px] sm:text-xs font-medium text-slate-500">
-              Developed by -
-            </span>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all">
-              <img
-                src="/aadvik-solutions-logo.png"
-                alt="Aadvik Solutions"
-                className="h-5 sm:h-5.5 w-auto object-contain rounded-xs"
-              />
-              <span className="font-bold text-[#071F38] text-xs tracking-tight">
-                Aadvik Solutions
-              </span>
-            </div>
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+            <Link href="/pricing" className="hover:text-slate-600 transition-colors">Pricing</Link>
+            <span>•</span>
+            <button onClick={scrollToDemo} className="hover:text-slate-600 transition-colors cursor-pointer">Live Demo</button>
+            <span>•</span>
+            <Link href="/register" className="hover:text-slate-600 transition-colors">Register Business</Link>
+            <span>•</span>
+            <button onClick={() => setShowForgotModal(true)} className="hover:text-slate-600 transition-colors cursor-pointer">Support</button>
+            <span>•</span>
+            <span>© {new Date().getFullYear()} Lenden. All rights reserved.</span>
           </div>
         </div>
       </footer>
@@ -855,7 +1101,7 @@ function LoginForm() {
               <button
                 type="button"
                 onClick={() => setShowForgotModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -878,7 +1124,7 @@ function LoginForm() {
               <button
                 type="button"
                 onClick={() => setShowForgotModal(false)}
-                className="px-3.5 py-1.5 bg-[#071F38] text-white rounded-xl text-xs font-semibold hover:bg-[#0D2C4D] transition-colors"
+                className="px-3.5 py-1.5 bg-[#071F38] text-white rounded-xl text-xs font-semibold hover:bg-[#0D2C4D] transition-colors cursor-pointer"
               >
                 Understood
               </button>
