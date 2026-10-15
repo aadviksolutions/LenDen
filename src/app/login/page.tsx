@@ -103,7 +103,7 @@ function LoginForm() {
       {/* ================= BACKGROUND DECORATIVE ELEMENTS ================= */}
 
       {/* Top-Right Restrained Abstract Curved Waves (Teal & Emerald ribbons) */}
-      <div className="absolute top-0 right-0 w-[380px] sm:w-[480px] md:w-[580px] lg:w-[680px] xl:w-[740px] h-[440px] sm:h-[540px] lg:h-[680px] pointer-events-none overflow-hidden z-0 select-none">
+      <div className="absolute top-0 right-0 w-[420px] sm:w-[520px] md:w-[620px] lg:w-[720px] xl:w-[780px] h-[480px] sm:h-[580px] lg:h-[720px] pointer-events-none overflow-hidden z-0 select-none">
         <svg
           viewBox="0 0 500 700"
           className="w-full h-full object-cover object-top-right"
@@ -147,7 +147,7 @@ function LoginForm() {
       </div>
 
       {/* Bottom-Left Organic Botanical Leaves Motif (Anchored directly to bottom-left corner of page) */}
-      <div className="absolute bottom-0 left-0 w-44 sm:w-56 md:w-68 lg:w-76 xl:w-84 h-44 sm:h-56 md:h-68 lg:h-76 xl:h-84 pointer-events-none z-0 select-none opacity-90 sm:opacity-100">
+      <div className="absolute bottom-0 left-0 w-48 sm:w-60 md:w-72 lg:w-80 xl:w-92 h-48 sm:h-60 md:h-72 lg:h-80 xl:h-92 pointer-events-none z-0 select-none opacity-90 sm:opacity-100">
         <svg viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
           {/* Deep Forest Green Base Leaf */}
           <path
@@ -197,20 +197,20 @@ function LoginForm() {
       </div>
 
       {/* Soft Ambient Left Corner Glow */}
-      <div className="absolute bottom-0 left-0 w-[420px] h-[420px] rounded-full bg-gradient-to-tr from-[#00B887]/8 via-[#008F91]/4 to-transparent blur-3xl pointer-events-none z-0" />
+      <div className="absolute bottom-0 left-0 w-[440px] h-[440px] rounded-full bg-gradient-to-tr from-[#00B887]/8 via-[#008F91]/4 to-transparent blur-3xl pointer-events-none z-0" />
 
       {/* Mid-Background Soft Radial Glow Behind Form Card */}
-      <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-[480px] h-[480px] rounded-full bg-gradient-to-tr from-[#00B887]/8 via-[#008F91]/5 to-transparent blur-3xl pointer-events-none z-0" />
+      <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-[520px] h-[520px] rounded-full bg-gradient-to-tr from-[#00B887]/8 via-[#008F91]/5 to-transparent blur-3xl pointer-events-none z-0" />
 
       {/* ================= HERO TWO-COLUMN EXPERIENCE ================= */}
-      {/* Refined, compact, and balanced proportions - no oversized elements, no dead space */}
-      <section className="relative w-full max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 pt-4 sm:pt-6 lg:pt-8 pb-4 sm:pb-6 z-10 flex-1 flex flex-col justify-center">
+      {/* 54% Left Branding / 46% Right Login Card with balanced margins */}
+      <section className="relative w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-6 sm:pt-8 lg:pt-10 pb-6 sm:pb-8 z-10 flex-1 flex flex-col justify-center">
 
-        {/* 12-Column Layout Grid with Balanced 7/5 Proportions */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-12 items-center relative z-10">
+        {/* 12-Column Responsive Layout Grid (7 cols left ~55%, 5 cols right ~45%) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 xl:gap-14 items-center relative z-10">
           
-          {/* ================= LEFT SECTION (7 Cols = ~58% width) ================= */}
-          <div className="lg:col-span-7 space-y-3 sm:space-y-3.5 lg:space-y-4">
+          {/* ================= LEFT SECTION (7 Cols = ~55% width) ================= */}
+          <div className="lg:col-span-7 space-y-3.5 sm:space-y-4 lg:space-y-4.5">
             
             {/* 1. Lenden Horizontal Logo & Tagline */}
             <div className="space-y-0.5">
@@ -218,45 +218,45 @@ function LoginForm() {
                 <img
                   src="/logo-horizontal.png"
                   alt="Lenden"
-                  className="h-8 sm:h-9 lg:h-9.5 xl:h-10 w-auto object-contain transition-transform group-hover:scale-[1.01]"
+                  className="h-9 sm:h-10 lg:h-10.5 xl:h-11 w-auto object-contain transition-transform group-hover:scale-[1.01]"
                   loading="eager"
                 />
               </Link>
-              <p className="text-[11.5px] sm:text-xs font-medium text-slate-500 tracking-tight pl-0.5">
+              <p className="text-xs sm:text-[12.5px] font-medium text-slate-500 tracking-tight pl-0.5">
                 Billing • Inventory • Customers • Growing Business
               </p>
             </div>
 
             {/* 2. Compact Outlined Pill: ALL-IN-ONE BUSINESS MANAGEMENT */}
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F7F0] border border-[#A7F3D0] text-[10px] sm:text-[10.5px] font-bold tracking-wider text-[#008F91] uppercase shadow-2xs">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6F7F0] border border-[#A7F3D0] text-[10px] sm:text-[11px] font-bold tracking-wider text-[#008F91] uppercase shadow-2xs">
                 <BarChart2 className="w-3.5 h-3.5 text-[#00B887]" />
                 <span>ALL-IN-ONE BUSINESS MANAGEMENT</span>
               </div>
             </div>
 
-            {/* 3. Main Headline (Refined, compact, elegant - not giant/bada) */}
+            {/* 3. Main Headline (Bold, prominent, responsive) */}
             <div>
-              <h1 className="text-3xl sm:text-4xl lg:text-[40px] xl:text-[44px] font-black tracking-tight leading-[1.08]">
+              <h1 className="text-3xl sm:text-4xl lg:text-[46px] xl:text-[52px] font-black tracking-tight leading-[1.06]">
                 <span className="text-[#071F38] block">Har Hisab,</span>
                 <span className="text-[#00B887] block">Ab Aasaan.</span>
               </h1>
             </div>
 
             {/* 4. Supporting Description */}
-            <p className="text-xs sm:text-[13.5px] text-slate-600 font-normal leading-relaxed max-w-lg">
+            <p className="text-xs sm:text-sm lg:text-[14.5px] text-slate-600 font-normal leading-relaxed max-w-xl">
               Billing, inventory, customer ledgers and payments — designed for growing Indian businesses.
             </p>
 
-            {/* 5. 2x2 Feature Cards Grid (Compact, neat, and elegant) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 max-w-xl pt-0.5">
+            {/* 5. 2x2 Feature Cards Grid (Equal height, aligned content, pale accent backgrounds) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5 max-w-xl pt-0.5">
               {/* Card 1: Simple Billing */}
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-start gap-3">
-                <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-[#E6F7F0] text-[#00B887] border border-[#A7F3D0]/60 flex items-center justify-center shrink-0">
-                  <FileText className="w-4.5 sm:w-5 h-4.5 sm:h-5 text-[#00B887]" />
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-start gap-3.5">
+                <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-xl bg-[#E6F7F0] text-[#00B887] border border-[#A7F3D0]/60 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-[#00B887]" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-xs sm:text-[13.5px] text-[#071F38] leading-tight">
+                  <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
                     Simple Billing
                   </h3>
                   <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
@@ -266,12 +266,12 @@ function LoginForm() {
               </div>
 
               {/* Card 2: Udhaar & Payments */}
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-start gap-3">
-                <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]/60 flex items-center justify-center shrink-0">
-                  <Users className="w-4.5 sm:w-5 h-4.5 sm:h-5 text-[#2563EB]" />
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-start gap-3.5">
+                <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-xl bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]/60 flex items-center justify-center shrink-0">
+                  <Users className="w-5 h-5 text-[#2563EB]" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-xs sm:text-[13.5px] text-[#071F38] leading-tight">
+                  <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
                     Udhaar & Payments
                   </h3>
                   <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
@@ -281,12 +281,12 @@ function LoginForm() {
               </div>
 
               {/* Card 3: Inventory Control */}
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-start gap-3">
-                <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-[#F5F3FF] text-[#7C3AED] border border-[#DDD6FE]/60 flex items-center justify-center shrink-0">
-                  <Package className="w-4.5 sm:w-5 h-4.5 sm:h-5 text-[#7C3AED]" />
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-start gap-3.5">
+                <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-xl bg-[#F5F3FF] text-[#7C3AED] border border-[#DDD6FE]/60 flex items-center justify-center shrink-0">
+                  <Package className="w-5 h-5 text-[#7C3AED]" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-xs sm:text-[13.5px] text-[#071F38] leading-tight">
+                  <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
                     Inventory Control
                   </h3>
                   <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
@@ -296,12 +296,12 @@ function LoginForm() {
               </div>
 
               {/* Card 4: Business Insights */}
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-start gap-3">
-                <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]/60 flex items-center justify-center shrink-0">
-                  <BarChart3 className="w-4.5 sm:w-5 h-4.5 sm:h-5 text-[#D97706]" />
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-start gap-3.5">
+                <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-xl bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]/60 flex items-center justify-center shrink-0">
+                  <BarChart3 className="w-5 h-5 text-[#D97706]" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-xs sm:text-[13.5px] text-[#071F38] leading-tight">
+                  <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
                     Business Insights
                   </h3>
                   <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
@@ -312,7 +312,7 @@ function LoginForm() {
             </div>
 
             {/* 6. Built for Growing Indian Businesses (Categories) */}
-            <div className="pt-1.5 max-w-xl">
+            <div className="pt-2 max-w-xl">
               {/* Divider with centered title */}
               <div className="relative flex items-center justify-center mb-2.5">
                 <div className="w-full border-t border-slate-200/90" />
@@ -324,7 +324,7 @@ function LoginForm() {
               {/* 4 Category Badges */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                 <div className="flex flex-col items-center p-1.5 rounded-xl bg-white/70 sm:bg-transparent border border-slate-200/50 sm:border-transparent">
-                  <div className="w-8 sm:w-8.5 h-8 sm:h-8.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1">
+                  <div className="w-8.5 sm:w-9 h-8.5 sm:h-9 rounded-lg bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1">
                     <Store className="w-4 h-4 text-[#071F38]" />
                   </div>
                   <span className="text-[10px] sm:text-[10.5px] font-medium text-slate-700">
@@ -333,7 +333,7 @@ function LoginForm() {
                 </div>
 
                 <div className="flex flex-col items-center p-1.5 rounded-xl bg-white/70 sm:bg-transparent border border-slate-200/50 sm:border-transparent">
-                  <div className="w-8 sm:w-8.5 h-8 sm:h-8.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1">
+                  <div className="w-8.5 sm:w-9 h-8.5 sm:h-9 rounded-lg bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1">
                     <Building2 className="w-4 h-4 text-[#071F38]" />
                   </div>
                   <span className="text-[10px] sm:text-[10.5px] font-medium text-slate-700">
@@ -342,7 +342,7 @@ function LoginForm() {
                 </div>
 
                 <div className="flex flex-col items-center p-1.5 rounded-xl bg-white/70 sm:bg-transparent border border-slate-200/50 sm:border-transparent">
-                  <div className="w-8 sm:w-8.5 h-8 sm:h-8.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1">
+                  <div className="w-8.5 sm:w-9 h-8.5 sm:h-9 rounded-lg bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1">
                     <Truck className="w-4 h-4 text-[#071F38]" />
                   </div>
                   <span className="text-[10px] sm:text-[10.5px] font-medium text-slate-700">
@@ -351,7 +351,7 @@ function LoginForm() {
                 </div>
 
                 <div className="flex flex-col items-center p-1.5 rounded-xl bg-white/70 sm:bg-transparent border border-slate-200/50 sm:border-transparent">
-                  <div className="w-8 sm:w-8.5 h-8 sm:h-8.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1">
+                  <div className="w-8.5 sm:w-9 h-8.5 sm:h-9 rounded-lg bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 mb-1">
                     <Briefcase className="w-4 h-4 text-[#071F38]" />
                   </div>
                   <span className="text-[10px] sm:text-[10.5px] font-medium text-slate-700">
@@ -363,13 +363,13 @@ function LoginForm() {
 
           </div>
 
-          {/* ================= RIGHT SECTION (5 Cols = ~42% width) ================= */}
+          {/* ================= RIGHT SECTION (5 Cols = ~45% width) ================= */}
           <div className="lg:col-span-5 flex justify-center lg:justify-end relative">
             
             {/* Desktop Accents Anchored to Login Card */}
             
             {/* 1. Dot Grid Matrix (Top-Right Shoulder of Card) */}
-            <div className="absolute -top-10 -right-2 sm:-right-4 w-20 h-20 pointer-events-none opacity-30 z-0 hidden lg:block select-none">
+            <div className="absolute -top-11 -right-2 sm:-right-4 w-22 h-22 pointer-events-none opacity-30 z-0 hidden lg:block select-none">
               <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                 <pattern id="card-dot-grid" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
                   <circle cx="2" cy="2" r="1.25" fill="#008F91" />
@@ -411,49 +411,49 @@ function LoginForm() {
               </svg>
             </div>
 
-            {/* White Floating Login Card (Compact, crisp, modern) */}
-            <div className="w-full max-w-[370px] sm:max-w-[390px] lg:max-w-[405px] bg-white rounded-3xl p-5 sm:p-6 lg:p-7 shadow-[0_16px_45px_-10px_rgba(7,31,56,0.08)] border border-slate-100 relative z-10">
+            {/* White Floating Login Card (Proportionate, clean, premium) */}
+            <div className="w-full max-w-[420px] sm:max-w-[440px] lg:max-w-[460px] xl:max-w-[475px] bg-white rounded-3xl p-6 sm:p-7 lg:p-8 shadow-[0_20px_50px_-10px_rgba(7,31,56,0.08)] border border-slate-100 relative z-10">
               
               {/* Top: Actual Lenden Horizontal Logo Centered */}
-              <div className="flex justify-center mb-2.5">
+              <div className="flex justify-center mb-3">
                 <img
                   src="/logo-horizontal.png"
                   alt="Lenden"
-                  className="h-8 sm:h-8.5 w-auto object-contain"
+                  className="h-8.5 sm:h-9 w-auto object-contain"
                 />
               </div>
 
               {/* Heading & Subtitle */}
-              <div className="text-center mb-4 sm:mb-4.5">
-                <h2 className="text-xl sm:text-[22px] font-black tracking-tight text-[#071F38]">
+              <div className="text-center mb-4 sm:mb-5">
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-[#071F38]">
                   Welcome back
                 </h2>
-                <p className="text-[11.5px] sm:text-xs text-slate-500 mt-0.5 font-normal">
+                <p className="text-xs sm:text-[12.5px] text-slate-500 mt-0.5 font-normal">
                   Sign in to continue to your Lenden workspace.
                 </p>
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="mb-3.5 p-2.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2 text-rose-800 text-[11px] animate-in fade-in">
-                  <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                <div className="mb-3.5 p-2.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2 text-rose-800 text-xs animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                   <span className="leading-tight">{error}</span>
                 </div>
               )}
 
               {/* Login Form */}
-              <form className="space-y-3" onSubmit={handleSubmit}>
+              <form className="space-y-3.5" onSubmit={handleSubmit}>
                 {/* Email Address Field */}
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-[11px] font-bold text-slate-700 mb-1"
+                    className="block text-xs font-bold text-slate-700 mb-1"
                   >
                     Email address
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <Mail className="h-3.5 w-3.5" />
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <Mail className="h-4 w-4" />
                     </div>
                     <input
                       id="email"
@@ -464,7 +464,7 @@ function LoginForm() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@yourbusiness.com"
-                      className="block w-full pl-9 pr-3 py-2 text-xs sm:text-[13px] bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#00B887]/30 focus:border-[#00B887] transition-all"
+                      className="block w-full pl-10 pr-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#00B887]/30 focus:border-[#00B887] transition-all"
                     />
                   </div>
                 </div>
@@ -473,13 +473,13 @@ function LoginForm() {
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-[11px] font-bold text-slate-700 mb-1"
+                    className="block text-xs font-bold text-slate-700 mb-1"
                   >
                     Password
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <Lock className="h-3.5 w-3.5" />
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <Lock className="h-4 w-4" />
                     </div>
                     <input
                       id="password"
@@ -490,26 +490,26 @@ function LoginForm() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
-                      className="block w-full pl-9 pr-9 py-2 text-xs sm:text-[13px] bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#00B887]/30 focus:border-[#00B887] transition-all"
+                      className="block w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#00B887]/30 focus:border-[#00B887] transition-all"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
                       title={showPassword ? 'Hide password' : 'Show password'}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? (
-                        <EyeOff className="h-3.5 w-3.5" />
+                        <EyeOff className="h-4 w-4" />
                       ) : (
-                        <Eye className="h-3.5 w-3.5" />
+                        <Eye className="h-4 w-4" />
                       )}
                     </button>
                   </div>
                 </div>
 
                 {/* Remember Me & Forgot Password Row */}
-                <div className="flex items-center justify-between text-[11px] pt-0.5">
+                <div className="flex items-center justify-between text-xs pt-0.5">
                   <label className="flex items-center gap-1.5 cursor-pointer select-none text-slate-600">
                     <input
                       type="checkbox"
@@ -523,7 +523,7 @@ function LoginForm() {
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(true)}
-                    className="text-[11px] font-bold text-[#00B887] hover:underline cursor-pointer"
+                    className="text-xs font-bold text-[#00B887] hover:underline cursor-pointer"
                   >
                     Forgot password?
                   </button>
@@ -533,23 +533,23 @@ function LoginForm() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl shadow-md shadow-emerald-500/20 text-xs sm:text-[13px] font-bold text-white bg-[#00B887] hover:bg-[#009E74] focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-[#00B887] transition-all disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed mt-1.5"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl shadow-md shadow-emerald-500/20 text-xs sm:text-sm font-bold text-white bg-[#00B887] hover:bg-[#009E74] focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-[#00B887] transition-all disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed mt-1.5"
                 >
                   {loading ? (
-                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
                     <>
                       <span>Sign In</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </button>
               </form>
 
               {/* OR Divider */}
-              <div className="relative flex items-center justify-center my-3">
+              <div className="relative flex items-center justify-center my-3.5">
                 <div className="w-full border-t border-slate-200" />
-                <span className="absolute px-2.5 bg-white text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="absolute px-2.5 bg-white text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">
                   OR
                 </span>
               </div>
@@ -557,39 +557,50 @@ function LoginForm() {
               {/* Outlined Green Button: Register your business */}
               <Link
                 href="/register"
-                className="w-full flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl border-2 border-[#00B887] text-[#00B887] hover:bg-emerald-50/70 font-bold text-xs sm:text-[13px] transition-all text-center cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border-2 border-[#00B887] text-[#00B887] hover:bg-emerald-50/70 font-bold text-xs sm:text-sm transition-all text-center cursor-pointer"
               >
-                <UserPlus className="w-3.5 h-3.5" />
+                <UserPlus className="w-4 h-4" />
                 <span>Register your business</span>
               </Link>
 
               {/* Supporting Text */}
-              <p className="text-[10px] sm:text-[10.5px] text-slate-400 text-center mt-2 leading-relaxed">
+              <p className="text-[10.5px] sm:text-[11px] text-slate-400 text-center mt-2 leading-relaxed">
                 New to Lenden? Start your free trial and manage your business with ease.
               </p>
 
               {/* Trust Indicators at Bottom of Card */}
               <div className="mt-4 pt-3.5 border-t border-slate-100 grid grid-cols-3 gap-1.5 text-center">
                 <div className="flex flex-col items-center">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#00B887] mb-1" />
-                  <span className="text-[9.5px] font-medium text-slate-600 leading-tight">
+                  <ShieldCheck className="w-4 h-4 text-[#00B887] mb-1" />
+                  <span className="text-[9.5px] sm:text-[10px] font-medium text-slate-600 leading-tight">
                     Secure &<br />Encrypted
                   </span>
                 </div>
 
                 <div className="flex flex-col items-center border-x border-slate-100 px-1">
-                  <Lock className="w-3.5 h-3.5 text-[#00B887] mb-1" />
-                  <span className="text-[9.5px] font-medium text-slate-600 leading-tight">
+                  <Lock className="w-4 h-4 text-[#00B887] mb-1" />
+                  <span className="text-[9.5px] sm:text-[10px] font-medium text-slate-600 leading-tight">
                     Your Data<br />Stays Private
                   </span>
                 </div>
 
                 <div className="flex flex-col items-center">
-                  <Users className="w-3.5 h-3.5 text-[#00B887] mb-1" />
-                  <span className="text-[9.5px] font-medium text-slate-600 leading-tight">
+                  <Users className="w-4 h-4 text-[#00B887] mb-1" />
+                  <span className="text-[9.5px] sm:text-[10px] font-medium text-slate-600 leading-tight">
                     Built for<br />Indian Businesses
                   </span>
                 </div>
+              </div>
+
+              {/* Developed by Aadvik Solutions Attribution */}
+              <div className="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-center gap-1.5 text-[10.5px] text-slate-500">
+                <span>Developed by -</span>
+                <span className="font-bold text-[#071F38]">Aadvik Solutions</span>
+                <img
+                  src="/aadvik-solutions-logo.png"
+                  alt="Aadvik Solutions"
+                  className="h-4.5 w-auto object-contain inline-block rounded-xs"
+                />
               </div>
 
             </div>
@@ -598,17 +609,18 @@ function LoginForm() {
       </section>
 
       {/* ================= EXPLORE DEMO WORKSPACES SECTION ================= */}
-      <section className="w-full max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-8 sm:py-10 border-t border-slate-200/90 relative z-10">
+      {/* Placed clearly beneath the main login experience with 3 isolated plans */}
+      <section className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-10 sm:py-12 border-t border-slate-200/90 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/90 text-[10px] font-bold text-[#00B887] uppercase tracking-wider mb-1.5">
-              <Sparkles className="w-3 h-3 text-[#00B887]" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/90 text-[10.5px] font-bold text-[#00B887] uppercase tracking-wider mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-[#00B887]" />
               <span>INSTANT EVALUATION • NO REGISTRATION REQUIRED</span>
             </div>
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-black text-[#071F38] tracking-tight">
-              Explore Lenden Live Demo
+            <h2 className="text-xl sm:text-2xl font-black text-[#071F38] tracking-tight">
+              Explore Lenden Demo
             </h2>
-            <p className="text-xs text-slate-500 mt-1 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-[13px] text-slate-500 mt-1 max-w-xl leading-relaxed">
               Test each plan separately in its own isolated demo workspace pre-populated with realistic
               sample data. Zero payment, zero risk.
             </p>
@@ -616,34 +628,34 @@ function LoginForm() {
 
           <Link
             href="/pricing"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#008F91] hover:text-[#00B887] transition-colors self-start md:self-auto bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs hover:shadow-xs"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#008F91] hover:text-[#00B887] transition-colors self-start md:self-auto bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-xs"
           >
             <span>View Full Pricing & Plans</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Card A: Explore Starter */}
-          <div className="bg-white rounded-2xl p-5 sm:p-5.5 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card A: Starter Demo */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                <span className="text-[10.5px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
                   Starter Plan
                 </span>
-                <span className="text-[11px] text-slate-400 font-semibold">1 User • 1 Location</span>
+                <span className="text-xs text-slate-400 font-semibold">1 User • 1 Location</span>
               </div>
 
-              <div className="mt-3 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-[#071F38]">₹199</span>
+              <div className="mt-3.5 flex items-baseline gap-1">
+                <span className="text-2xl sm:text-3xl font-black text-[#071F38]">₹199</span>
                 <span className="text-xs text-slate-500 font-semibold">/ month</span>
               </div>
 
-              <p className="text-xs text-slate-500 mt-1.5 min-h-[32px] leading-relaxed">
+              <p className="text-xs text-slate-500 mt-2 min-h-[32px] leading-relaxed">
                 Single-counter billing, customer ledger & udhaar tracking for solo shop owners.
               </p>
 
-              <div className="mt-3.5 pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
                 <div className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
                   <span>Unlimited Invoices & GST Bills</span>
@@ -663,12 +675,12 @@ function LoginForm() {
               </div>
             </div>
 
-            <div className="mt-5 pt-1">
+            <div className="mt-6 pt-1">
               <button
                 type="button"
                 onClick={() => handleEnterDemo('STARTER')}
                 disabled={demoLoading !== null}
-                className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
               >
                 {demoLoading === 'STARTER' ? (
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -682,30 +694,30 @@ function LoginForm() {
             </div>
           </div>
 
-          {/* Card B: Explore Growth (Recommended) */}
-          <div className="bg-white rounded-2xl p-5 sm:p-5.5 border-2 border-[#00B887] shadow-lg shadow-emerald-500/10 flex flex-col justify-between transition-all relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#00B887] text-white px-3 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider shadow-2xs">
+          {/* Card B: Growth Demo (Recommended) */}
+          <div className="bg-white rounded-2xl p-6 border-2 border-[#00B887] shadow-lg shadow-emerald-500/10 flex flex-col justify-between transition-all relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#00B887] text-white px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-2xs">
               Recommended
             </div>
 
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <span className="text-[10.5px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
                   Growth Plan
                 </span>
-                <span className="text-[11px] text-slate-500 font-semibold">3 Users • 1 Location</span>
+                <span className="text-xs text-slate-500 font-semibold">3 Users • 1 Location</span>
               </div>
 
-              <div className="mt-3 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-[#071F38]">₹499</span>
+              <div className="mt-3.5 flex items-baseline gap-1">
+                <span className="text-2xl sm:text-3xl font-black text-[#071F38]">₹499</span>
                 <span className="text-xs text-slate-500 font-semibold">/ month</span>
               </div>
 
-              <p className="text-xs text-slate-500 mt-1.5 min-h-[32px] leading-relaxed">
+              <p className="text-xs text-slate-500 mt-2 min-h-[32px] leading-relaxed">
                 Multi-user commercial suite with purchases, supplier khata, and low-stock alerts.
               </p>
 
-              <div className="mt-3.5 pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
                 <div className="flex items-center gap-2 text-emerald-700 font-medium">
                   <Sparkles className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
                   <span>Everything in Starter, plus:</span>
@@ -725,12 +737,12 @@ function LoginForm() {
               </div>
             </div>
 
-            <div className="mt-5 pt-1">
+            <div className="mt-6 pt-1">
               <button
                 type="button"
                 onClick={() => handleEnterDemo('GROWTH')}
                 disabled={demoLoading !== null}
-                className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#00B887] hover:bg-[#009E74] text-white text-xs font-bold shadow-md shadow-emerald-500/20 transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-[#00B887] hover:bg-[#009E74] text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-500/20 transition-all cursor-pointer disabled:opacity-50"
               >
                 {demoLoading === 'GROWTH' ? (
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -744,26 +756,26 @@ function LoginForm() {
             </div>
           </div>
 
-          {/* Card C: Explore Scale */}
-          <div className="bg-white rounded-2xl p-5 sm:p-5.5 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
+          {/* Card C: Scale Demo */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                <span className="text-[10.5px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded border border-purple-200">
                   Scale Plan
                 </span>
-                <span className="text-[11px] text-slate-400 font-semibold">10 Users • 3 Branches</span>
+                <span className="text-xs text-slate-400 font-semibold">10 Users • 3 Branches</span>
               </div>
 
-              <div className="mt-3 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-[#071F38]">₹999</span>
+              <div className="mt-3.5 flex items-baseline gap-1">
+                <span className="text-2xl sm:text-3xl font-black text-[#071F38]">₹999</span>
                 <span className="text-xs text-slate-500 font-semibold">/ month</span>
               </div>
 
-              <p className="text-xs text-slate-500 mt-1.5 min-h-[32px] leading-relaxed">
+              <p className="text-xs text-slate-500 mt-2 min-h-[32px] leading-relaxed">
                 Multi-branch chain operations with consolidated reporting & granular staff roles.
               </p>
 
-              <div className="mt-3.5 pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
                 <div className="flex items-center gap-2 text-purple-700 font-medium">
                   <Sparkles className="w-3.5 h-3.5 text-purple-600 shrink-0" />
                   <span>Everything in Growth, plus:</span>
@@ -783,12 +795,12 @@ function LoginForm() {
               </div>
             </div>
 
-            <div className="mt-5 pt-1">
+            <div className="mt-6 pt-1">
               <button
                 type="button"
                 onClick={() => handleEnterDemo('SCALE')}
                 disabled={demoLoading !== null}
-                className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
               >
                 {demoLoading === 'SCALE' ? (
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -803,6 +815,33 @@ function LoginForm() {
           </div>
         </div>
       </section>
+
+      {/* ================= PAGE FOOTER ================= */}
+      <footer className="w-full border-t border-slate-200/90 bg-white/80 backdrop-blur-xs py-4 px-4 sm:px-6 lg:px-8 relative z-10 mt-auto">
+        <div className="max-w-[1280px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-[#071F38]">Lenden</span>
+            <span>•</span>
+            <span className="text-slate-500">Billing, Inventory & Business Management for Indian Businesses</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[11.5px] sm:text-xs font-medium text-slate-500">
+              Developed by -
+            </span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all">
+              <img
+                src="/aadvik-solutions-logo.png"
+                alt="Aadvik Solutions"
+                className="h-5 sm:h-5.5 w-auto object-contain rounded-xs"
+              />
+              <span className="font-bold text-[#071F38] text-xs tracking-tight">
+                Aadvik Solutions
+              </span>
+            </div>
+          </div>
+        </div>
+      </footer>
 
       {/* Forgot Password Modal */}
       {showForgotModal && (
