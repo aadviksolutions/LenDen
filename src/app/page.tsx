@@ -24,6 +24,21 @@ function DashboardContent() {
 
   const isSuperAdmin = user?.platformRole === 'SUPER_ADMIN';
 
+  React.useEffect(() => {
+    if (activeBusiness?.subscription?.plan === 'FREE_KHATA') {
+      router.replace('/free-khata');
+    }
+  }, [activeBusiness, router]);
+
+  if (activeBusiness?.subscription?.plan === 'FREE_KHATA') {
+    return (
+      <div className="flex items-center justify-center p-12 text-slate-500 text-xs">
+        <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mr-2" />
+        <span>Loading your Free Udhaar Khata...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 pb-8">
       {/* Forbidden access notice if redirected from platform admin */}

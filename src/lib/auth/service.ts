@@ -144,6 +144,133 @@ export async function registerBusinessOwner(input: RegisterBusinessOwnerInput) {
   };
 }
 
+export interface RegisterFreeKhataInput {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+}
+
+/**
+ * Registers a new user specifically under the permanent Free Khata plan.
+ * Provisions an atomic personal khata workspace with SubscriptionPlan.FREE_KHATA (no expiry, no payment).
+ */
+export async function registerFreeKhataUser(input: RegisterFreeKhataInput) {
+  const normalizedEmail = input.email?.trim().toLowerCase();
+  const trimmedName = input.name?.trim();
+
+  if (!normalizedEmail || !normalizedEmail.includes('@')) {
+    throw new Error('Please provide a valid email address.');
+  }
+
+  if (!trimmedName || trimmedName.length < 2) {
+    throw new Error('Full name must be at least 2 characters.');
+  }
+
+  if (!input.password || input.password.length < 8) {
+    throw new Error('Password must be at least 8 characters long.');
+  }
+
+  // Check if email is already registered
+  const existingUser = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+  });
+
+  if (existingUser) {
+    throw new Error('An account with this email address already exists. Please log in.');
+  }
+
+  const passwordHash = await hashPassword(input.password);
+  const khataBizName = `${trimmedName}'s Personal Khata`;
+
+  let createdUserId: string | null = null;
+  let createdBusinessId: string | null = null;
+
+  let result;
+  try {
+    // 1. Create User
+    const user = await prisma.user.create({
+      data: {
+        name: trimmedName,
+        email: normalizedEmail,
+        phone: input.phone?.trim() || null,
+        passwordHash,
+        platformRole: PlatformRole.USER,
+      },
+    });
+    createdUserId = user.id;
+
+    // 2. Create Personal Khata Business Workspace
+    const business = await prisma.business.create({
+      data: {
+        name: khataBizName,
+        legalName: khataBizName,
+        tradeType: 'Personal Free Khata',
+        phone: input.phone?.trim() || null,
+        email: normalizedEmail,
+        currency: 'INR',
+      },
+    });
+    createdBusinessId = business.id;
+
+    // 3. Link Membership as BUSINESS_OWNER
+    const membership = await prisma.businessMembership.create({
+      data: {
+        userId: user.id,
+        businessId: business.id,
+        role: BusinessRole.BUSINESS_OWNER,
+      },
+    });
+
+    // 4. Provision Permanent Free Khata Subscription (No payment, active permanently)
+    const subscription = await prisma.subscription.create({
+      data: {
+        businessId: business.id,
+        plan: SubscriptionPlan.FREE_KHATA,
+        status: SubscriptionStatus.ACTIVE,
+        trialDaysRemaining: 999999,
+        monthlyPrice: 0,
+        maxMonthlyInvoices: 0,
+        maxStaffSeats: 1,
+        whatsAppQuota: 999999,
+      },
+    });
+
+    result = { user, business, membership, subscription };
+  } catch (creationError) {
+    if (createdBusinessId) {
+      await prisma.business.delete({ where: { id: createdBusinessId } }).catch(() => {});
+    }
+    if (createdUserId) {
+      await prisma.user.delete({ where: { id: createdUserId } }).catch(() => {});
+    }
+    throw creationError;
+  }
+
+  const { sessionToken, expiresAt, sessionId } = await createSession(
+    result.user.id,
+    result.business.id
+  );
+
+  return {
+    sessionToken,
+    expiresAt,
+    sessionId,
+    user: {
+      id: result.user.id,
+      name: result.user.name,
+      email: result.user.email,
+      platformRole: result.user.platformRole,
+    },
+    business: {
+      id: result.business.id,
+      name: result.business.name,
+      role: result.membership.role,
+      plan: SubscriptionPlan.FREE_KHATA,
+    },
+  };
+}
+
 /**
  * Validates user credentials and establishes a new session.
  */
@@ -159,7 +286,14 @@ export async function loginUser(input: LoginInput) {
     include: {
       memberships: {
         include: {
-          business: true,
+          business: {
+            include: {
+              subscriptions: {
+                orderBy: { createdAt: 'desc' },
+                take: 1,
+              },
+            },
+          },
         },
       },
     },
@@ -178,6 +312,7 @@ export async function loginUser(input: LoginInput) {
   // Primary business is user's first business membership (if any)
   const primaryBusiness = user.memberships[0]?.business || null;
   const businessId = primaryBusiness ? primaryBusiness.id : null;
+  const latestSubscription = primaryBusiness?.subscriptions?.[0] || null;
 
   const { sessionToken, expiresAt, sessionId } = await createSession(
     user.id,
@@ -199,6 +334,7 @@ export async function loginUser(input: LoginInput) {
           id: primaryBusiness.id,
           name: primaryBusiness.name,
           role: user.memberships[0]?.role,
+          plan: latestSubscription?.plan || null,
         }
       : null,
   };

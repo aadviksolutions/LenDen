@@ -1,6 +1,6 @@
 export type BillingInterval = 'MONTHLY' | 'THREE_MONTHS' | 'SIX_MONTHS' | 'YEARLY';
 
-export type PlanKey = 'STARTER' | 'GROWTH' | 'SCALE';
+export type PlanKey = 'FREE_KHATA' | 'STARTER' | 'GROWTH' | 'SCALE';
 
 export interface PlanPricing {
   durationMonths: number;
@@ -12,7 +12,7 @@ export interface PlanPricing {
 
 export interface OfficialPlan {
   id: PlanKey;
-  prismaEnum: 'STARTER' | 'GROWTH_PRO' | 'ENTERPRISE';
+  prismaEnum: 'FREE_KHATA' | 'STARTER' | 'GROWTH_PRO' | 'ENTERPRISE';
   name: string;
   tagline: string;
   badge?: string;
@@ -26,6 +26,7 @@ export interface OfficialPlan {
   pricing: Record<BillingInterval, PlanPricing>;
   features: string[];
   entitlements: {
+    canAccessFreeKhata: boolean;
     canCreateInvoices: boolean;
     canConfigureGst: boolean;
     canGeneratePdf: boolean;
@@ -84,6 +85,68 @@ function calculatePricing(monthlyBase: number, months: number, packagePrice: num
 }
 
 export const OFFICIAL_PLANS: Record<PlanKey, OfficialPlan> = {
+  FREE_KHATA: {
+    id: 'FREE_KHATA',
+    prismaEnum: 'FREE_KHATA',
+    name: 'Lenden Free Khata',
+    tagline: 'Permanent 100% Free Udhaar Khata for Personal Lending & Borrowing',
+    limits: {
+      maxUsers: 1,
+      maxLocations: 1,
+      maxMonthlyInvoices: 0,
+      isUnlimitedInvoices: false,
+    },
+    pricing: {
+      MONTHLY: calculatePricing(0, 1, 0),
+      THREE_MONTHS: calculatePricing(0, 3, 0),
+      SIX_MONTHS: calculatePricing(0, 6, 0),
+      YEARLY: calculatePricing(0, 12, 0),
+    },
+    features: [
+      '100% Permanently Free personal udhaar ledger',
+      'Unlimited contacts & people',
+      'Unlimited "I Gave" and "I Received" transactions',
+      'Partial and full repayment tracking',
+      'Free manual WhatsApp reminder sharing',
+      'Real-time collection & repayment dashboard',
+      'Mobile-first responsive khata',
+      'Zero credit card & zero payment required',
+      'No trial expiry or forced conversion',
+    ],
+    entitlements: {
+      canAccessFreeKhata: true,
+      canCreateInvoices: false,
+      canConfigureGst: false,
+      canGeneratePdf: false,
+      canManageCustomers: false,
+      canTrackUdhaar: false,
+      canRecordPayments: false,
+      canManualWhatsAppShare: true,
+      canManageInventoryBasic: false,
+      canRecordExpenses: false,
+      canViewBasicDashboard: false,
+      canAdvancedCustomerLedger: false,
+      canOpeningBalances: false,
+      canManagePurchases: false,
+      canManageSuppliers: false,
+      canAdvancedInventory: false,
+      canLowStockAlerts: false,
+      canAdvancedReports: false,
+      canCustomLogoInvoice: false,
+      canCustomerStatements: false,
+      canBulkExport: false,
+      canManageStaff: false,
+      canMultiLocation: false,
+      canConsolidatedReports: false,
+      canAdvancedStockValuation: false,
+      canGranularPermissions: false,
+      canAuditTrail: false,
+      canBulkCustomerFollowUp: false,
+      canAdvancedDataExport: false,
+      canPrioritySupport: false,
+    },
+  },
+
   STARTER: {
     id: 'STARTER',
     prismaEnum: 'STARTER',
@@ -117,8 +180,10 @@ export const OFFICIAL_PLANS: Record<PlanKey, OfficialPlan> = {
       'Standard invoice branding',
       '1 User, 1 Location',
       'Unlimited Invoices',
+      'Free Udhaar Khata Included',
     ],
     entitlements: {
+      canAccessFreeKhata: true,
       canCreateInvoices: true,
       canConfigureGst: true,
       canGeneratePdf: true,
@@ -187,8 +252,10 @@ export const OFFICIAL_PLANS: Record<PlanKey, OfficialPlan> = {
       'Expanded search and filtering',
       'Up to 3 Users, 1 Location',
       'Unlimited Invoices',
+      'Free Udhaar Khata Included',
     ],
     entitlements: {
+      canAccessFreeKhata: true,
       canCreateInvoices: true,
       canConfigureGst: true,
       canGeneratePdf: true,
@@ -252,8 +319,10 @@ export const OFFICIAL_PLANS: Record<PlanKey, OfficialPlan> = {
       'Priority support information and policy',
       'Up to 10 Users, 3 Locations',
       'Unlimited Invoices',
+      'Free Udhaar Khata Included',
     ],
     entitlements: {
+      canAccessFreeKhata: true,
       canCreateInvoices: true,
       canConfigureGst: true,
       canGeneratePdf: true,
@@ -293,6 +362,7 @@ export const OFFICIAL_PLANS: Record<PlanKey, OfficialPlan> = {
 export function normalizePlanKey(plan: string | null | undefined): PlanKey {
   if (!plan) return 'STARTER';
   const upper = plan.toUpperCase();
+  if (upper === 'FREE_KHATA' || upper === 'KHATA') return 'FREE_KHATA';
   if (upper === 'SCALE' || upper === 'ENTERPRISE') return 'SCALE';
   if (upper === 'GROWTH' || upper === 'GROWTH_PRO') return 'GROWTH';
   return 'STARTER';

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { requireTenantAccess } from '@/lib/auth/guards';
+import { requireCommercialAccess } from '@/lib/auth/guards';
 import { PaymentMethod } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
-    const authContext = await requireTenantAccess();
+    const authContext = await requireCommercialAccess();
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const search = searchParams.get('search');
@@ -44,16 +44,17 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error: any) {
+    const status = error.statusCode || (error.message?.includes('Unauthorized') || error.message?.includes('Authentication') ? 401 : error.message?.includes('Commercial') ? 403 : 500);
     return NextResponse.json(
       { error: error.message || 'Unauthorized or failed to fetch expenses' },
-      { status: error.message?.includes('Unauthorized') ? 401 : 500 }
+      { status }
     );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const authContext = await requireTenantAccess(undefined, ['BUSINESS_OWNER', 'ACCOUNTANT']);
+    const authContext = await requireCommercialAccess(undefined, ['BUSINESS_OWNER', 'ACCOUNTANT']);
     const body = await request.json();
 
     const { category, payee, description, amount, paymentMethod, expenseDate, referenceNumber } = body;
@@ -86,16 +87,17 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ expense: { ...expense, description: expense.notes } }, { status: 201 });
   } catch (error: any) {
+    const status = error.statusCode || (error.message?.includes('Unauthorized') || error.message?.includes('Authentication') ? 401 : error.message?.includes('Commercial') ? 403 : 500);
     return NextResponse.json(
       { error: error.message || 'Failed to record expense' },
-      { status: error.message?.includes('Unauthorized') ? 401 : 500 }
+      { status }
     );
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
-    const authContext = await requireTenantAccess(undefined, ['BUSINESS_OWNER', 'ACCOUNTANT']);
+    const authContext = await requireCommercialAccess(undefined, ['BUSINESS_OWNER', 'ACCOUNTANT']);
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
@@ -117,9 +119,10 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Expense deleted successfully' });
   } catch (error: any) {
+    const status = error.statusCode || (error.message?.includes('Unauthorized') || error.message?.includes('Authentication') ? 401 : error.message?.includes('Commercial') ? 403 : 500);
     return NextResponse.json(
       { error: error.message || 'Failed to delete expense' },
-      { status: error.message?.includes('Unauthorized') ? 401 : 500 }
+      { status }
     );
   }
 }

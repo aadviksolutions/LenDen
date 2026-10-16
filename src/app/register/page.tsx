@@ -1,14 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Building2,
   User,
   ArrowRight,
   ShieldCheck,
   AlertCircle,
+  Sparkles,
+  Check,
+  BookOpen,
 } from 'lucide-react';
 
 const INDIAN_STATES = [
@@ -43,8 +46,12 @@ const TRADE_TYPES = [
   'Services & Consulting',
 ];
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get('plan') === 'free_khata' ? 'FREE_KHATA' : 'BUSINESS';
+
+  const [category, setCategory] = useState<'FREE_KHATA' | 'BUSINESS'>(initialCategory);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -76,27 +83,48 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      if (category === 'FREE_KHATA') {
+        const res = await fetch('/api/auth/register-khata', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            password: formData.password,
+          }),
+        });
 
-      const data = await res.json();
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Failed to register Free Khata account.');
+        }
 
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to register business workspace.');
+        router.push(data.redirectUrl || '/free-khata');
+        router.refresh();
+      } else {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Failed to register business workspace.');
+        }
+
+        router.push('/');
+        router.refresh();
       }
-
-      // Success -> Redirect to active workspace dashboard
-      router.push('/');
-      router.refresh();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred during registration.');
     } finally {
       setLoading(false);
     }
   };
+
+  const isFreeKhata = category === 'FREE_KHATA';
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-10 sm:px-6 lg:px-8 text-slate-100 relative overflow-hidden">
@@ -114,12 +142,44 @@ export default function RegisterPage() {
             />
           </div>
         </div>
+
         <h2 className="text-2xl font-extrabold tracking-tight text-white">
-          Create Business Workspace
+          {isFreeKhata ? 'Open Permanent Free Khata' : 'Create Business Workspace'}
         </h2>
         <p className="mt-1 text-xs text-slate-400">
-          Get started with automated GST invoicing, customer udhaar khata, and instant ledger
+          {isFreeKhata
+            ? 'Simple personal lending and borrowing ledger • 100% Free Forever • No Card Needed'
+            : 'Get started with automated GST invoicing, customer udhaar khata, and instant ledger'}
         </p>
+
+        {/* Category Selector Tabs */}
+        <div className="mt-4 inline-flex p-1 bg-slate-900 border border-slate-800 rounded-2xl shadow-inner">
+          <button
+            type="button"
+            onClick={() => setCategory('FREE_KHATA')}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              isFreeKhata
+                ? 'bg-[#00B887] text-white shadow-md shadow-emerald-600/30'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-emerald-200" />
+            <span>Personal Free Khata (100% Free)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setCategory('BUSINESS')}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              !isFreeKhata
+                ? 'bg-slate-800 text-white shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5 text-slate-400" />
+            <span>Business (Invoicing & GST)</span>
+          </button>
+        </div>
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-xl relative z-10 px-4 sm:px-0">
@@ -132,51 +192,51 @@ export default function RegisterPage() {
           )}
 
           <form className="space-y-4" onSubmit={handleSubmit}>
-            {/* Section 1: Business Profile */}
-            <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5 mb-2">
-                <Building2 className="w-3.5 h-3.5" />
-                1. Business Identity
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Business / Trade Name *
-                  </label>
-                  <input
-                    name="businessName"
-                    type="text"
-                    required
-                    value={formData.businessName}
-                    onChange={handleChange}
-                    placeholder="e.g. Sharma Hardware & Electricals"
-                    className="block w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                  />
-                </div>
+            {/* If Business Category Selected: Show Business Information */}
+            {!isFreeKhata && (
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5 mb-2">
+                  <Building2 className="w-3.5 h-3.5" />
+                  1. Business Identity
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      Business / Trade Name *
+                    </label>
+                    <input
+                      name="businessName"
+                      type="text"
+                      required
+                      value={formData.businessName}
+                      onChange={handleChange}
+                      placeholder="e.g. Sharma Hardware & Electricals"
+                      className="block w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Industry / Trade Category
-                  </label>
-                  <select
-                    name="tradeType"
-                    value={formData.tradeType}
-                    onChange={handleChange}
-                    className="block w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                  >
-                    {TRADE_TYPES.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      Industry / Trade Category
+                    </label>
+                    <select
+                      name="tradeType"
+                      value={formData.tradeType}
+                      onChange={handleChange}
+                      className="block w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    >
+                      {TRADE_TYPES.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    GSTIN (Optional)
-                  </label>
-                  <div className="relative">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      GSTIN (Optional)
+                    </label>
                     <input
                       name="gstin"
                       type="text"
@@ -187,53 +247,54 @@ export default function RegisterPage() {
                       className="block w-full px-3 py-2 text-xs uppercase font-mono bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    City / District
-                  </label>
-                  <input
-                    name="city"
-                    type="text"
-                    required
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="e.g. Raipur"
-                    className="block w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      City / District
+                    </label>
+                    <input
+                      name="city"
+                      type="text"
+                      required
+                      value={formData.city}
+                      onChange={handleChange}
+                      placeholder="e.g. Raipur"
+                      className="block w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    State
-                  </label>
-                  <select
-                    name="state"
-                    value={formData.state}
-                    onChange={handleChange}
-                    className="block w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                  >
-                    {INDIAN_STATES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      State
+                    </label>
+                    <select
+                      name="state"
+                      value={formData.state}
+                      onChange={handleChange}
+                      className="block w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    >
+                      {INDIAN_STATES.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Section 2: Owner Account */}
-            <div className="pt-2 border-t border-slate-800">
+            {/* Account Information (Required for Both) */}
+            <div className={!isFreeKhata ? 'pt-2 border-t border-slate-800' : ''}>
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5 mb-2">
                 <User className="w-3.5 h-3.5" />
-                2. Business Owner Account
+                {isFreeKhata ? 'Your Personal Account' : '2. Business Owner Account'}
               </span>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Owner Full Name *
+                    Your Full Name *
                   </label>
                   <input
                     name="name"
@@ -248,7 +309,7 @@ export default function RegisterPage() {
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Phone Number
+                    Phone Number <span className="text-slate-500 font-normal">(Optional)</span>
                   </label>
                   <input
                     name="phone"
@@ -270,7 +331,7 @@ export default function RegisterPage() {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="owner@business.com"
+                    placeholder="yourname@domain.com"
                     className="block w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                   />
                 </div>
@@ -293,6 +354,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Submit Button */}
             <div className="pt-2">
               <button
                 type="submit"
@@ -303,7 +365,11 @@ export default function RegisterPage() {
                   <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span>Create Business Workspace & Start Trial</span>
+                    <span>
+                      {isFreeKhata
+                        ? 'Open Free Udhaar Khata (100% Free Forever)'
+                        : 'Create Business Workspace & Start Trial'}
+                    </span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </>
                 )}
@@ -312,7 +378,7 @@ export default function RegisterPage() {
           </form>
 
           <div className="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-            <span>Already have a business account?</span>
+            <span>Already have an account?</span>
             <Link
               href="/login"
               className="font-semibold text-emerald-400 hover:text-emerald-300 hover:underline flex items-center gap-1"
@@ -326,7 +392,11 @@ export default function RegisterPage() {
         <div className="mt-5 text-center space-y-2">
           <div className="flex items-center justify-center gap-2 text-[11px] text-slate-500">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Includes 14-day full feature trial • Dedicated Tenant Workspace</span>
+            <span>
+              {isFreeKhata
+                ? 'No subscription payment • Unlimited entries • Permanently free'
+                : 'Includes 14-day full feature trial • Dedicated Tenant Workspace'}
+            </span>
           </div>
           <p className="text-xs text-slate-400 font-medium pt-1">
             Developed by <span className="text-emerald-400 font-semibold tracking-wide">Aadvik Solutions</span>
@@ -334,5 +404,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
+      <RegisterForm />
+    </Suspense>
   );
 }

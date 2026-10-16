@@ -98,3 +98,30 @@ export async function requireTenantAccess(
     userRole: activeBusiness.role,
   };
 }
+
+/**
+ * Server-side commercial subscription guard.
+ * Blocks Free Khata users from accessing paid commercial billing, inventory,
+ * purchases, and business accounting APIs.
+ */
+export async function requireCommercialAccess(
+  requestedBusinessId?: string,
+  allowedRoles?: BusinessRole[]
+): Promise<{
+  session: CurrentAuthSession;
+  business: ActiveBusinessWorkspace;
+  userRole: BusinessRole;
+}> {
+  const result = await requireTenantAccess(requestedBusinessId, allowedRoles);
+  const plan = result.business.subscription?.plan;
+
+  if (plan === 'FREE_KHATA' && result.session.user.platformRole !== PlatformRole.SUPER_ADMIN) {
+    throw new AuthError(
+      'Commercial plan required. Free Khata users have permanent free access to Udhaar Khata but cannot access paid business billing, inventory, or GST features.',
+      403
+    );
+  }
+
+  return result;
+}
+

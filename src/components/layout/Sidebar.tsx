@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { NAVIGATION_GROUPS } from '@/data/navigation';
+import { NAVIGATION_GROUPS, FREE_KHATA_NAVIGATION_ITEMS } from '@/data/navigation';
 import { BusinessProfileArea } from './BusinessProfileArea';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -68,17 +68,34 @@ export function Sidebar({
   const pathname = usePathname();
   const { user, activeBusiness } = useAuth();
   const isSuperAdmin = user?.platformRole === 'SUPER_ADMIN';
+  const isFreeKhata = activeBusiness?.subscription?.plan === 'FREE_KHATA';
 
-  // Filter groups: Only show PLATFORM_ADMIN if authenticated user is SUPER_ADMIN
-  const visibleGroups = NAVIGATION_GROUPS.filter((group) => {
-    if (group.scope === 'PLATFORM_ADMIN') {
-      return isSuperAdmin;
-    }
-    return true;
-  });
+  // Construct visible navigation groups based on plan and role
+  const visibleGroups = isFreeKhata
+    ? [
+        {
+          id: 'free_khata_group',
+          title: 'Free Udhaar Khata',
+          scope: 'BUSINESS_WORKSPACE' as const,
+          description: 'Personal ledger and WhatsApp reminders',
+          badge: '100% Free',
+          items: FREE_KHATA_NAVIGATION_ITEMS,
+        },
+        ...(isSuperAdmin
+          ? NAVIGATION_GROUPS.filter((g) => g.scope === 'PLATFORM_ADMIN')
+          : []),
+      ]
+    : NAVIGATION_GROUPS.filter((group) => {
+        if (group.scope === 'PLATFORM_ADMIN') {
+          return isSuperAdmin;
+        }
+        return true;
+      });
 
   const planName = activeBusiness?.subscription?.plan
-    ? activeBusiness.subscription.plan.replace('_', ' ')
+    ? activeBusiness.subscription.plan === 'FREE_KHATA'
+      ? 'Free Khata'
+      : activeBusiness.subscription.plan.replace('_', ' ')
     : isSuperAdmin
     ? 'Super Admin'
     : 'Free Trial';

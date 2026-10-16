@@ -14,6 +14,14 @@ const PLAN_TIERS: Record<
     whatsAppQuota: number;
   }
 > = {
+  FREE_KHATA: {
+    name: 'Lenden Free Khata',
+    monthlyPrice: 0,
+    maxMonthlyInvoices: 0,
+    maxStaffSeats: 1,
+    maxBranches: 1,
+    whatsAppQuota: 999999,
+  },
   FREE_TRIAL: {
     name: '14-Day Free Trial',
     monthlyPrice: 0,

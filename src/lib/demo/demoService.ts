@@ -30,6 +30,19 @@ export interface DemoWorkspaceConfig {
 }
 
 export const DEMO_WORKSPACES: Record<PlanKey, DemoWorkspaceConfig> = {
+  FREE_KHATA: {
+    planKey: 'FREE_KHATA',
+    businessId: 'demo_free_khata_business',
+    businessName: 'Personal Udhaar Khata (Demo)',
+    tradeType: 'Personal Udhaar Ledger',
+    city: 'Raipur',
+    state: 'Chhattisgarh',
+    gstin: '',
+    userId: 'demo_free_khata_user',
+    userName: 'Ramesh Kumar',
+    userEmail: 'freekhata.demo@lenden.local',
+    monthlyPrice: 0,
+  },
   STARTER: {
     planKey: 'STARTER',
     businessId: 'demo_starter_business',

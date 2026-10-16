@@ -11,7 +11,13 @@ import {
   ShieldCheck,
   AlertCircle,
   Loader2,
+  Edit3,
+  RotateCcw,
+  Smartphone,
+  Globe,
+  Info,
 } from 'lucide-react';
+import { sanitizePhoneNumber } from '@/lib/whatsapp/formatters';
 
 export interface WhatsAppShareModalProps {
   isOpen: boolean;
@@ -46,52 +52,42 @@ export function WhatsAppShareModal({
   customerName,
   customerPhone,
   invoiceNumber,
-  invoiceTotal,
-  balanceDue,
-  dueDate,
-  amount,
   documentTitle,
 }: WhatsAppShareModalProps) {
-  const resolvedType = (type || (shareType as 'INVOICE' | 'RECEIPT' | 'STATEMENT') || 'INVOICE') as 'INVOICE' | 'RECEIPT' | 'STATEMENT';
+  const resolvedType = (type || (shareType as 'INVOICE' | 'RECEIPT' | 'STATEMENT') || 'INVOICE') as
+    | 'INVOICE'
+    | 'RECEIPT'
+    | 'STATEMENT';
   const resolvedPhone = defaultPhone || customerPhone || '';
   const resolvedName = defaultName || customerName || '';
+
   const [recipientPhone, setRecipientPhone] = useState(resolvedPhone);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [sendingApi, setSendingApi] = useState(false);
   const [messagePreview, setMessagePreview] = useState('');
-  const [clickToChatUrl, setClickToChatUrl] = useState('');
+  const [originalMessage, setOriginalMessage] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
   const [documentUrl, setDocumentUrl] = useState('');
   const [copiedMessage, setCopiedMessage] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
-  const [apiSuccess, setApiSuccess] = useState<string | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
-  const [config, setConfig] = useState<{ status: string; autoRemindersEnabled: boolean } | null>(null);
+  const [handoffDone, setHandoffDone] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setRecipientPhone(resolvedPhone);
-      setApiSuccess(null);
-      setApiError(null);
-      loadConfig();
-      fetchSharePayload(resolvedPhone);
+      const initialPhone = resolvedPhone || '';
+      setRecipientPhone(initialPhone);
+      setPhoneError(null);
+      setFetchError(null);
+      setHandoffDone(false);
+      setIsEditing(false);
+      fetchSharePayload(initialPhone);
     }
   }, [isOpen, resolvedPhone, invoiceId, paymentId, customerId, resolvedType]);
 
-  async function loadConfig() {
-    try {
-      const res = await fetch('/api/whatsapp/config');
-      const data = await res.json();
-      if (data.success && data.config) {
-        setConfig(data.config);
-      }
-    } catch {
-      // ignore
-    }
-  }
-
   async function fetchSharePayload(phone: string) {
     setLoading(true);
-    setApiError(null);
+    setFetchError(null);
     try {
       const res = await fetch('/api/whatsapp/share-link', {
         method: 'POST',
@@ -102,20 +98,25 @@ export function WhatsAppShareModal({
           paymentId,
           customerId,
           customPhone: phone,
-          logShare: false, // Don't log until user actually clicks send or opens
+          logShare: false, // Don't log until user actually initiates WhatsApp handoff
         }),
       });
 
       const data = await res.json();
       if (data.success) {
         setMessagePreview(data.message);
-        setClickToChatUrl(data.clickToChatUrl);
+        setOriginalMessage(data.message);
         setDocumentUrl(data.documentUrl || '');
+        if (data.sanitizedPhone && !data.sanitizedPhone.isValid && phone) {
+          setPhoneError(data.sanitizedPhone.error || 'Please enter a valid phone number.');
+        } else {
+          setPhoneError(null);
+        }
       } else {
-        setApiError(data.error || 'Failed to generate share link');
+        setFetchError(data.error || 'Failed to prepare share preview');
       }
     } catch {
-      setApiError('Network error generating share link');
+      setFetchError('Network error preparing message preview');
     } finally {
       setLoading(false);
     }
@@ -124,14 +125,56 @@ export function WhatsAppShareModal({
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;
     setRecipientPhone(val);
+    const sanitized = sanitizePhoneNumber(val);
+    if (!val.trim()) {
+      setPhoneError('Customer phone number is required to send via WhatsApp.');
+    } else if (!sanitized.isValid) {
+      setPhoneError(sanitized.error || 'Invalid phone format (enter 10-digit Indian number or with +91).');
+    } else {
+      setPhoneError(null);
+    }
   }
 
   function handlePhoneBlur() {
-    fetchSharePayload(recipientPhone);
+    if (recipientPhone.trim()) {
+      fetchSharePayload(recipientPhone);
+    }
   }
 
-  async function handleOpenWhatsApp() {
-    // Log manual share in background
+  function handleResetMessage() {
+    setMessagePreview(originalMessage);
+    setIsEditing(false);
+  }
+
+  function handleOpenWhatsApp(preferredMode: 'auto' | 'app' | 'web' = 'auto') {
+    const sanitized = sanitizePhoneNumber(recipientPhone);
+    if (!sanitized.isValid) {
+      setPhoneError('Please enter a valid mobile number with country code before sending.');
+      return;
+    }
+
+    const cleanDigits = sanitized.cleanDigits;
+    const encoded = encodeURIComponent(messagePreview);
+
+    // Detect mobile environment
+    const isMobile =
+      typeof navigator !== 'undefined' &&
+      (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (typeof window !== 'undefined' && window.innerWidth < 768));
+
+    let targetUrl: string;
+    const useApp = preferredMode === 'app' || (preferredMode === 'auto' && isMobile);
+
+    if (preferredMode === 'web') {
+      targetUrl = `https://web.whatsapp.com/send?phone=${cleanDigits}&text=${encoded}`;
+    } else if (useApp) {
+      targetUrl = `whatsapp://send?phone=${cleanDigits}&text=${encoded}`;
+    } else {
+      // Desktop browser auto default: WhatsApp Web
+      targetUrl = `https://web.whatsapp.com/send?phone=${cleanDigits}&text=${encoded}`;
+    }
+
+    // Log manual handoff in audit log
     try {
       fetch('/api/whatsapp/share-link', {
         method: 'POST',
@@ -149,45 +192,21 @@ export function WhatsAppShareModal({
       // ignore
     }
 
-    if (clickToChatUrl) {
-      window.open(clickToChatUrl, '_blank', 'noopener,noreferrer');
+    // Handoff to device WhatsApp
+    if (useApp) {
+      const startTime = Date.now();
+      window.location.href = targetUrl;
+      // Fallback timer if app is not installed
+      setTimeout(() => {
+        if (Date.now() - startTime < 2200 && typeof document !== 'undefined' && !document.hidden) {
+          window.open(`https://wa.me/${cleanDigits}?text=${encoded}`, '_blank', 'noopener,noreferrer');
+        }
+      }, 1500);
+    } else {
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
     }
-  }
 
-  async function handleSendViaCloudApi() {
-    setSendingApi(true);
-    setApiError(null);
-    setApiSuccess(null);
-
-    let messageType = 'INVOICE_SHARE';
-    if (resolvedType === 'RECEIPT') messageType = 'PAYMENT_RECEIPT';
-    if (resolvedType === 'STATEMENT') messageType = 'ACCOUNT_STATEMENT';
-
-    try {
-      const res = await fetch('/api/whatsapp/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipientPhone,
-          recipientName: resolvedName,
-          messageType,
-          messageText: messagePreview,
-          customerId,
-          invoiceId,
-        }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        setApiSuccess('Message dispatched successfully via Official WhatsApp Business API!');
-      } else {
-        setApiError(data.error || 'Failed to send message via Cloud API.');
-      }
-    } catch {
-      setApiError('Network error calling WhatsApp API.');
-    } finally {
-      setSendingApi(false);
-    }
+    setHandoffDone(true);
   }
 
   function handleCopyMessage() {
@@ -206,75 +225,123 @@ export function WhatsAppShareModal({
 
   if (!isOpen) return null;
 
-  const isCloudApiConnected = config?.status === 'CONNECTED';
+  const phoneCheck = sanitizePhoneNumber(recipientPhone);
+  const isPhoneValid = phoneCheck.isValid;
+  const hasPhone = Boolean(recipientPhone.trim());
+  const isMessageEdited = messagePreview !== originalMessage;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden my-8">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden my-8 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-emerald-50/60">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-emerald-50/70 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
               <MessageSquare className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900">
-                Share via WhatsApp
+                Send to WhatsApp
               </h3>
               <p className="text-[11px] text-emerald-800 font-medium">
-                {documentTitle || `${(resolvedType || 'document').toLowerCase()} for ${resolvedName || 'Customer'}`}
+                {documentTitle || (invoiceNumber ? `Invoice ${invoiceNumber} • ${resolvedName || 'Customer'}` : `Bill for ${resolvedName || 'Customer'}`)}
               </p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-4">
-          {/* Recipient Phone */}
+        {/* Content Body */}
+        <div className="p-6 space-y-4 overflow-y-auto flex-1">
+          {/* Missing / Phone Field */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Customer WhatsApp Number
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-bold text-slate-700">
+                Customer Mobile Number <span className="text-rose-600">*</span>
+              </label>
+              {isPhoneValid && (
+                <span className="text-[11px] font-mono text-emerald-700 font-semibold">
+                  Formatted: {phoneCheck.formattedDisplay}
+                </span>
+              )}
+            </div>
+
             <div className="flex gap-2">
               <input
-                type="text"
+                type="tel"
                 value={recipientPhone}
                 onChange={handlePhoneChange}
                 onBlur={handlePhoneBlur}
                 placeholder="e.g. 9876543210 or +91 98765 43210"
-                className="flex-1 text-xs px-3 py-2 border border-slate-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-mono"
+                className={`flex-1 text-xs px-3 py-2 border rounded-lg font-mono focus:outline-hidden transition-all ${
+                  !hasPhone || phoneError
+                    ? 'border-amber-400 bg-amber-50/30 focus:ring-2 focus:ring-amber-500'
+                    : 'border-slate-300 bg-white focus:ring-2 focus:ring-emerald-500'
+                }`}
               />
               <button
                 type="button"
                 onClick={() => fetchSharePayload(recipientPhone)}
-                disabled={loading}
-                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors"
+                disabled={loading || !hasPhone}
+                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
               >
                 Refresh
               </button>
             </div>
-            <p className="text-[10px] text-slate-500 mt-1">
-              Indian 10-digit numbers automatically formatted with country code +91.
-            </p>
+
+            {!hasPhone ? (
+              <div className="mt-2 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px] flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>This customer has no saved phone number. Please enter their mobile number above to proceed.</span>
+              </div>
+            ) : phoneError ? (
+              <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5" />
+                <span>{phoneError}</span>
+              </p>
+            ) : (
+              <p className="text-[10px] text-slate-500 mt-1">
+                Indian 10-digit numbers automatically formatted with country code +91.
+              </p>
+            )}
           </div>
 
-          {/* Message Preview */}
+          {/* Message Preview & Editor */}
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-bold text-slate-700">
-                Personalized Message Preview
-              </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-1.5">
+                <label className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                  <span>Message Preview</span>
+                  {isMessageEdited && (
+                    <span className="text-[10px] font-semibold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">
+                      Edited
+                    </span>
+                  )}
+                </label>
+              </div>
+
               <div className="flex items-center gap-2">
+                {isMessageEdited && (
+                  <button
+                    type="button"
+                    onClick={handleResetMessage}
+                    className="inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-800 transition-colors"
+                    title="Reset to default message"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>Reset</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={handleCopyMessage}
-                  className="inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-900 font-medium"
+                  className="inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-900 font-medium transition-colors"
                 >
                   {copiedMessage ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                   {copiedMessage ? 'Copied' : 'Copy Text'}
@@ -283,10 +350,10 @@ export function WhatsAppShareModal({
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-900 font-medium"
+                    className="inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-900 font-medium transition-colors"
                   >
                     {copiedLink ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                    {copiedLink ? 'Copied' : 'Copy Doc Link'}
+                    {copiedLink ? 'Copied' : 'Copy PDF Link'}
                   </button>
                 )}
               </div>
@@ -294,89 +361,101 @@ export function WhatsAppShareModal({
 
             <div className="relative">
               {loading ? (
-                <div className="h-40 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center">
+                <div className="h-44 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center">
                   <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
                 </div>
               ) : (
-                <textarea
-                  readOnly
-                  rows={6}
-                  value={messagePreview}
-                  className="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-800 leading-relaxed resize-none focus:outline-hidden"
-                />
+                <div className="relative group">
+                  <textarea
+                    rows={7}
+                    value={messagePreview}
+                    onChange={(e) => {
+                      setMessagePreview(e.target.value);
+                      setIsEditing(true);
+                    }}
+                    placeholder="Message to be sent via WhatsApp..."
+                    className="w-full text-xs p-3 bg-slate-50/70 border border-slate-200 rounded-xl font-mono text-slate-800 leading-relaxed resize-y focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500 transition-all"
+                  />
+                  <div className="absolute right-2.5 bottom-2.5 pointer-events-none text-[10px] text-slate-400 font-sans">
+                    You can edit before sending
+                  </div>
+                </div>
               )}
             </div>
+            <p className="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
+              <Edit3 className="w-3 h-3 text-slate-400" />
+              <span>Review and customize the text above. Your changes will be sent directly to WhatsApp.</span>
+            </p>
           </div>
 
           {/* Secure Document Link Notice */}
           {documentUrl && (
             <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2 text-xs text-slate-600">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <p className="text-[11px] leading-tight">
-                Includes an authorized, time-limited signed PDF link that customers can open without logging in.
-              </p>
+              <div className="text-[11px] leading-tight space-y-1">
+                <p>
+                  <strong>Secure PDF link included:</strong> The URL in the message allows your customer to view, verify, and download their bill without needing an account.
+                </p>
+                <p className="text-slate-500 text-[10px]">
+                  Note: WhatsApp text links do not automatically attach files. To send the raw PDF file, download it from Lenden and attach it in the chat.
+                </p>
+              </div>
             </div>
           )}
 
-          {/* Status Feedback */}
-          {apiSuccess && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-xs text-emerald-800">
-              <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>{apiSuccess}</span>
+          {/* Post-Handoff Guidance */}
+          {handoffDone && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-2.5 text-xs text-emerald-900 animate-in fade-in">
+              <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="font-bold">WhatsApp opened on your device!</p>
+                <p className="text-[11px] text-emerald-800 leading-relaxed">
+                  Review the pre-filled message inside WhatsApp and press <strong>Send</strong>. (Lenden does not mark this bill as delivered until sent manually by you).
+                </p>
+              </div>
             </div>
           )}
 
-          {apiError && (
+          {fetchError && (
             <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-xs text-rose-800">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              <span>{apiError}</span>
+              <span>{fetchError}</span>
             </div>
           )}
-
-          {/* Action Explanations */}
-          <div className="text-[11px] text-slate-500 bg-amber-50/70 border border-amber-200/80 rounded-xl p-3">
-            <p className="font-semibold text-amber-900 mb-0.5">How WhatsApp sharing works:</p>
-            <p>
-              Clicking <strong>Open in WhatsApp</strong> opens WhatsApp Web or your mobile app with the pre-filled message. You must review and press send in WhatsApp.
-            </p>
-          </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors"
+            className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer text-center"
           >
             Cancel
           </button>
 
           <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center gap-2">
-            {isCloudApiConnected && (
-              <button
-                type="button"
-                onClick={handleSendViaCloudApi}
-                disabled={sendingApi || loading}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl shadow-xs transition-colors disabled:opacity-60"
-              >
-                {sendingApi ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Send className="w-3.5 h-3.5" />
-                )}
-                <span>Send via Cloud API</span>
-              </button>
-            )}
-
+            {/* Desktop WhatsApp Web Alternative */}
             <button
               type="button"
-              onClick={handleOpenWhatsApp}
-              disabled={loading || !clickToChatUrl}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-xs transition-colors disabled:opacity-60"
+              onClick={() => handleOpenWhatsApp('web')}
+              disabled={loading || !isPhoneValid}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl border border-slate-300 shadow-2xs transition-colors disabled:opacity-50 cursor-pointer"
+              title="Open directly in WhatsApp Web browser tab"
             >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span>Open in WhatsApp</span>
+              <Globe className="w-3.5 h-3.5 text-slate-500" />
+              <span>WhatsApp Web</span>
+            </button>
+
+            {/* Primary Action: Open WhatsApp & Send */}
+            <button
+              type="button"
+              onClick={() => handleOpenWhatsApp('auto')}
+              disabled={loading || !isPhoneValid}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-white" />
+              <span>Open WhatsApp & Send</span>
             </button>
           </div>
         </div>

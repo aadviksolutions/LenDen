@@ -274,10 +274,10 @@ function InvoiceDetailContent({
             type="button"
             onClick={() => setWhatsAppModalOpen(true)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
-            title="Share invoice on WhatsApp"
+            title="Send invoice via WhatsApp"
           >
             <MessageSquare className="w-3.5 h-3.5" />
-            <span>WhatsApp Share</span>
+            <span>Send to WhatsApp</span>
           </button>
 
           {!isCancelled && invoice.balanceDue > 0 && (

@@ -21,6 +21,8 @@ export interface CreateInvoiceInput {
   paymentReference?: string;
   notes?: string;
   termsAndConditions?: string;
+  status?: InvoiceStatus;
+  isDraft?: boolean;
 }
 
 export interface InvoiceFilters {
@@ -119,7 +121,9 @@ export async function createInvoice(
   const dueDate = input.dueDate ? new Date(input.dueDate) : new Date(invoiceDate.getTime() + 15 * 86400000);
 
   let initialStatus: InvoiceStatus = InvoiceStatus.UNPAID;
-  if (calc.paidAmount >= calc.total && calc.total > 0) {
+  if (input.status === InvoiceStatus.DRAFT || input.isDraft) {
+    initialStatus = InvoiceStatus.DRAFT;
+  } else if (calc.paidAmount >= calc.total && calc.total > 0) {
     initialStatus = InvoiceStatus.PAID;
   } else if (calc.paidAmount > 0) {
     initialStatus = InvoiceStatus.PARTIAL;

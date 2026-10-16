@@ -51,6 +51,8 @@ export function Header({
   // Compute readable page title for top context
   const getPageTitle = () => {
     if (pathname === '/') return 'Dashboard';
+    if (pathname.startsWith('/free-khata/person')) return 'Person Ledger';
+    if (pathname.startsWith('/free-khata')) return 'Free Udhaar Khata';
     if (pathname.startsWith('/invoices/new')) return 'New Tax Invoice';
     if (pathname.startsWith('/invoices')) return 'Invoices';
     if (pathname.startsWith('/customers')) return 'Customers & Udhaar';

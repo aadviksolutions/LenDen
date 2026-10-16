@@ -1,9 +1,11 @@
 import prisma from '@/lib/prisma';
 import { round2 } from '@/lib/billing/calculator';
 
+import { sanitizePhoneNumber } from '@/lib/whatsapp/formatters';
+
 export interface CustomerInput {
   name: string;
-  mobile: string;
+  mobile?: string | null;
   email?: string | null;
   billingAddress?: string | null;
   shippingAddress?: string | null;
@@ -132,14 +134,53 @@ export async function getCustomerById(businessId: string, customerId: string) {
  */
 export async function createCustomer(businessId: string, input: CustomerInput) {
   const trimmedName = input.name?.trim();
-  const trimmedMobile = input.mobile?.trim();
+  const rawMobile = input.mobile?.trim() || '';
 
   if (!trimmedName || trimmedName.length < 2) {
     throw new Error('Customer name must be at least 2 characters.');
   }
 
-  if (!trimmedMobile || trimmedMobile.length < 10) {
-    throw new Error('Please enter a valid 10-digit mobile number.');
+  let finalMobile = '';
+  if (rawMobile) {
+    const sanitized = sanitizePhoneNumber(rawMobile);
+    if (!sanitized.isValid) {
+      throw new Error(sanitized.error || 'Please enter a valid 10-digit mobile number.');
+    }
+    const cleanDigits = sanitized.cleanDigits;
+    const std10 = cleanDigits.startsWith('91') && cleanDigits.length === 12 ? cleanDigits.slice(2) : cleanDigits;
+    finalMobile = std10;
+
+    // Tenant-scoped duplicate check for customer with same mobile
+    const existing = await prisma.customer.findFirst({
+      where: {
+        businessId,
+        mobile: {
+          in: [rawMobile, cleanDigits, std10, `+91${std10}`, `91${std10}`],
+        },
+      },
+    });
+
+    if (existing) {
+      throw new Error(`A customer with mobile "${rawMobile}" already exists in this business (${existing.name}).`);
+    }
+  }
+
+  // Validate GSTIN if entered
+  const trimmedGstin = input.gstin?.trim().toUpperCase() || null;
+  if (trimmedGstin) {
+    const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    if (!gstinRegex.test(trimmedGstin)) {
+      throw new Error('Invalid GSTIN format. Expected standard 15-character Indian GSTIN (e.g. 22AAAAA0000A1Z5).');
+    }
+  }
+
+  // Validate email if entered
+  const trimmedEmail = input.email?.trim().toLowerCase() || null;
+  if (trimmedEmail) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      throw new Error('Please enter a valid email address.');
+    }
   }
 
   const openingBalance = round2(Number(input.openingBalance) || 0);
@@ -148,11 +189,11 @@ export async function createCustomer(businessId: string, input: CustomerInput) {
     data: {
       businessId,
       name: trimmedName,
-      mobile: trimmedMobile,
-      email: input.email?.trim().toLowerCase() || null,
+      mobile: finalMobile,
+      email: trimmedEmail,
       billingAddress: input.billingAddress?.trim() || null,
       shippingAddress: input.shippingAddress?.trim() || null,
-      gstin: input.gstin?.trim().toUpperCase() || null,
+      gstin: trimmedGstin,
       openingBalance,
       notes: input.notes?.trim() || null,
       optedOutWhatsApp: input.optedOutWhatsApp ?? false,

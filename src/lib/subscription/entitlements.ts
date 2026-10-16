@@ -62,7 +62,7 @@ export async function checkFeatureEntitlement(
   feature: keyof OfficialPlan['entitlements']
 ): Promise<{
   allowed: boolean;
-  requiredPlan?: 'GROWTH' | 'SCALE';
+  requiredPlan?: 'STARTER' | 'GROWTH' | 'SCALE';
   planName?: string;
   message?: string;
 }> {
@@ -74,7 +74,9 @@ export async function checkFeatureEntitlement(
   }
 
   // Determine required plan
-  const requiredPlan: 'GROWTH' | 'SCALE' = OFFICIAL_PLANS.GROWTH.entitlements[feature]
+  const requiredPlan: 'STARTER' | 'GROWTH' | 'SCALE' = OFFICIAL_PLANS.STARTER.entitlements[feature]
+    ? 'STARTER'
+    : OFFICIAL_PLANS.GROWTH.entitlements[feature]
     ? 'GROWTH'
     : 'SCALE';
 

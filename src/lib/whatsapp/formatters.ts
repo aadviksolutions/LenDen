@@ -27,8 +27,15 @@ export function sanitizePhoneNumber(phone: string): SanitizedPhoneResult {
   let digits = phone.replace(/[\s\-+().]/g, '');
 
   // Remove leading zeros (e.g. "09876543210" -> "9876543210")
-  if (digits.startsWith('0')) {
+  while (digits.startsWith('0') && digits.length > 10) {
     digits = digits.substring(1);
+  }
+
+  // Handle accidental double country code e.g. 91919876543210 (14 digits) or 9109876543210 (13 digits)
+  if (digits.startsWith('9191') && digits.length === 14 && /^[6-9]/.test(digits.substring(4))) {
+    digits = digits.substring(2);
+  } else if (digits.startsWith('910') && digits.length === 13 && /^[6-9]/.test(digits.substring(3))) {
+    digits = `91${digits.substring(3)}`;
   }
 
   // If exactly 10 digits (standard Indian mobile without country code), prepend Indian country code 91
@@ -69,13 +76,37 @@ export function buildWhatsAppClickToChatUrl(phone: string, message: string): str
   return `https://wa.me/${targetDigits}?text=${encodeURIComponent(message)}`;
 }
 
+/**
+ * Builds WhatsApp handoff URLs tailored for native mobile apps, WhatsApp Web, or universal wa.me.
+ */
+export function buildWhatsAppHandoffUrl(
+  phone: string,
+  message: string,
+  options: { isMobile?: boolean; preferWeb?: boolean } = {}
+): string {
+  const sanitized = sanitizePhoneNumber(phone);
+  const targetDigits = sanitized.isValid ? sanitized.cleanDigits : phone.replace(/\D/g, '');
+  const encoded = encodeURIComponent(message);
+
+  if (options.preferWeb) {
+    return `https://web.whatsapp.com/send?phone=${targetDigits}&text=${encoded}`;
+  }
+
+  if (options.isMobile) {
+    return `whatsapp://send?phone=${targetDigits}&text=${encoded}`;
+  }
+
+  return `https://wa.me/${targetDigits}?text=${encoded}`;
+}
+
 export interface InvoiceShareMessageParams {
   customerName: string;
   businessName: string;
   invoiceNumber: string;
-  invoiceDate: string;
-  dueDate: string;
+  invoiceDate?: string;
+  dueDate?: string;
   total: number;
+  paidAmount?: number;
   balanceDue: number;
   documentUrl?: string;
   upiPaymentLink?: string;
@@ -86,22 +117,33 @@ export function buildInvoiceShareMessage(params: InvoiceShareMessageParams): str
     customerName,
     businessName,
     invoiceNumber,
+    invoiceDate,
     dueDate,
     total,
+    paidAmount,
     balanceDue,
     documentUrl,
     upiPaymentLink,
   } = params;
 
   const totalFormatted = total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const balanceFormatted = balanceDue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const balanceFormatted = Math.max(0, balanceDue).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const resolvedPaid = paidAmount !== undefined ? paidAmount : Math.max(0, total - balanceDue);
+  const paidFormatted = resolvedPaid.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const billDate = invoiceDate || dueDate || new Date().toISOString().split('T')[0];
+  const isFullyPaid = balanceDue <= 0;
 
-  let msg = `Hello *${customerName}*,\n\n`;
-  msg += `Your invoice *${invoiceNumber}* for *₹${totalFormatted}* from *${businessName}* is ready.\n\n`;
-  msg += `📋 *Invoice Summary:*\n`;
-  msg += `• Amount Total: *₹${totalFormatted}*\n`;
-  msg += `• Balance Due: *₹${balanceFormatted}*\n`;
-  msg += `• Due Date: *${dueDate}*\n`;
+  let msg = `Namaste *${customerName}*,\n\n`;
+  msg += `Your bill from *${businessName}* is ready.\n\n`;
+  msg += `Invoice No: *${invoiceNumber}*\n`;
+  msg += `Date: *${billDate}*\n`;
+  msg += `Total: *₹${totalFormatted}*\n`;
+  if (isFullyPaid) {
+    msg += `Paid: *₹${paidFormatted}* (Fully Paid)\n`;
+  } else {
+    msg += `Paid: *₹${paidFormatted}*\n`;
+    msg += `Balance Due: *₹${balanceFormatted}*\n`;
+  }
 
   if (documentUrl) {
     msg += `\n📄 *View/Download Invoice PDF:*\n${documentUrl}\n`;
@@ -111,7 +153,7 @@ export function buildInvoiceShareMessage(params: InvoiceShareMessageParams): str
     msg += `\n💳 *Pay via UPI:*\n${upiPaymentLink}\n`;
   }
 
-  msg += `\nThank you for doing business with *${businessName}*!`;
+  msg += `\nThank you for your business.\n— *${businessName}*`;
   return msg;
 }
 

@@ -25,6 +25,7 @@ enum SubscriptionPlan {
   STARTER
   GROWTH_PRO
   ENTERPRISE
+  FREE_KHATA
 }
 
 enum SubscriptionStatus {
@@ -90,8 +91,11 @@ model User {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  memberships  BusinessMembership[]
-  sessions     Session[]
+  memberships       BusinessMembership[]
+  sessions          Session[]
+  khataContacts     KhataContact[]
+  khataTransactions KhataTransaction[]
+  khataRepayments   KhataRepayment[]
 
   @@index([email])
   @@index([platformRole])
@@ -137,6 +141,9 @@ model Business {
   whatsAppConfig     WhatsAppConfig?
   whatsAppLogs       WhatsAppMessageLog[]
   expenses           Expense[]
+  khataContacts      KhataContact[]
+  khataTransactions  KhataTransaction[]
+  khataRepayments    KhataRepayment[]
 
   @@index([name])
 }
@@ -601,4 +608,92 @@ model Expense {
   @@index([category])
   @@index([expenseDate])
 }
+
+enum KhataTransactionType {
+  GAVE
+  RECEIVED
+}
+
+enum KhataEntryStatus {
+  PENDING
+  PARTIAL
+  SETTLED
+}
+
+model KhataContact {
+  id           String             @id @default(cuid())
+  businessId   String
+  userId       String?
+  name         String
+  phone        String?
+  email        String?
+  notes        String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  business     Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user         User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions KhataTransaction[]
+  repayments   KhataRepayment[]
+
+  @@index([businessId])
+  @@index([userId])
+  @@index([name])
+  @@index([phone])
+}
+
+model KhataTransaction {
+  id            String               @id @default(cuid())
+  businessId    String
+  userId        String?
+  contactId     String
+  type          KhataTransactionType
+  amount        Float
+  date          DateTime             @default(now())
+  dueDate       DateTime?
+  description   String?
+  status        KhataEntryStatus     @default(PENDING)
+  settledAmount Float                @default(0)
+  balanceAmount Float
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  business      Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user          User?                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contact       KhataContact         @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  repayments    KhataRepayment[]
+
+  @@index([businessId])
+  @@index([userId])
+  @@index([contactId])
+  @@index([type])
+  @@index([status])
+  @@index([date])
+  @@index([dueDate])
+}
+
+model KhataRepayment {
+  id            String           @id @default(cuid())
+  businessId    String
+  userId        String?
+  contactId     String
+  transactionId String
+  amount        Float
+  date          DateTime         @default(now())
+  paymentMode   PaymentMethod    @default(CASH)
+  notes         String?
+  createdAt     DateTime         @default(now())
+
+  business      Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user          User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contact       KhataContact     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  transaction   KhataTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([userId])
+  @@index([contactId])
+  @@index([transactionId])
+  @@index([date])
+}
+
 

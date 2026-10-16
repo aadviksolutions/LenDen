@@ -16,9 +16,11 @@ import {
   Filter,
   CheckCircle2,
   Clock,
+  MessageSquare,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { WhatsAppShareModal } from '@/components/whatsapp/WhatsAppShareModal';
 
 interface InvoiceListItem {
   id: string;
@@ -60,6 +62,7 @@ export default function InvoicesPage() {
   const [paymentMethod, setPaymentMethod] = useState('UPI');
   const [paymentRef, setPaymentRef] = useState('');
   const [paying, setPaying] = useState(false);
+  const [selectedInvoiceForShare, setSelectedInvoiceForShare] = useState<InvoiceListItem | null>(null);
 
   const fetchInvoices = useCallback(async () => {
     setLoading(true);
@@ -415,6 +418,15 @@ export default function InvoicesPage() {
                           <Printer className="w-3.5 h-3.5" />
                         </Link>
 
+                        <button
+                          type="button"
+                          onClick={() => setSelectedInvoiceForShare(inv)}
+                          className="p-1 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-colors cursor-pointer"
+                          title="Send to WhatsApp"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                        </button>
+
                         {inv.balanceDue > 0 && inv.status !== 'CANCELLED' && (
                           <button
                             type="button"
@@ -615,6 +627,21 @@ export default function InvoicesPage() {
             </form>
           </div>
         </div>
+      )}
+      {/* WhatsApp Share Modal for Invoice */}
+      {selectedInvoiceForShare && (
+        <WhatsAppShareModal
+          isOpen={true}
+          onClose={() => setSelectedInvoiceForShare(null)}
+          customerName={selectedInvoiceForShare.customerName}
+          customerPhone={selectedInvoiceForShare.customerMobile}
+          invoiceNumber={selectedInvoiceForShare.invoiceNumber}
+          invoiceId={selectedInvoiceForShare.id}
+          invoiceTotal={selectedInvoiceForShare.total}
+          balanceDue={selectedInvoiceForShare.balanceDue}
+          dueDate={selectedInvoiceForShare.dueDate}
+          shareType="INVOICE"
+        />
       )}
     </div>
   );

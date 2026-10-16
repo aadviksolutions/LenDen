@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireTenantAccess } from '@/lib/auth/guards';
+import { requireCommercialAccess } from '@/lib/auth/guards';
 import { getInvoices, createInvoice } from '@/lib/services/invoiceService';
 import { InvoiceStatus } from '@prisma/client';
 
 export async function GET(req: NextRequest) {
   try {
-    const { business } = await requireTenantAccess();
+    const { business } = await requireCommercialAccess();
     const { searchParams } = new URL(req.url);
 
     const search = searchParams.get('search') || undefined;
@@ -28,14 +28,14 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to fetch invoices.';
-    const status = message.includes('Authentication') ? 401 : message.includes('Access Denied') ? 403 : 500;
+    const status = message.includes('Authentication') ? 401 : message.includes('Access Denied') || message.includes('Commercial plan required') ? 403 : 500;
     return NextResponse.json({ success: false, error: message }, { status });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { business, session } = await requireTenantAccess();
+    const { business, session } = await requireCommercialAccess();
     const body = await req.json();
 
     const invoice = await createInvoice(business.id, session.user.id, body);

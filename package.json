@@ -16,7 +16,9 @@
     "test:phase5": "tsx scripts/test-phase5-whatsapp.ts",
     "test:task1": "tsx scripts/test-task1-branding-and-upi.ts",
     "test:task2": "tsx scripts/test-task2-gstr3b.ts",
-    "test:task3": "tsx scripts/test-task3-super-admin.ts"
+    "test:task3": "tsx scripts/test-task3-super-admin.ts",
+    "test:fast-billing": "tsx scripts/test-fast-billing-and-whatsapp.ts",
+    "test:free-khata": "tsx scripts/test-free-khata.ts"
   },
   "dependencies": {
     "@neon/config": "^1.8.6",

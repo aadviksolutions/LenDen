@@ -54,13 +54,18 @@ export async function POST(req: NextRequest) {
         invoiceDate: invoice.invoiceDate.toISOString().split('T')[0],
         dueDate: invoice.dueDate.toISOString().split('T')[0],
         total: invoice.total,
+        paidAmount: invoice.paidAmount,
         balanceDue: invoice.balanceDue,
         documentUrl: docUrl,
       });
 
       const clickToChatUrl = buildWhatsAppClickToChatUrl(phoneToUse, message);
+      const targetDigits = sanitized.isValid ? sanitized.cleanDigits : (phoneToUse || '').replace(/\D/g, '');
+      const encodedMsg = encodeURIComponent(message);
+      const mobileAppUrl = targetDigits ? `whatsapp://send?phone=${targetDigits}&text=${encodedMsg}` : '';
+      const webUrl = targetDigits ? `https://web.whatsapp.com/send?phone=${targetDigits}&text=${encodedMsg}` : '';
 
-      if (logShare) {
+      if (logShare && sanitized.isValid) {
         await logManualWhatsAppShare(business.id, {
           recipientPhone: phoneToUse,
           recipientName: invoice.customerName,
@@ -68,7 +73,7 @@ export async function POST(req: NextRequest) {
           contentSummary: message.slice(0, 500),
           customerId: invoice.customerId,
           invoiceId: invoice.id,
-          actor: session.user.name || 'Staff',
+          actor: session.user.name || 'Staff (WhatsApp Handoff)',
         });
       }
 
@@ -79,6 +84,8 @@ export async function POST(req: NextRequest) {
         sanitizedPhone: sanitized,
         message,
         clickToChatUrl,
+        mobileAppUrl,
+        webUrl,
         documentUrl: docUrl,
         token,
       });

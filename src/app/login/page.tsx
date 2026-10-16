@@ -93,6 +93,8 @@ function LoginForm() {
       // If user is SUPER_ADMIN, redirect to /platform-admin unless redirect query was set
       if (data.user?.platformRole === 'SUPER_ADMIN' && redirectUrl === '/') {
         router.push('/platform-admin');
+      } else if (data.business?.plan === 'FREE_KHATA' && redirectUrl === '/') {
+        router.push('/free-khata');
       } else {
         router.push(redirectUrl);
       }
@@ -235,7 +237,7 @@ function LoginForm() {
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-6 text-xs font-bold text-slate-600">
+          <nav className="hidden lg:flex items-center gap-5 text-xs font-bold text-slate-600">
             <Link href="/pricing" className="hover:text-[#00B887] transition-colors">
               Pricing
             </Link>
@@ -246,8 +248,15 @@ function LoginForm() {
               Live Demo
             </button>
             <Link
+              href="/register?plan=free_khata"
+              className="px-3.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-colors font-bold flex items-center gap-1.5 shadow-2xs"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#00B887]" />
+              <span>Free Khata</span>
+            </Link>
+            <Link
               href="/register"
-              className="px-3.5 py-1.5 rounded-xl border border-[#00B887] text-[#00B887] hover:bg-emerald-50 transition-colors font-bold"
+              className="px-3.5 py-1.5 rounded-xl border border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 transition-colors font-bold"
             >
               Register Business
             </Link>
@@ -286,13 +295,25 @@ function LoginForm() {
             </button>
 
             <Link
+              href="/register?plan=free_khata"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#00B887]" />
+                <span>Open Free Udhaar Khata (100% Free)</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-emerald-600" />
+            </Link>
+
+            <Link
               href="/register"
               onClick={() => setMobileMenuOpen(false)}
               className="w-full flex items-center justify-between p-2.5 rounded-xl text-slate-700 hover:bg-slate-50 font-bold text-xs transition-colors"
             >
               <div className="flex items-center gap-2">
                 <UserPlus className="w-4 h-4 text-[#00B887]" />
-                <span>Register New Business</span>
+                <span>Register Business Workspace</span>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </Link>
@@ -717,13 +738,22 @@ function LoginForm() {
                 </span>
               </div>
 
-              {/* Outlined Green Button: Register your business */}
+              {/* Free Khata Prominent Action Button */}
+              <Link
+                href="/register?plan=free_khata"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all text-center cursor-pointer active:scale-[0.99] mb-2"
+              >
+                <Sparkles className="w-4 h-4 text-emerald-200" />
+                <span>Open 100% Free Udhaar Khata</span>
+              </Link>
+
+              {/* Outlined Button: Register your business */}
               <Link
                 href="/register"
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border-2 border-[#00B887] text-[#00B887] hover:bg-emerald-50/70 font-bold text-xs sm:text-sm transition-all text-center cursor-pointer active:scale-[0.99]"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-50 font-bold text-xs sm:text-sm transition-all text-center cursor-pointer active:scale-[0.99]"
               >
-                <UserPlus className="w-4 h-4" />
-                <span>Register your business</span>
+                <Building2 className="w-4 h-4 text-[#00B887]" />
+                <span>Register Business (Invoicing & GST)</span>
               </Link>
 
               {/* Supporting Text */}

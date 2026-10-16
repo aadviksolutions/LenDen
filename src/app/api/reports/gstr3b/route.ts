@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { requireTenantAccess } from '@/lib/auth/guards';
+import { requireCommercialAccess } from '@/lib/auth/guards';
 import { InvoiceStatus, PurchaseStatus } from '@prisma/client';
 import { buildGstr3bPayload, buildGstr3bCsv } from '@/lib/reports/gstr3b';
 
 export async function GET(request: NextRequest) {
   try {
-    const authContext = await requireTenantAccess();
+    const authContext = await requireCommercialAccess();
     const businessId = authContext.business.id;
 
     const { searchParams } = new URL(request.url);
@@ -126,9 +126,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(payload);
   } catch (error: any) {
+    const status = error.statusCode || (error.message?.includes('Unauthorized') || error.message?.includes('Authentication') ? 401 : error.message?.includes('Commercial') ? 403 : 500);
     return NextResponse.json(
       { error: error.message || 'Failed to generate GSTR-3B return' },
-      { status: error.message?.includes('Unauthorized') ? 401 : 500 }
+      { status }
     );
   }
 }

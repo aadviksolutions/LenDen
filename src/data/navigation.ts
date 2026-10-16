@@ -101,6 +101,15 @@ export const BUSINESS_NAVIGATION_ITEMS: NavigationItem[] = [
     description: 'Client workspace subscription plan, renewal & limits',
   },
   {
+    id: 'free-khata-link',
+    name: 'Free Udhaar Khata',
+    href: '/free-khata',
+    iconName: 'BookOpen',
+    badge: 'Free',
+    badgeColor: 'emerald',
+    description: 'Personal lending and borrowing ledger',
+  },
+  {
     id: 'whatsapp',
     name: 'WhatsApp Automation',
     href: '/whatsapp',
@@ -108,6 +117,56 @@ export const BUSINESS_NAVIGATION_ITEMS: NavigationItem[] = [
     badge: 'API',
     badgeColor: 'emerald',
     description: 'Automated invoice PDFs, payment reminder broadcasts',
+  },
+];
+
+/**
+ * Free Khata Navigation:
+ * Dedicated streamlined navigation for users on the permanent Free Khata plan.
+ */
+export const FREE_KHATA_NAVIGATION_ITEMS: NavigationItem[] = [
+  {
+    id: 'free-khata-dashboard',
+    name: 'Khata Dashboard',
+    href: '/free-khata',
+    iconName: 'LayoutDashboard',
+    badge: 'Free',
+    badgeColor: 'emerald',
+    description: 'Personal lending & borrowing overview, collections & repayments',
+  },
+  {
+    id: 'free-khata-contacts',
+    name: 'People & Contacts',
+    href: '/free-khata/contacts',
+    iconName: 'Users',
+    description: 'All people in your personal khata with net balances',
+  },
+  {
+    id: 'free-khata-gave',
+    name: 'I Gave (Maine Diye)',
+    href: '/free-khata?filter=GAVE',
+    iconName: 'CreditCard',
+    badge: 'Collect',
+    badgeColor: 'emerald',
+    description: 'Money you lent out that you have to collect',
+  },
+  {
+    id: 'free-khata-received',
+    name: 'I Received (Maine Liye)',
+    href: '/free-khata?filter=RECEIVED',
+    iconName: 'Receipt',
+    badge: 'Repay',
+    badgeColor: 'amber',
+    description: 'Money you borrowed that you have to repay',
+  },
+  {
+    id: 'free-khata-reminders',
+    name: 'WhatsApp Reminders',
+    href: '/free-khata?view=reminders',
+    iconName: 'MessageSquare',
+    badge: 'Free',
+    badgeColor: 'emerald',
+    description: 'Share friendly payment reminders via WhatsApp',
   },
 ];
 
