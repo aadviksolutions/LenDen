@@ -380,6 +380,150 @@ function GlossyHeroBackground() {
 }
 
 /* =====================================================================
+   MOBILE-FIRST HERO BACKGROUND
+   Compact glossy navy-teal-emerald gradient with subtle vector curves
+   ===================================================================== */
+function MobileHeroBackground() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(155deg, #071F38 0%, #062644 32%, #003756 55%, #007C7D 80%, #00B887 100%)',
+        }}
+      />
+      {/* Top right emerald glow */}
+      <div
+        className="absolute -top-10 -right-10 w-60 h-60 rounded-full opacity-40 mix-blend-screen"
+        style={{
+          background: 'radial-gradient(circle, rgba(0, 229, 163, 0.7) 0%, transparent 70%)',
+          filter: 'blur(35px)',
+        }}
+      />
+      {/* Bottom center teal glow */}
+      <div
+        className="absolute -bottom-10 left-1/4 w-72 h-48 rounded-full opacity-35 mix-blend-screen"
+        style={{
+          background: 'radial-gradient(ellipse, rgba(0, 184, 135, 0.5) 0%, transparent 70%)',
+          filter: 'blur(40px)',
+        }}
+      />
+      {/* Subtle sweeping vector curve */}
+      <svg
+        className="absolute inset-0 w-full h-full"
+        viewBox="0 0 400 600"
+        preserveAspectRatio="none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M 100 600 C 180 480 260 320 400 180 L 400 600 Z"
+          fill="#00B887"
+          opacity="0.14"
+        />
+        <path
+          d="M 100 600 C 180 480 260 320 400 180"
+          stroke="rgba(0, 229, 163, 0.4)"
+          strokeWidth="1.5"
+        />
+      </svg>
+      {/* Dot matrix corner accent */}
+      <div
+        className="absolute top-3 left-3 w-28 h-28 opacity-20 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(#00E5A3 1px, transparent 1px)',
+          backgroundSize: '14px 14px',
+        }}
+      />
+    </div>
+  );
+}
+
+/* =====================================================================
+   MOBILE DASHBOARD PREVIEW CARD
+   Compact, native app-style horizontal preview of business metrics
+   ===================================================================== */
+function MobileDashboardMockup() {
+  return (
+    <div className="w-full bg-[#071F38] rounded-2xl p-3 sm:p-3.5 border border-slate-700/60 shadow-xl text-white select-none overflow-hidden">
+      {/* Top Bar */}
+      <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="w-5 h-5 rounded-md bg-[#00B887] flex items-center justify-center font-black text-[11px] text-[#071F38] shrink-0">
+            ₹
+          </div>
+          <span className="font-bold text-xs tracking-tight truncate">Lenden Dashboard</span>
+        </div>
+        <span className="text-[10px] font-semibold text-slate-400 shrink-0">Oct 2026</span>
+      </div>
+
+      {/* Two Metric Pills */}
+      <div className="grid grid-cols-2 gap-2 my-2.5">
+        <div className="bg-white/5 rounded-xl p-2 sm:p-2.5 border border-white/10 min-w-0">
+          <div className="text-[9.5px] sm:text-[10px] text-slate-400 font-medium truncate">Total Sales</div>
+          <div className="text-sm sm:text-base font-black text-white mt-0.5">₹ 48,250</div>
+          <div className="text-[8.5px] sm:text-[9px] font-bold text-[#00E5A3] mt-0.5 flex flex-wrap items-center gap-1">
+            <span>↑ +12%</span>
+            <span className="text-slate-400 font-normal truncate">this mo</span>
+          </div>
+        </div>
+        <div className="bg-white/5 rounded-xl p-2 sm:p-2.5 border border-white/10 min-w-0">
+          <div className="text-[9.5px] sm:text-[10px] text-slate-400 font-medium truncate">Outstanding</div>
+          <div className="text-sm sm:text-base font-black text-white mt-0.5">₹ 12,400</div>
+          <div className="text-[8.5px] sm:text-[9px] font-medium text-sky-400 mt-0.5 truncate">
+            5 customers
+          </div>
+        </div>
+      </div>
+
+      {/* Sales Overview Sparkline */}
+      <div className="bg-white/5 rounded-xl p-2 sm:p-2.5 border border-white/10 mb-2.5 overflow-hidden">
+        <div className="flex items-center justify-between text-[10px] text-slate-300 font-semibold mb-1">
+          <span>Sales Overview</span>
+          <span className="text-[#00E5A3] font-bold">Trend</span>
+        </div>
+        <div className="h-9 sm:h-10 w-full overflow-hidden">
+          <svg viewBox="0 0 200 50" className="w-full h-full" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="mobileGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#00B887" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#00B887" stopOpacity="0.0" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M0,42 Q30,38 60,30 T120,16 T160,20 T200,8 L200,50 L0,50 Z"
+              fill="url(#mobileGrad)"
+            />
+            <path
+              d="M0,42 Q30,38 60,30 T120,16 T160,20 T200,8"
+              fill="none"
+              stroke="#00E5A3"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+        <div className="flex justify-between text-[8px] text-slate-400 font-medium px-1 mt-0.5">
+          <span>Jan</span>
+          <span>Mar</span>
+          <span>May</span>
+          <span>Jul</span>
+          <span>Oct</span>
+        </div>
+      </div>
+
+      {/* Mini Recent Invoice */}
+      <div className="bg-white/5 rounded-xl px-2 sm:px-2.5 py-1.5 border border-white/10 flex items-center justify-between text-[9.5px] sm:text-[10px]">
+        <span className="font-bold text-[#00E5A3] shrink-0">INV-001</span>
+        <span className="text-slate-300 truncate px-1.5">Rajesh Kumar</span>
+        <span className="font-bold text-white shrink-0">₹2,450</span>
+      </div>
+    </div>
+  );
+}
+
+/* =====================================================================
    MAIN PAGE COMPONENT
    ===================================================================== */
 function LoginForm() {
@@ -404,6 +548,7 @@ function LoginForm() {
   const [showIntro, setShowIntro] = useState(true);
 
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const mobileEmailInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     try {
@@ -412,14 +557,34 @@ function LoginForm() {
         setEmail(savedEmail);
         setRememberMe(true);
       }
+      const noIntroParam = searchParams.get('nointro');
+      const introAlreadySeen = sessionStorage.getItem('lenden_intro_played');
+      if (noIntroParam === '1' || noIntroParam === 'true' || introAlreadySeen === 'true') {
+        setShowIntro(false);
+      }
     } catch {
       // Ignore
     }
-  }, []);
+  }, [searchParams]);
+
+  const handleMobileScrollToLogin = () => {
+    setMobileMenuOpen(false);
+    const el = document.getElementById('mobile-login-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        mobileEmailInputRef.current?.focus();
+      }, 500);
+    }
+  };
 
   const handleSignInFocus = () => {
-    emailInputRef.current?.focus();
-    emailInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      handleMobileScrollToLogin();
+    } else {
+      emailInputRef.current?.focus();
+      emailInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -477,30 +642,29 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-white font-sans selection:bg-[#00B887] selection:text-white flex flex-col justify-between">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden lg:h-screen lg:overflow-hidden bg-white font-sans selection:bg-[#00B887] selection:text-white flex flex-col justify-between">
       {/* Welcome Video Intro: plays from 00:02 to 00:08, then smoothly opens the website */}
       {showIntro && <WelcomeVideoIntro onComplete={() => setShowIntro(false)} />}
 
       {/* =========================================================
-          1. HEADER (70px Tall, clean white, fully aligned)
+          1. HEADER (70px Tall on desktop, 62px on mobile, clean white)
           ========================================================= */}
-      <header className="w-full bg-white border-b border-slate-200/80 sticky top-0 z-40 h-[70px] shrink-0">
+      <header className="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 h-[62px] lg:h-[70px] shrink-0">
         <div
-          className="mx-auto px-6 sm:px-10 h-full flex items-center justify-between"
-          style={{ maxWidth: '1580px', width: '100%' }}
+          className="mx-auto px-3.5 sm:px-6 lg:px-10 h-full flex items-center justify-between max-w-[1580px] w-full"
         >
           {/* Left: Official Lenden Logo */}
           <Link href="/" className="flex items-center gap-2 group shrink-0">
             <img
               src="/logo-horizontal.png"
               alt="Lenden"
-              className="w-36 sm:w-44 lg:w-48 h-auto object-contain transition-transform group-hover:scale-[1.02]"
+              className="h-7 sm:h-8 lg:h-9 w-auto object-contain transition-transform group-hover:scale-[1.02]"
               loading="eager"
             />
           </Link>
 
-          {/* Center: Navigation Links on One Line */}
-          <nav className="hidden md:flex items-center gap-7 lg:gap-9 text-[14px] font-semibold text-slate-700">
+          {/* Center: Desktop Navigation Links (hidden on mobile) */}
+          <nav className="hidden lg:flex items-center gap-7 lg:gap-9 text-[14px] font-semibold text-slate-700">
             <button
               onClick={() => setShowHelpModal(true)}
               className="hover:text-[#00B887] transition-colors cursor-pointer"
@@ -545,8 +709,8 @@ function LoginForm() {
             </button>
           </nav>
 
-          {/* Right: Outlined Sign In + Filled Emerald Get Started */}
-          <div className="flex items-center gap-3 shrink-0">
+          {/* Right: Desktop Actions (hidden on mobile) */}
+          <div className="hidden lg:flex items-center gap-3 shrink-0">
             <button
               type="button"
               onClick={handleSignInFocus}
@@ -560,28 +724,53 @@ function LoginForm() {
             >
               Get Started
             </Link>
+          </div>
 
-            {/* Mobile Toggle */}
+          {/* Mobile Right Bar: Quick Sign In + Hamburger Toggle */}
+          <div className="flex lg:hidden items-center gap-1.5 sm:gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleMobileScrollToLogin}
+              className="px-2.5 sm:px-3 py-1.5 rounded-lg border border-[#00B887] text-[#00B887] hover:bg-emerald-50 font-bold text-xs transition-colors cursor-pointer shrink-0"
+            >
+              Sign In
+            </button>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100"
+              aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              className="p-1.5 sm:p-2 text-slate-700 hover:text-slate-950 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Dropdown */}
+        {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-[70px] left-0 right-0 bg-white border-b border-slate-200 px-6 py-4 space-y-3 z-50 shadow-xl animate-in fade-in slide-in-from-top-2">
-            <div className="flex flex-col space-y-2.5 text-sm font-semibold text-slate-700">
-              <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
+          <div className="lg:hidden absolute top-[62px] left-0 right-0 bg-white border-b border-slate-200 px-5 py-4 space-y-3.5 z-50 shadow-2xl animate-in fade-in slide-in-from-top-2">
+            <div className="grid grid-cols-2 gap-1 text-sm font-semibold text-slate-700 pb-2 border-b border-slate-100">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setShowHelpModal(true);
+                }}
+                className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                Features
+              </button>
+              <Link
+                href="/pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
+              >
                 Pricing
               </Link>
               <Link
                 href="/register?plan=free_khata"
                 onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-lg hover:bg-slate-50 text-emerald-600 font-bold transition-colors"
               >
                 Free Khata
               </Link>
@@ -591,7 +780,7 @@ function LoginForm() {
                   setMobileMenuOpen(false);
                   setShowAboutModal(true);
                 }}
-                className="text-left"
+                className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 About Us
               </button>
@@ -601,7 +790,7 @@ function LoginForm() {
                   setMobileMenuOpen(false);
                   setShowContactModal(true);
                 }}
-                className="text-left"
+                className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 Contact
               </button>
@@ -611,20 +800,52 @@ function LoginForm() {
                   setMobileMenuOpen(false);
                   setShowHelpModal(true);
                 }}
-                className="text-left"
+                className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 Help
               </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setShowIntro(true);
+                }}
+                className="col-span-2 text-left px-3 py-2 rounded-lg hover:bg-emerald-50 text-emerald-700 font-semibold flex items-center gap-2 transition-colors"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>Watch Welcome Intro Video</span>
+              </button>
+            </div>
+
+            {/* Mobile Drawer Action Buttons */}
+            <div className="flex flex-col gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleMobileScrollToLogin();
+                }}
+                className="w-full py-2.5 rounded-xl border border-[#00B887] text-[#071F38] font-bold text-xs text-center hover:bg-emerald-50 transition-colors cursor-pointer"
+              >
+                Sign In to Account
+              </button>
+              <Link
+                href="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full py-2.5 rounded-xl bg-[#00B887] text-white font-bold text-xs text-center shadow-xs hover:bg-[#009E74] transition-colors"
+              >
+                Get Started / Register Your Business
+              </Link>
             </div>
           </div>
         )}
       </header>
 
       {/* =========================================================
-          2. HERO — THREE DISTINCT VISUAL ZONES (Exact Reference Match)
-          Height approximately 610px at 1664x936 Viewport
+          2. DESKTOP HERO — THREE DISTINCT VISUAL ZONES (Exact Reference Match)
+          Approved Desktop Design: 100% Preserved
           ========================================================= */}
-      <section className="relative w-full overflow-hidden min-h-[580px] lg:h-[610px] shrink-0 py-6 lg:py-0">
+      <section className="hidden lg:block relative w-full overflow-hidden min-h-[580px] lg:h-[610px] shrink-0 py-6 lg:py-0">
         {/* Pure CSS & SVG Glossy, Translucent Background */}
         <GlossyHeroBackground />
 
@@ -954,10 +1175,10 @@ function LoginForm() {
       </section>
 
       {/* =========================================================
-          3. BUSINESS CATEGORIES & AADVIK SOLUTIONS ATTRIBUTION
+          3. BUSINESS CATEGORIES & AADVIK SOLUTIONS ATTRIBUTION (DESKTOP)
           Shares remaining vertical space; guaranteed no-scroll at 1664x936
           ========================================================= */}
-      <section className="w-full bg-white py-3 sm:py-4 border-t border-slate-100 flex-1 flex flex-col justify-center min-h-0">
+      <section className="hidden lg:flex w-full bg-white py-3 sm:py-4 border-t border-slate-100 flex-1 flex-col justify-center min-h-0">
         <div
           className="mx-auto px-6 sm:px-10 w-full"
           style={{ maxWidth: '1580px' }}
@@ -1059,6 +1280,483 @@ function LoginForm() {
           </div>
         </div>
       </section>
+
+      {/* =========================================================
+          NATIVE APP-STYLE MOBILE EXPERIENCE (< 1024px)
+          Dedicated mobile-first single column, compact, touch-friendly
+          ========================================================= */}
+      <main className="block lg:hidden w-full overflow-x-hidden">
+        {/* --- 1. MOBILE HERO & FEATURE TILES --- */}
+        <section className="relative w-full overflow-hidden bg-[#071F38] pt-5 sm:pt-6 pb-7 px-4 sm:px-5 text-white">
+          <MobileHeroBackground />
+
+          <div className="relative z-10 max-w-md mx-auto">
+            {/* Small Eyebrow */}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-xs border border-white/15 mb-3 max-w-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00E5A3] shrink-0 animate-pulse" />
+              <span className="text-[9.5px] sm:text-[11px] font-bold tracking-[0.14em] sm:tracking-[0.16em] uppercase text-[#00E5A3] truncate">
+                BUSINESS MANAGEMENT MADE SIMPLE
+              </span>
+            </div>
+
+            {/* Headline: 34-40px responsive typography */}
+            <h1 className="text-[28px] xs:text-[32px] sm:text-[38px] font-extrabold leading-[1.12] tracking-tight">
+              <span>Har Hisab,</span>
+              <br />
+              <span className="text-[#00E5A3]">Ab Aasaan.</span>
+            </h1>
+
+            {/* Description */}
+            <p className="text-[14.5px] sm:text-base text-slate-200/90 leading-relaxed mt-2.5 max-w-sm">
+              Billing, inventory aur customer payments — sab ek jagah.
+            </p>
+
+            {/* Mobile Hero Actions */}
+            <div className="grid grid-cols-2 gap-2 sm:gap-2.5 mt-5">
+              <button
+                type="button"
+                onClick={handleMobileScrollToLogin}
+                className="w-full py-2.5 sm:py-3 px-2 sm:px-3 rounded-xl bg-[#00B887] hover:bg-[#009E74] active:scale-[0.98] text-white font-bold text-xs sm:text-sm text-center shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>Sign In</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+              <Link
+                href="/register"
+                className="w-full py-2.5 sm:py-3 px-2 sm:px-3 rounded-xl bg-white/10 hover:bg-white/20 active:scale-[0.98] border border-white/20 text-white font-semibold text-xs sm:text-sm text-center backdrop-blur-xs transition-all flex items-center justify-center gap-1.5"
+              >
+                <span>Get Started</span>
+              </Link>
+            </div>
+
+            {/* Compact Free Khata Banner */}
+            <Link
+              href="/register?plan=free_khata"
+              className="mt-3 flex items-center justify-between px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/30 hover:border-emerald-400/60 transition-colors gap-2"
+            >
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <span className="px-1.5 py-0.5 rounded-md bg-[#00B887] text-[8.5px] sm:text-[9px] font-black uppercase text-[#071F38] shrink-0">
+                  Free
+                </span>
+                <span className="text-[11px] sm:text-xs font-semibold text-white truncate">
+                  100% Free Khata Plan Available
+                </span>
+              </div>
+              <span className="text-[11px] font-bold text-[#00E5A3] shrink-0">Start →</span>
+            </Link>
+
+            {/* Compact 4-Feature 2-Column Grid */}
+            <div className="grid grid-cols-2 gap-2 sm:gap-2.5 mt-5 sm:mt-6">
+              {/* Feature 1 */}
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 sm:p-3 border border-white/15 flex items-center gap-2 sm:gap-2.5 shadow-xs min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#00B887]/25 text-[#00E5A3] flex items-center justify-center shrink-0 border border-[#00B887]/30">
+                  <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[11.5px] sm:text-[12px] font-bold text-white leading-tight truncate">
+                    Simple Billing
+                  </div>
+                  <div className="text-[9.5px] sm:text-[10px] text-slate-300 leading-tight mt-0.5 truncate">
+                    GST &amp; Non-GST
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 sm:p-3 border border-white/15 flex items-center gap-2 sm:gap-2.5 shadow-xs min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-teal-500/25 text-teal-300 flex items-center justify-center shrink-0 border border-teal-500/30">
+                  <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[11.5px] sm:text-[12px] font-bold text-white leading-tight truncate">
+                    Inventory Control
+                  </div>
+                  <div className="text-[9.5px] sm:text-[10px] text-slate-300 leading-tight mt-0.5 truncate">
+                    Low stock alerts
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 sm:p-3 border border-white/15 flex items-center gap-2 sm:gap-2.5 shadow-xs min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-amber-500/25 text-amber-300 flex items-center justify-center shrink-0 border border-amber-500/30">
+                  <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[11.5px] sm:text-[12px] font-bold text-white leading-tight truncate">
+                    Udhaar &amp; Payments
+                  </div>
+                  <div className="text-[9.5px] sm:text-[10px] text-slate-300 leading-tight mt-0.5 truncate">
+                    Payment reminders
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature 4 */}
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 sm:p-3 border border-white/15 flex items-center gap-2 sm:gap-2.5 shadow-xs min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-indigo-500/25 text-indigo-300 flex items-center justify-center shrink-0 border border-indigo-500/30">
+                  <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[11.5px] sm:text-[12px] font-bold text-white leading-tight truncate">
+                    Business Reports
+                  </div>
+                  <div className="text-[9.5px] sm:text-[10px] text-slate-300 leading-tight mt-0.5 truncate">
+                    P&amp;L &amp; GST tax
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Dashboard Mockup Preview */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300">
+                  App Overview
+                </span>
+                <span className="text-[10px] font-medium text-[#00E5A3] bg-[#00B887]/15 px-2 py-0.5 rounded-full border border-[#00B887]/25">
+                  Live UI
+                </span>
+              </div>
+              <MobileDashboardMockup />
+            </div>
+          </div>
+        </section>
+
+        {/* --- 2. MOBILE APP-STYLE LOGIN EXPERIENCE --- */}
+        <section
+          id="mobile-login-section"
+          className="w-full bg-[#F6F9FC] py-8 px-5 border-t border-slate-200/80 scroll-mt-14"
+        >
+          <div className="w-full max-w-md mx-auto bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm">
+            {/* Logo at Top of Card */}
+            <div className="flex justify-center mb-3">
+              <img
+                src="/logo-horizontal.png"
+                alt="Lenden"
+                className="h-8 w-auto object-contain"
+              />
+            </div>
+
+            <div className="text-center mb-5">
+              <h2 className="text-lg font-black text-[#071F38] tracking-tight">
+                Sign In to your account
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Enter your credentials to access your business
+              </p>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200/80 text-red-700 text-xs flex items-start gap-2 animate-in fade-in">
+                <Info className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+                <span className="leading-tight">{error}</span>
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Email Address or Mobile Number
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <input
+                    ref={mobileEmailInputRef}
+                    type="text"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@business.com or mobile"
+                    autoComplete="username"
+                    required
+                    className="w-full pl-10 pr-3.5 h-12 bg-slate-50/70 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-hidden focus:border-[#00B887] focus:ring-2 focus:ring-[#00B887]/20 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-xs font-semibold text-[#008F91] hover:text-[#00B887] transition-colors"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    autoComplete="current-password"
+                    required
+                    className="w-full pl-10 pr-10 h-12 bg-slate-50/70 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-hidden focus:border-[#00B887] focus:ring-2 focus:ring-[#00B887]/20 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Remember Me */}
+              <div className="flex items-center">
+                <input
+                  id="mobile-remember-me"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 text-[#00B887] border-slate-300 rounded-md focus:ring-[#00B887]"
+                />
+                <label
+                  htmlFor="mobile-remember-me"
+                  className="ml-2 text-xs font-medium text-slate-600 cursor-pointer select-none"
+                >
+                  Remember my login on this device
+                </label>
+              </div>
+
+              {/* Primary Sign In Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-[#00B887] to-[#009E74] hover:from-[#009E74] hover:to-[#008F91] active:scale-[0.99] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Signing In...</span>
+                  </div>
+                ) : (
+                  <>
+                    <span>Sign In</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 my-4">
+              <div className="h-px bg-slate-200 flex-1" />
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                or
+              </span>
+              <div className="h-px bg-slate-200 flex-1" />
+            </div>
+
+            {/* Google Sign In Button */}
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="w-full h-11 rounded-xl border border-slate-200 hover:bg-slate-50 active:scale-[0.99] text-slate-700 font-semibold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-2xs"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                />
+              </svg>
+              <span>Sign in with Google</span>
+            </button>
+
+            {/* Registration Links */}
+            <div className="mt-5 pt-4 border-t border-slate-100 text-center space-y-2">
+              <p className="text-xs text-slate-600">
+                Don&apos;t have an account?{' '}
+                <Link
+                  href="/register"
+                  className="font-bold text-[#00B887] hover:underline"
+                >
+                  Create an account
+                </Link>
+              </p>
+              <p className="text-xs text-slate-500">
+                Looking for 100% Free Khata?{' '}
+                <Link
+                  href="/register?plan=free_khata"
+                  className="font-bold text-[#008F91] hover:underline"
+                >
+                  Start free
+                </Link>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* --- 3. MOBILE BUSINESS CATEGORIES --- */}
+        <section className="w-full bg-white py-6 sm:py-7 px-4 sm:px-5 border-t border-slate-200/80">
+          <div className="max-w-md mx-auto">
+            {/* Header */}
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="h-px bg-slate-200 flex-1 max-w-[50px] sm:max-w-[60px]" />
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-[0.14em] sm:tracking-[0.16em] text-center truncate">
+                BUILT FOR GROWING INDIAN BUSINESSES
+              </span>
+              <div className="h-px bg-slate-200 flex-1 max-w-[50px] sm:max-w-[60px]" />
+            </div>
+
+            {/* 2-Column Grid for Mobile */}
+            <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
+              {/* Card 1 */}
+              <div className="bg-white rounded-xl p-2 sm:p-2.5 border border-slate-200/90 shadow-2xs flex items-center gap-2 sm:gap-2.5 min-w-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#E6F8F3] text-[#00B887] flex items-center justify-center shrink-0">
+                  <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <span className="text-[11.5px] sm:text-xs font-bold text-slate-800 leading-tight truncate">
+                  Retail Stores
+                </span>
+              </div>
+
+              {/* Card 2 */}
+              <div className="bg-white rounded-xl p-2 sm:p-2.5 border border-slate-200/90 shadow-2xs flex items-center gap-2 sm:gap-2.5 min-w-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#FFF4E5] text-[#F97316] flex items-center justify-center shrink-0">
+                  <UtensilsCrossed className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <span className="text-[11.5px] sm:text-xs font-bold text-slate-800 leading-tight truncate">
+                  Restaurants &amp; Cafes
+                </span>
+              </div>
+
+              {/* Card 3 */}
+              <div className="bg-white rounded-xl p-2 sm:p-2.5 border border-slate-200/90 shadow-2xs flex items-center gap-2 sm:gap-2.5 min-w-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#E8F4FD] text-[#0284C7] flex items-center justify-center shrink-0">
+                  <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <span className="text-[11.5px] sm:text-xs font-bold text-slate-800 leading-tight truncate">
+                  Wholesalers
+                </span>
+              </div>
+
+              {/* Card 4 */}
+              <div className="bg-white rounded-xl p-2 sm:p-2.5 border border-slate-200/90 shadow-2xs flex items-center gap-2 sm:gap-2.5 min-w-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#F3E8FF] text-[#9333EA] flex items-center justify-center shrink-0">
+                  <Factory className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <span className="text-[11.5px] sm:text-xs font-bold text-slate-800 leading-tight truncate">
+                  Manufacturers
+                </span>
+              </div>
+
+              {/* Card 5 */}
+              <div className="bg-white rounded-xl p-2 sm:p-2.5 border border-slate-200/90 shadow-2xs flex items-center gap-2 sm:gap-2.5 min-w-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#E6F8F3] text-[#008F91] flex items-center justify-center shrink-0">
+                  <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <span className="text-[11.5px] sm:text-xs font-bold text-slate-800 leading-tight truncate">
+                  Distributors
+                </span>
+              </div>
+
+              {/* Card 6 */}
+              <div className="bg-white rounded-xl p-2 sm:p-2.5 border border-slate-200/90 shadow-2xs flex items-center gap-2 sm:gap-2.5 min-w-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#E8F4FD] text-[#2563EB] flex items-center justify-center shrink-0">
+                  <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <span className="text-[11.5px] sm:text-xs font-bold text-slate-800 leading-tight truncate">
+                  Service Businesses
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* --- 4. MOBILE FOOTER & POWERED BY AADVIK SOLUTIONS --- */}
+        <footer className="w-full bg-[#F6F9FC] py-6 px-4 sm:px-5 border-t border-slate-200/70 text-center">
+          <div className="max-w-md mx-auto flex flex-col items-center">
+            {/* Nav Links */}
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-semibold text-slate-600 mb-4">
+              <button
+                type="button"
+                onClick={() => setShowHelpModal(true)}
+                className="hover:text-[#00B887] transition-colors cursor-pointer"
+              >
+                Features
+              </button>
+              <Link href="/pricing" className="hover:text-[#00B887] transition-colors">
+                Pricing
+              </Link>
+              <Link
+                href="/register?plan=free_khata"
+                className="hover:text-[#00B887] text-emerald-600 font-bold transition-colors"
+              >
+                Free Khata
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowAboutModal(true)}
+                className="hover:text-[#00B887] transition-colors cursor-pointer"
+              >
+                About Us
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowContactModal(true)}
+                className="hover:text-[#00B887] transition-colors cursor-pointer"
+              >
+                Contact
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowHelpModal(true)}
+                className="hover:text-[#00B887] transition-colors cursor-pointer"
+              >
+                Help
+              </button>
+            </div>
+
+            {/* Attribution */}
+            <span className="text-[11px] font-medium text-slate-400 tracking-wide">
+              Powered by
+            </span>
+            <div className="flex items-center justify-center gap-3 my-1.5">
+              <div className="h-px bg-slate-200 w-12" />
+              <img
+                src="/aadvik-horizontal.png"
+                alt="Aadvik Solutions"
+                className="h-6 w-auto object-contain transition-transform hover:scale-105"
+              />
+              <div className="h-px bg-slate-200 w-12" />
+            </div>
+
+            <p className="text-[10px] text-slate-400 mt-2">
+              © {new Date().getFullYear()} Lenden. All rights reserved.
+            </p>
+          </div>
+        </footer>
+      </main>
 
       {/* =========================================================
           5. MODALS FOR FULL FUNCTIONALITY
