@@ -27,7 +27,7 @@ import {
   Menu,
   Play,
 } from 'lucide-react';
-import { WelcomeVideoIntro } from '@/components/welcome/WelcomeVideoIntro';
+import { LendenFrameIntro } from '@/components/welcome/LendenFrameIntro';
 
 /* =====================================================================
    REALISTIC 3D DASHBOARD PREVIEW
@@ -545,7 +545,8 @@ function LoginForm() {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(false);
+  const [isIntroForced, setIsIntroForced] = useState(false);
 
   const emailInputRef = useRef<HTMLInputElement>(null);
   const mobileEmailInputRef = useRef<HTMLInputElement>(null);
@@ -558,9 +559,15 @@ function LoginForm() {
         setRememberMe(true);
       }
       const noIntroParam = searchParams.get('nointro');
-      const introAlreadySeen = sessionStorage.getItem('lenden_intro_played');
-      if (noIntroParam === '1' || noIntroParam === 'true' || introAlreadySeen === 'true') {
-        setShowIntro(false);
+      const introAlreadySeen =
+        sessionStorage.getItem('lenden_intro_played') === 'true' ||
+        sessionStorage.getItem('lenden_intro_seen') === 'true';
+      const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (!noIntroParam && !introAlreadySeen && !prefersReducedMotion) {
+        setShowIntro(true);
       }
     } catch {
       // Ignore
@@ -643,8 +650,16 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden lg:h-screen lg:overflow-hidden bg-white font-sans selection:bg-[#00B887] selection:text-white flex flex-col justify-between">
-      {/* Welcome Video Intro: plays from 00:02 to 00:08, then smoothly opens the website */}
-      {showIntro && <WelcomeVideoIntro onComplete={() => setShowIntro(false)} />}
+      {/* Lenden JPG Frame Intro: 180 frames @ 30 FPS over ~6s with canvas and black letterbox */}
+      {showIntro && (
+        <LendenFrameIntro
+          forcePlay={isIntroForced}
+          onComplete={() => {
+            setShowIntro(false);
+            setIsIntroForced(false);
+          }}
+        />
+      )}
 
       {/* =========================================================
           1. HEADER (70px Tall on desktop, 62px on mobile, clean white)
@@ -700,9 +715,12 @@ function LoginForm() {
             </button>
             <button
               type="button"
-              onClick={() => setShowIntro(true)}
+              onClick={() => {
+                setIsIntroForced(true);
+                setShowIntro(true);
+              }}
               className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 text-[#008F91] hover:text-[#00B887] text-xs font-semibold transition-all cursor-pointer border border-[#00B887]/25 shadow-2xs"
-              title="Watch Welcome Video"
+              title="Watch Lenden Intro"
             >
               <Play className="w-3 h-3 fill-current text-[#00B887]" />
               <span>Intro</span>
@@ -808,12 +826,13 @@ function LoginForm() {
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
+                  setIsIntroForced(true);
                   setShowIntro(true);
                 }}
                 className="col-span-2 text-left px-3 py-2 rounded-lg hover:bg-emerald-50 text-emerald-700 font-semibold flex items-center gap-2 transition-colors"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Watch Welcome Intro Video</span>
+                <span>Watch Intro Animation</span>
               </button>
             </div>
 
