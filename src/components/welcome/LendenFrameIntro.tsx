@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
 
 interface LendenFrameIntroProps {
   onComplete?: () => void;
@@ -13,10 +12,10 @@ const DURATION_MS = 6000; // 6.0 seconds for 180 frames = 30 FPS
 const TARGET_FPS = 30;
 const CANVAS_WIDTH = 1280;
 const CANVAS_HEIGHT = 720;
-const PRELOAD_AHEAD_WINDOW = 40; // Sliding prefetch buffer ahead of current playhead
-const INITIAL_BUFFER_FRAMES = 6; // Initial frames buffered
+const PRELOAD_AHEAD_WINDOW = 50; // Sliding prefetch buffer ahead of current playhead
+const INITIAL_BUFFER_FRAMES = 12; // Initial frames buffered before playback starts
 
-// Exact verified sequence: ezgif-frame-001.jpg through ezgif-frame-180.jpg
+// Exact verified sequence: ezgif-frame-001.jpg through ezgif-frame-180.jpg (all 1280x720, white background)
 const FRAME_PATHS: string[] = Array.from({ length: TOTAL_FRAMES }, (_, i) => {
   const frameNum = String(i + 1).padStart(3, '0');
   return `/lenden-intro/ezgif-frame-${frameNum}.jpg`;
@@ -26,7 +25,6 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
-  const [progress, setProgress] = useState(0);
 
   // Decouple onComplete prop from effect lifecycles
   const onCompleteRef = useRef(onComplete);
@@ -34,30 +32,30 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
-  // References for playback and memory management
+  // References for playback, prefetching and lifecycle
   const imageCacheRef = useRef<Map<number, HTMLImageElement>>(new Map());
   const loadingSetRef = useRef<Set<number>>(new Set());
-  const animIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const rafIdRef = useRef<number | null>(null);
+  const animIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
   const lastDrawnFrameRef = useRef<number>(-1);
   const isFinishedRef = useRef<boolean>(false);
   const fadeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const safetyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Dismiss and finish transition
+  // Dismiss and finish transition smoothly into the main website
   const finishIntro = useCallback(() => {
     if (isFinishedRef.current) return;
     isFinishedRef.current = true;
 
     // Clean up animation loops
-    if (animIntervalRef.current !== null) {
-      clearInterval(animIntervalRef.current);
-      animIntervalRef.current = null;
-    }
     if (rafIdRef.current !== null) {
       cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = null;
+    }
+    if (animIntervalRef.current !== null) {
+      clearInterval(animIntervalRef.current);
+      animIntervalRef.current = null;
     }
     if (safetyTimeoutRef.current) {
       clearTimeout(safetyTimeoutRef.current);
@@ -72,7 +70,7 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
       // Storage might be restricted in private browsing
     }
 
-    // Smooth fade out
+    // Smooth dissolve fade into website
     setIsFadingOut(true);
     fadeTimeoutRef.current = setTimeout(() => {
       setIsDismissed(true);
@@ -81,7 +79,7 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
         document.body.style.overflow = '';
       }
       onCompleteRef.current?.();
-    }, 700); // 700ms smooth dissolve fade
+    }, 500); // 500ms smooth dissolve fade
   }, []);
 
   // Preload and asynchronously decode a single image frame
@@ -104,10 +102,13 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
         settled = true;
         imageCacheRef.current.set(index, img);
         loadingSetRef.current.delete(index);
+
         // If this is the current target frame or first frame, draw immediately
         if (canvasRef.current && (lastDrawnFrameRef.current < 0 || index === 0)) {
           const ctx = canvasRef.current.getContext('2d');
           if (ctx && img.naturalWidth > 0) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
             ctx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
             lastDrawnFrameRef.current = index;
           }
@@ -124,7 +125,7 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
 
       img.onload = () => {
         onDone();
-        // Asynchronous decode raster bytes off-main-thread (non-blocking)
+        // Asynchronously decode raster bytes off-main-thread (non-blocking)
         if (typeof img.decode === 'function') {
           img.decode().catch(() => {});
         }
@@ -141,7 +142,7 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
     });
   }, []);
 
-  // Controlled preloading window ahead of current frame
+  // Controlled preloading window ahead of current playhead
   const maintainPrefetchBuffer = useCallback(
     (currentFrame: number) => {
       const start = currentFrame + 1;
@@ -155,7 +156,7 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
     [preloadFrame]
   );
 
-  // Draw a frame to canvas with graceful fallback to closest decoded frame
+  // Draw a frame to canvas with high quality and graceful fallback to closest decoded frame
   const drawFrame = useCallback((frameIndex: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -175,6 +176,10 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
     }
 
     if (img && img.complete && img.naturalWidth > 0) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
       ctx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
       lastDrawnFrameRef.current = frameIndex;
     }
@@ -211,21 +216,40 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
       document.body.style.overflow = 'hidden';
     }
 
-    // 4. Absolute safety fallback timer (7.5 seconds) to ensure the website is NEVER inaccessible
+    // 4. Pre-fill canvas with white immediately
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      }
+    }
+
+    // 5. Absolute safety fallback timer (7.5 seconds) to ensure the website is NEVER inaccessible
     safetyTimeoutRef.current = setTimeout(() => {
       finishIntro();
     }, DURATION_MS + 1500);
 
+    // 6. Keyboard accessibility: Escape key exits immediately
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        finishIntro();
+      }
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+
     let isCancelled = false;
 
-    // 5. Preload initial frame buffer
+    // 7. Preload initial frame buffer
     const initialPromises = [];
     for (let i = 0; i < Math.min(TOTAL_FRAMES, INITIAL_BUFFER_FRAMES); i++) {
       initialPromises.push(preloadFrame(i));
     }
 
     // Buffer timeout so we start playing without stalling
-    const bufferTimeout = new Promise((resolve) => setTimeout(resolve, 250));
+    const bufferTimeout = new Promise((resolve) => setTimeout(resolve, 200));
 
     Promise.race([Promise.all(initialPromises), bufferTimeout]).then(() => {
       if (isCancelled || isFinishedRef.current) return;
@@ -236,7 +260,7 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
       // Start prefetching next chunk
       maintainPrefetchBuffer(0);
 
-      const tick = (now: number) => {
+      const renderStep = (now: number) => {
         if (isCancelled || isFinishedRef.current) return;
 
         if (startTimeRef.current === null) {
@@ -245,7 +269,6 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
 
         const elapsed = now - startTimeRef.current;
         const rawProgress = Math.min(1, elapsed / DURATION_MS);
-        setProgress(Math.round(rawProgress * 100));
 
         // Exact frame based on real elapsed time (guarantees 6.0s duration at 30 FPS)
         const currentFrameIndex = Math.min(
@@ -253,40 +276,50 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
           Math.floor(rawProgress * (TOTAL_FRAMES - 1))
         );
 
-        drawFrame(currentFrameIndex);
-        maintainPrefetchBuffer(currentFrameIndex);
+        if (currentFrameIndex !== lastDrawnFrameRef.current) {
+          drawFrame(currentFrameIndex);
+          maintainPrefetchBuffer(currentFrameIndex);
+        }
 
         if (elapsed >= DURATION_MS) {
-          if (animIntervalRef.current) {
-            clearInterval(animIntervalRef.current);
-            animIntervalRef.current = null;
-          }
           if (rafIdRef.current) {
             cancelAnimationFrame(rafIdRef.current);
             rafIdRef.current = null;
           }
+          if (animIntervalRef.current) {
+            clearInterval(animIntervalRef.current);
+            animIntervalRef.current = null;
+          }
           drawFrame(TOTAL_FRAMES - 1);
-          setProgress(100);
           setTimeout(() => {
             finishIntro();
-          }, 350);
+          }, 250);
+          return;
         }
+
+        rafIdRef.current = requestAnimationFrame(renderStep);
       };
 
-      // Realtime 30 FPS clock using high-precision performance.now()
-      // Guarantees reliable playback in all environments (including headless tests & mobile)
+      // Primary RAF loop synchronized with screen refresh
+      rafIdRef.current = requestAnimationFrame(renderStep);
+
+      // Secondary heartbeat to prevent stall if browser throttles RAF in background
       animIntervalRef.current = setInterval(() => {
-        tick(performance.now());
-      }, Math.round(1000 / TARGET_FPS)); // ~33ms per frame = 30 FPS
+        if (isCancelled || isFinishedRef.current) return;
+        renderStep(performance.now());
+      }, Math.round(1000 / TARGET_FPS));
     });
 
     return () => {
       isCancelled = true;
-      if (animIntervalRef.current !== null) {
-        clearInterval(animIntervalRef.current);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('keydown', handleKeyDown);
       }
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
+      }
+      if (animIntervalRef.current !== null) {
+        clearInterval(animIntervalRef.current);
       }
       if (safetyTimeoutRef.current) {
         clearTimeout(safetyTimeoutRef.current);
@@ -304,11 +337,10 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
 
   return (
     <div
-      role="dialog"
-      aria-modal="true"
+      role="region"
       aria-label="Lenden Introduction Animation"
-      className={`fixed inset-0 flex flex-col items-center justify-between select-none overflow-hidden transition-opacity duration-700 ease-out ${
-        isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'
+      className={`fixed inset-0 flex items-center justify-center select-none overflow-hidden transition-opacity duration-500 ease-out ${
+        isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
       style={{
         position: 'fixed',
@@ -316,74 +348,45 @@ export function LendenFrameIntro({ onComplete, forcePlay = false }: LendenFrameI
         left: 0,
         right: 0,
         bottom: 0,
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        maxWidth: '100vw',
+        height: '100dvh',
+        minHeight: '100svh',
         zIndex: 999999,
-        backgroundColor: '#000000',
-        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        backgroundColor: '#FFFFFF',
+        margin: 0,
+        padding: 0,
+        touchAction: 'none',
+        overscrollBehavior: 'none',
       }}
     >
-      {/* Top Header Controls */}
-      <header className="w-full shrink-0 z-30 px-4 sm:px-8 py-3.5 sm:py-5 flex items-center justify-between pointer-events-auto">
-        {/* Brand Indicator */}
-        <div className="flex items-center gap-2.5">
-          <div className="relative flex items-center justify-center">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#00B887] animate-ping absolute opacity-75" />
-            <div className="w-2.5 h-2.5 rounded-full bg-[#00B887]" />
-          </div>
-          <span className="text-[11px] sm:text-xs font-semibold tracking-[0.2em] text-slate-300 uppercase">
-            Lenden™ Intro
-          </span>
-        </div>
-
-        {/* Skip Button */}
-        <button
-          type="button"
-          onClick={finishIntro}
-          aria-label="Skip introduction animation and enter website"
-          className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-white text-xs sm:text-sm font-medium backdrop-blur-md transition-all border border-white/15 shadow-lg cursor-pointer group"
-        >
-          <span>Skip</span>
-          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 text-emerald-400" />
-        </button>
-      </header>
-
-      {/* Main Viewport: Canvas centered on pure black background with preserved 16:9 aspect ratio */}
-      <main className="relative flex-1 w-full flex items-center justify-center p-2 sm:p-4 md:p-6 pointer-events-none min-h-0 overflow-hidden">
-        <canvas
-          ref={canvasRef}
-          width={CANVAS_WIDTH}
-          height={CANVAS_HEIGHT}
-          className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
-          style={{
-            aspectRatio: '16 / 9',
-            maxWidth: '1280px',
-            maxHeight: '720px',
-            width: '100%',
-            height: 'auto',
-          }}
-        />
-      </main>
-
-      {/* Bottom Progress Bar & Hint */}
-      <footer className="w-full shrink-0 pb-4 sm:pb-6 px-6 flex flex-col items-center pointer-events-none z-30">
-        <div className="w-full max-w-xs sm:max-w-md flex flex-col items-center gap-2">
-          {/* Progress track */}
-          <div className="w-full h-1 bg-white/15 rounded-full overflow-hidden backdrop-blur-xs">
-            <div
-              className="h-full bg-gradient-to-r from-[#008F91] via-[#00B887] to-[#00E5A3] transition-all duration-100 ease-linear rounded-full"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <div className="flex items-center justify-between w-full text-[10px] sm:text-[11px] text-slate-400 font-medium px-1">
-            <span className="flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-[#00B887]" />
-              Smart Business Suite
-            </span>
-            <span>{progress}%</span>
-          </div>
-        </div>
-      </footer>
+      {/* 
+        Full-Screen Canvas Viewport:
+        - Pure white background matching the original 180-frame artwork
+        - 16:9 aspect ratio preserved without stretching or distortion
+        - Edge-to-edge horizontally on mobile devices
+        - Maximum available viewport utilization without cards, borders, or black bars
+      */}
+      <canvas
+        ref={canvasRef}
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        className="block max-w-full max-h-full object-contain pointer-events-none"
+        style={{
+          aspectRatio: '16 / 9',
+          width: '100%',
+          maxWidth: '100vw',
+          maxHeight: '100dvh',
+          height: 'auto',
+          display: 'block',
+          margin: 0,
+          padding: 0,
+          border: 'none',
+          borderRadius: 0,
+          boxShadow: 'none',
+          backgroundColor: '#FFFFFF',
+        }}
+      />
     </div>
   );
 }

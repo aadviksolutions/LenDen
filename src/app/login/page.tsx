@@ -559,6 +559,8 @@ function LoginForm() {
         setRememberMe(true);
       }
       const noIntroParam = searchParams.get('nointro');
+      const forceIntroParam =
+        searchParams.get('forceintro') === 'true' || searchParams.get('intro') === 'true';
       const introAlreadySeen =
         sessionStorage.getItem('lenden_intro_played') === 'true' ||
         sessionStorage.getItem('lenden_intro_seen') === 'true';
@@ -566,7 +568,10 @@ function LoginForm() {
         typeof window !== 'undefined' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      if (!noIntroParam && !introAlreadySeen && !prefersReducedMotion) {
+      if (forceIntroParam) {
+        setIsIntroForced(true);
+        setShowIntro(true);
+      } else if (!noIntroParam && !introAlreadySeen && !prefersReducedMotion) {
         setShowIntro(true);
       }
     } catch {
