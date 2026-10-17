@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireTenantAccess } from '@/lib/auth/guards';
+import { requireGrowthAccess } from '@/lib/auth/guards';
 import { getPurchaseById } from '@/lib/services/purchaseService';
 
 export async function GET(
@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { business } = await requireTenantAccess();
+    const { business } = await requireGrowthAccess();
     const { id } = await params;
 
     const purchase = await getPurchaseById(business.id, id);
@@ -22,6 +22,7 @@ export async function GET(
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to fetch purchase.';
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
+    const status = message.includes('Authentication') ? 401 : message.includes('Access Denied') || message.includes('Feature not available') ? 403 : 400;
+    return NextResponse.json({ success: false, error: message }, { status });
   }
 }

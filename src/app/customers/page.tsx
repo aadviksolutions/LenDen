@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { useEntitlements } from '@/hooks/useEntitlements';
+import { FeatureNotAvailable } from '@/components/shared/FeatureNotAvailable';
 
 interface CustomerSummary {
   id: string;
@@ -35,6 +37,7 @@ interface CustomerSummary {
 export default function CustomersPage() {
   const { activeBusiness } = useAuth();
   const { toast } = useToast();
+  const { canAccessCommercial } = useEntitlements();
   const [customers, setCustomers] = useState<CustomerSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -54,6 +57,7 @@ export default function CustomersPage() {
   });
 
   const fetchCustomers = useCallback(async (query = '') => {
+    if (!canAccessCommercial) return;
     setLoading(true);
     setError(null);
     try {
@@ -119,6 +123,16 @@ export default function CustomersPage() {
 
   const totalOutstanding = customers.reduce((acc, c) => acc + c.totalOutstanding, 0);
   const partiesWithBalance = customers.filter((c) => c.totalOutstanding > 0).length;
+
+  if (!canAccessCommercial) {
+    return (
+      <FeatureNotAvailable
+        featureName="Commercial Customers & Udhaar"
+        requiredPlanName="Starter, Growth or Scale"
+        description="Business customer directories, GST accounts, and credit limits are commercial features. For personal contacts and lending ledgers, please use Free Khata."
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

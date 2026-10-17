@@ -57,3 +57,10 @@ android/local.properties
 
 .vercel
 .env*
+
+.chrome-temp/
+screenshots/
+
+/Fluid Navy and Teal Gradient Waves.png
+/Lenden SaaS Dashboard Landing Page.png
+/lenden home page.PNG

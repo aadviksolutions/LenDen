@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { requireCommercialAccess } from '@/lib/auth/guards';
+import { requireGrowthAccess } from '@/lib/auth/guards';
 import { InvoiceStatus, PurchaseStatus } from '@prisma/client';
 import { buildGstr3bPayload, buildGstr3bCsv } from '@/lib/reports/gstr3b';
 
 export async function GET(request: NextRequest) {
   try {
-    const authContext = await requireCommercialAccess();
+    const authContext = await requireGrowthAccess();
     const businessId = authContext.business.id;
 
     const { searchParams } = new URL(request.url);

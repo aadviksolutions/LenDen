@@ -119,6 +119,12 @@ export async function validateSessionToken(
     return null;
   }
 
+  // Check if user has been suspended
+  if ((session.user as any).isSuspended) {
+    await prisma.session.delete({ where: { id: session.id } }).catch(() => null);
+    return null;
+  }
+
   const user: AuthenticatedUser = {
     id: session.user.id,
     email: session.user.email,

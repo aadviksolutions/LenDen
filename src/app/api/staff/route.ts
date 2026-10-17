@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { requireTenantAccess } from '@/lib/auth/guards';
+import { requireGrowthAccess } from '@/lib/auth/guards';
 import { hashPassword } from '@/lib/auth/password';
 import { BusinessRole } from '@prisma/client';
 import { getBusinessEntitlements } from '@/lib/subscription/entitlements';
 
 export async function GET(request: NextRequest) {
   try {
-    const authContext = await requireTenantAccess();
+    const authContext = await requireGrowthAccess();
 
     const memberships = await prisma.businessMembership.findMany({
       where: { businessId: authContext.business.id },
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const authContext = await requireTenantAccess(undefined, ['BUSINESS_OWNER']);
+    const authContext = await requireGrowthAccess(undefined, ['BUSINESS_OWNER']);
     const body = await request.json();
 
     // Enforce Plan User Limit on the Server
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const authContext = await requireTenantAccess(undefined, ['BUSINESS_OWNER']);
+    const authContext = await requireGrowthAccess(undefined, ['BUSINESS_OWNER']);
     const { searchParams } = new URL(request.url);
     const membershipId = searchParams.get('id');
 

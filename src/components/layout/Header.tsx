@@ -82,20 +82,20 @@ export function Header({
         </button>
 
         {/* Business Branding with Lenden Logo */}
-        <div className="flex items-center gap-2.5 min-w-0 shrink-0">
+        <div className="flex items-center gap-2 min-w-0 shrink">
           <div className="w-8 h-8 rounded-lg overflow-hidden bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center p-0.5 shrink-0">
             <img src="/logo.png" alt="Lenden" className="w-full h-full object-contain" />
           </div>
-          <div className="hidden sm:block min-w-0">
+          <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-xs sm:text-sm text-[#071F38] truncate block leading-tight">
-                {activeBusiness?.name || 'Lenden Business'}
+              <span className="font-bold text-xs sm:text-sm text-[#071F38] truncate block leading-tight max-w-[100px] xs:max-w-[150px] sm:max-w-[200px]">
+                {activeBusiness?.name || 'Lenden'}
               </span>
-              <span className="text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-[#00B887] px-1.5 py-0.2 rounded border border-emerald-200">
+              <span className="hidden xs:inline-block text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-[#00B887] px-1.5 py-0.2 rounded border border-emerald-200 shrink-0">
                 Active
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 font-medium truncate">
+            <p className="text-[10px] text-slate-400 font-medium truncate hidden sm:block">
               {activeBusiness?.gstin ? `GSTIN: ${activeBusiness.gstin}` : 'Smart Financial Billing'}
             </p>
           </div>
@@ -114,8 +114,8 @@ export function Header({
           </button>
         )}
 
-        {/* Global Search Bar */}
-        <div className="relative flex-1 min-w-[140px] max-w-xs">
+        {/* Search: Full Bar on sm+, Compact Icon on mobile */}
+        <div className="hidden sm:block relative flex-1 min-w-[120px] max-w-xs">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -131,7 +131,17 @@ export function Header({
       </div>
 
       {/* Right: Actions, Notifications, User */}
-      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        {/* Mobile Search Button */}
+        <button
+          type="button"
+          onClick={() => onOpenQuickActionModal('search')}
+          className="sm:hidden p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+          aria-label="Search bills and customers"
+        >
+          <Search className="w-4 h-4" />
+        </button>
+
         {/* Date Filter selector */}
         <div className="hidden lg:flex items-center gap-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700">
           <Calendar className="w-3.5 h-3.5 text-slate-400" />
@@ -150,10 +160,11 @@ export function Header({
         {/* Quick Create Invoice Primary Action */}
         <Link
           href="/invoices/new"
-          className="flex items-center gap-1.5 bg-[#00B887] hover:bg-[#009E74] text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+          className="flex items-center gap-1 bg-[#00B887] hover:bg-[#009E74] text-white text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-lg shadow-2xs hover:shadow-xs transition-all cursor-pointer"
         >
           <PlusCircle className="w-3.5 h-3.5 text-white" />
-          <span>New Bill</span>
+          <span className="hidden xs:inline">New Bill</span>
+          <span className="xs:hidden">Bill</span>
         </Link>
 
         {/* Notifications Popover */}

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireTenantAccess } from '@/lib/auth/guards';
+import { requireGrowthAccess } from '@/lib/auth/guards';
 import { getSuppliers, createSupplier } from '@/lib/services/supplierService';
 import { checkFeatureEntitlement } from '@/lib/subscription/entitlements';
 
 export async function GET(req: NextRequest) {
   try {
-    const { business } = await requireTenantAccess();
+    const { business } = await requireGrowthAccess();
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('query') || undefined;
 
@@ -17,13 +17,14 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to fetch suppliers.';
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
+    const status = message.includes('Authentication') ? 401 : message.includes('Access Denied') || message.includes('Feature not available') ? 403 : 400;
+    return NextResponse.json({ success: false, error: message }, { status });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { business } = await requireTenantAccess();
+    const { business } = await requireGrowthAccess();
 
     const entitlement = await checkFeatureEntitlement(business.id, 'canManageSuppliers');
     if (!entitlement.allowed) {

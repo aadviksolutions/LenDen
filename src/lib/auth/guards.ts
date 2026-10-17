@@ -100,6 +100,45 @@ export async function requireTenantAccess(
 }
 
 /**
+ * Server-side package entitlement guard.
+ * Strictly verifies on the server that the active business has the required feature
+ * enabled in its subscription plan. Blocks lower-tier plans from unauthorized APIs.
+ */
+export async function requireEntitlement(
+  feature: import('@/lib/subscription/plans').OfficialPlan['entitlements'] extends Record<infer K, any> ? K : never,
+  requestedBusinessId?: string,
+  allowedRoles?: BusinessRole[]
+): Promise<{
+  session: CurrentAuthSession;
+  business: ActiveBusinessWorkspace;
+  userRole: BusinessRole;
+  entitlements: import('@/lib/subscription/entitlements').BusinessEntitlementsResult;
+}> {
+  const result = await requireTenantAccess(requestedBusinessId, allowedRoles);
+  const { getBusinessEntitlements, checkFeatureEntitlement } = await import('@/lib/subscription/entitlements');
+
+  const entitlements = await getBusinessEntitlements(result.business.id);
+
+  // Platform Super Admins have universal platform access
+  if (result.session.user.platformRole === PlatformRole.SUPER_ADMIN) {
+    return { ...result, entitlements };
+  }
+
+  const allowed = Boolean(entitlements.entitlements[feature as keyof typeof entitlements.entitlements]);
+
+  if (!allowed) {
+    const check = await checkFeatureEntitlement(result.business.id, feature as any);
+    throw new AuthError(
+      check.message ||
+        `Feature not available. Your current ${entitlements.planName} plan does not include '${String(feature)}'.`,
+      403
+    );
+  }
+
+  return { ...result, entitlements };
+}
+
+/**
  * Server-side commercial subscription guard.
  * Blocks Free Khata users from accessing paid commercial billing, inventory,
  * purchases, and business accounting APIs.
@@ -112,16 +151,51 @@ export async function requireCommercialAccess(
   business: ActiveBusinessWorkspace;
   userRole: BusinessRole;
 }> {
-  const result = await requireTenantAccess(requestedBusinessId, allowedRoles);
-  const plan = result.business.subscription?.plan;
+  const result = await requireEntitlement('canCreateInvoices', requestedBusinessId, allowedRoles);
+  return {
+    session: result.session,
+    business: result.business,
+    userRole: result.userRole,
+  };
+}
 
-  if (plan === 'FREE_KHATA' && result.session.user.platformRole !== PlatformRole.SUPER_ADMIN) {
-    throw new AuthError(
-      'Commercial plan required. Free Khata users have permanent free access to Udhaar Khata but cannot access paid business billing, inventory, or GST features.',
-      403
-    );
-  }
+/**
+ * Server-side Growth plan guard.
+ * Blocks Free Khata and Starter users from Growth/Scale features (Purchases, Suppliers, Staff, Reports).
+ */
+export async function requireGrowthAccess(
+  requestedBusinessId?: string,
+  allowedRoles?: BusinessRole[]
+): Promise<{
+  session: CurrentAuthSession;
+  business: ActiveBusinessWorkspace;
+  userRole: BusinessRole;
+}> {
+  const result = await requireEntitlement('canManagePurchases', requestedBusinessId, allowedRoles);
+  return {
+    session: result.session,
+    business: result.business,
+    userRole: result.userRole,
+  };
+}
 
-  return result;
+/**
+ * Server-side Scale plan guard.
+ * Blocks Free Khata, Starter, and Growth users from Scale-only features (Multi-location, advanced valuation).
+ */
+export async function requireScaleAccess(
+  requestedBusinessId?: string,
+  allowedRoles?: BusinessRole[]
+): Promise<{
+  session: CurrentAuthSession;
+  business: ActiveBusinessWorkspace;
+  userRole: BusinessRole;
+}> {
+  const result = await requireEntitlement('canMultiLocation', requestedBusinessId, allowedRoles);
+  return {
+    session: result.session,
+    business: result.business,
+    userRole: result.userRole,
+  };
 }
 

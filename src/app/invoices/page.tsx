@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { useEntitlements } from '@/hooks/useEntitlements';
+import { FeatureNotAvailable } from '@/components/shared/FeatureNotAvailable';
 import { WhatsAppShareModal } from '@/components/whatsapp/WhatsAppShareModal';
 
 interface InvoiceListItem {
@@ -43,6 +45,7 @@ interface InvoiceListItem {
 export default function InvoicesPage() {
   const { activeBusiness } = useAuth();
   const { toast } = useToast();
+  const { canAccessCommercial } = useEntitlements();
   const [invoices, setInvoices] = useState<InvoiceListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -65,6 +68,7 @@ export default function InvoicesPage() {
   const [selectedInvoiceForShare, setSelectedInvoiceForShare] = useState<InvoiceListItem | null>(null);
 
   const fetchInvoices = useCallback(async () => {
+    if (!canAccessCommercial) return;
     setLoading(true);
     setError(null);
     try {
@@ -194,6 +198,16 @@ export default function InvoicesPage() {
         );
     }
   };
+
+  if (!canAccessCommercial) {
+    return (
+      <FeatureNotAvailable
+        featureName="Business Invoicing & Sales Billing"
+        requiredPlanName="Starter, Growth or Scale"
+        description="Business GST and retail invoicing are commercial features available on Starter, Growth, and Scale plans. For personal lending and borrowing records, please use Free Khata."
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

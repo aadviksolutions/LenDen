@@ -21,8 +21,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 import { useAuth } from '@/context/AuthContext';
-import { UpgradeGateBanner } from '@/components/subscription/UpgradeGateBanner';
-import { normalizePlanKey } from '@/lib/subscription/plans';
+import { useEntitlements } from '@/hooks/useEntitlements';
+import { FeatureNotAvailable } from '@/components/shared/FeatureNotAvailable';
 
 interface PurchaseListItem {
   id: string;
@@ -53,8 +53,9 @@ interface PurchaseListItem {
 
 function PurchasesContent() {
   const toast = useToast();
-  const { activeBusiness } = useAuth();
-  const currentPlanKey = normalizePlanKey(activeBusiness?.subscription?.plan);
+  const { isAllowed } = useEntitlements();
+  const canManagePurchases = isAllowed('canManagePurchases');
+
   const [purchases, setPurchases] = useState<PurchaseListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +73,7 @@ function PurchasesContent() {
   const [voiding, setVoiding] = useState(false);
 
   const fetchPurchases = useCallback(async () => {
+    if (!canManagePurchases) return;
     setLoading(true);
     setError(null);
     try {
@@ -153,6 +155,16 @@ function PurchasesContent() {
   const totalBalanceDue = receivedPurchases.reduce((sum, p) => sum + p.balanceDue, 0);
   const draftCount = purchases.filter((p) => p.status === 'DRAFT').length;
 
+  if (!canManagePurchases) {
+    return (
+      <FeatureNotAvailable
+        featureName="Purchases & Vendor Inward Bills"
+        requiredPlanName="Growth or Scale"
+        description="Inward supplier purchases, vendor bills, and inventory receiving require a Lenden Growth or Scale subscription."
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -189,15 +201,6 @@ function PurchasesContent() {
           </Link>
         </div>
       </div>
-
-      {/* Plan Feature Gate Banner for Starter */}
-      {currentPlanKey === 'STARTER' && (
-        <UpgradeGateBanner
-          featureName="Purchases & Supplier Invoices"
-          requiredPlan="GROWTH"
-          description="Lenden Starter is focused on single-counter sales & customer udhaar. Inward supplier purchases, bills, and inventory receiving require Lenden Growth or Scale."
-        />
-      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

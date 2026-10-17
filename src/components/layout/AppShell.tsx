@@ -9,6 +9,8 @@ import { ActionModalProvider, useActionModal } from '@/context/ActionModalContex
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/context/ToastContext';
 
+import { MobileBottomNavigation } from './MobileBottomNavigation';
+
 function AppShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -26,7 +28,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcfbf9] flex flex-col font-sans text-slate-900 selection:bg-slate-200">
+    <div className="min-h-screen bg-[#F6F9FC] flex flex-col font-sans text-slate-900 selection:bg-slate-200">
       {/* Sidebar Navigation */}
       <Sidebar
         mobileOpen={mobileSidebarOpen}
@@ -52,10 +54,13 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
           onToggleSidebarCollapse={() => setDesktopCollapsed((prev) => !prev)}
         />
 
-        {/* Dynamic Page Container */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-7 max-w-7xl w-full mx-auto">
+        {/* Dynamic Page Container with bottom padding for mobile navigation bar */}
+        <main className="flex-1 p-3.5 sm:p-5 lg:p-7 pb-24 sm:pb-28 lg:pb-8 max-w-7xl w-full mx-auto">
           {children}
         </main>
+
+        {/* Mobile-First Sticky Bottom Navigation Bar */}
+        <MobileBottomNavigation onOpenMobileMenu={() => setMobileSidebarOpen(true)} />
       </div>
     </div>
   );

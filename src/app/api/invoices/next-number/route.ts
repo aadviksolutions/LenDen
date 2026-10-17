@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { requireTenantAccess } from '@/lib/auth/guards';
+import { requireCommercialAccess, AuthError } from '@/lib/auth/guards';
 import { prisma } from '@/lib/db/prisma';
 import { getFiscalYear } from '@/lib/billing/sequence';
 
 export async function GET() {
   try {
-    const { business } = await requireTenantAccess();
+    const { business } = await requireCommercialAccess();
     const fiscalYear = getFiscalYear();
 
     const sequence = await prisma.invoiceSequence.findUnique({
@@ -25,6 +25,9 @@ export async function GET() {
       nextNumber,
     });
   } catch (error: unknown) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ success: false, error: error.message }, { status: error.statusCode });
+    }
     const message = error instanceof Error ? error.message : 'Failed to get next invoice number';
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }

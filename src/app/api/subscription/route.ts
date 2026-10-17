@@ -136,9 +136,26 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    const { plan } = body;
+    const { plan, paymentVerified } = body;
     if (!plan || !PLAN_TIERS[plan as SubscriptionPlan]) {
       return NextResponse.json({ error: 'Valid plan tier is required' }, { status: 400 });
+    }
+
+    const isSuperAdmin = authContext.session.user.platformRole === 'SUPER_ADMIN';
+
+    // Free Khata is permanently free and can be activated by any business owner.
+    // Paid subscription plans (Starter, Growth, Scale) can ONLY be activated by Super Admin or confirmed gateway webhook.
+    // Clients cannot self-authorize paid upgrades by sending paymentVerified: true in request payload.
+    if (plan !== 'FREE_KHATA' && !isSuperAdmin) {
+      return NextResponse.json(
+        {
+          error:
+            'Payment verification required. Paid subscription plans (Starter, Growth, Scale) activate only after confirmed payment processing.',
+          requiresPayment: true,
+          plan,
+        },
+        { status: 402 }
+      );
     }
 
     const tier = PLAN_TIERS[plan as SubscriptionPlan];

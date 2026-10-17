@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireTenantAccess } from '@/lib/auth/guards';
+import { requireCommercialAccess, AuthError } from '@/lib/auth/guards';
 import {
   getProductById,
   updateProduct,
@@ -11,7 +11,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { business } = await requireTenantAccess();
+    const { business } = await requireCommercialAccess();
     const { id } = await params;
 
     const product = await getProductById(business.id, id);
@@ -25,6 +25,9 @@ export async function GET(
       product,
     });
   } catch (error: unknown) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ success: false, error: error.message }, { status: error.statusCode });
+    }
     const message = error instanceof Error ? error.message : 'Failed to fetch product.';
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }
@@ -35,7 +38,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { business } = await requireTenantAccess();
+    const { business } = await requireCommercialAccess();
     const { id } = await params;
     const body = await req.json();
 
@@ -62,6 +65,9 @@ export async function PUT(
       product: updated,
     });
   } catch (error: unknown) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ success: false, error: error.message }, { status: error.statusCode });
+    }
     const message = error instanceof Error ? error.message : 'Failed to update product.';
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }

@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 import { round2 } from '@/lib/billing/calculator';
+import { useEntitlements } from '@/hooks/useEntitlements';
+import { FeatureNotAvailable } from '@/components/shared/FeatureNotAvailable';
 
 interface SupplierOption {
   id: string;
@@ -55,6 +57,9 @@ function PurchaseCreationForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
+  const { isAllowed } = useEntitlements();
+  const canManagePurchases = isAllowed('canManagePurchases');
+
   const preselectedSupplierId = searchParams.get('supplierId') || '';
 
   const [suppliers, setSuppliers] = useState<SupplierOption[]>([]);
@@ -97,6 +102,7 @@ function PurchaseCreationForm() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!canManagePurchases) return;
     // Fetch suppliers and products
     Promise.all([
       fetch('/api/suppliers')
@@ -106,7 +112,7 @@ function PurchaseCreationForm() {
         .then((r) => r.json())
         .then((d) => (d.success ? setProducts(d.products) : null)),
     ]).catch((err) => console.error('Error loading options:', err));
-  }, []);
+  }, [canManagePurchases]);
 
   // Recalculate totals
   let subtotal = 0;
@@ -281,6 +287,16 @@ function PurchaseCreationForm() {
       setSaving(false);
     }
   };
+
+  if (!canManagePurchases) {
+    return (
+      <FeatureNotAvailable
+        featureName="Record Inward Purchase Bill"
+        requiredPlanName="Growth or Scale"
+        description="Supplier purchases and stock receiving are available on Lenden Growth and Scale plans."
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

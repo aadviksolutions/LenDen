@@ -1,10 +1,9 @@
 import { getCurrentSession } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 import { PlatformRole } from '@prisma/client';
+import { AdminLayoutShell } from '@/components/admin/AdminLayoutShell';
 
 export const dynamic = 'force-dynamic';
-
-
 
 export default async function PlatformAdminLayout({
   children,
@@ -23,5 +22,10 @@ export default async function PlatformAdminLayout({
     redirect('/?error=forbidden_admin_access');
   }
 
-  return <>{children}</>;
+  return (
+    <AdminLayoutShell user={session.user}>
+      {children}
+    </AdminLayoutShell>
+  );
 }
+

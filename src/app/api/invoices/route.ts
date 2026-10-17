@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireCommercialAccess } from '@/lib/auth/guards';
+import { requireCommercialAccess, AuthError } from '@/lib/auth/guards';
 import { getInvoices, createInvoice } from '@/lib/services/invoiceService';
 import { InvoiceStatus } from '@prisma/client';
 
@@ -27,6 +27,9 @@ export async function GET(req: NextRequest) {
       invoices,
     });
   } catch (error: unknown) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ success: false, error: error.message }, { status: error.statusCode });
+    }
     const message = error instanceof Error ? error.message : 'Failed to fetch invoices.';
     const status = message.includes('Authentication') ? 401 : message.includes('Access Denied') || message.includes('Commercial plan required') ? 403 : 500;
     return NextResponse.json({ success: false, error: message }, { status });
@@ -48,6 +51,9 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error: unknown) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ success: false, error: error.message }, { status: error.statusCode });
+    }
     const message = error instanceof Error ? error.message : 'Failed to create invoice.';
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }

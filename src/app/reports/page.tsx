@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { ModulePageShell } from '@/components/shared/ModulePageShell';
 import { useToast } from '@/context/ToastContext';
+import { useEntitlements } from '@/hooks/useEntitlements';
+import { FeatureNotAvailable } from '@/components/shared/FeatureNotAvailable';
 import {
   Download,
   FileSpreadsheet,
@@ -57,6 +59,9 @@ interface SalesItem {
 
 export default function ReportsPage() {
   const toast = useToast();
+  const { isAllowed } = useEntitlements();
+  const canAdvancedReports = isAllowed('canAdvancedReports');
+
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<ReportSummary | null>(null);
   const [salesRegister, setSalesRegister] = useState<SalesItem[]>([]);
@@ -66,13 +71,15 @@ export default function ReportsPage() {
   const [selectedYear, setSelectedYear] = useState<string>('2026');
 
   useEffect(() => {
+    if (!canAdvancedReports) return;
     const now = new Date();
     setSelectedMonth(String(now.getMonth() + 1));
     setSelectedYear(String(now.getFullYear()));
     fetchReportData();
-  }, []);
+  }, [canAdvancedReports]);
 
   const fetchReportData = async () => {
+    if (!canAdvancedReports) return;
     try {
       setLoading(true);
       const res = await fetch('/api/reports/summary');
@@ -181,6 +188,16 @@ export default function ReportsPage() {
   ];
 
   const years = [2025, 2026, 2027, 2028];
+
+  if (!canAdvancedReports) {
+    return (
+      <FeatureNotAvailable
+        featureName="Advanced Reports & GST Tax Intelligence"
+        requiredPlanName="Growth or Scale"
+        description="Official GSTR-3B portal JSON exports, input tax credit (ITC) reconciliation, and advanced profit analytics require a Lenden Growth or Scale subscription."
+      />
+    );
+  }
 
   return (
     <ModulePageShell

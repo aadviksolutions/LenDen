@@ -309,6 +309,11 @@ export async function loginUser(input: LoginInput) {
     throw new Error('Invalid email or password.');
   }
 
+  if ((user as any).isSuspended) {
+    const reason = (user as any).suspendedReason || 'Your account has been administratively suspended. Please contact platform support.';
+    throw new Error(`Account Suspended: ${reason}`);
+  }
+
   // Primary business is user's first business membership (if any)
   const primaryBusiness = user.memberships[0]?.business || null;
   const businessId = primaryBusiness ? primaryBusiness.id : null;

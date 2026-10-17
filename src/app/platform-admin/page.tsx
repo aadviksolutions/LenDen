@@ -2,323 +2,413 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ModulePageShell } from '@/components/shared/ModulePageShell';
 import { useToast } from '@/context/ToastContext';
 import {
-  ShieldAlert,
-  Building2,
-  CreditCard,
   Users,
-  Activity,
-  ArrowRight,
+  Building2,
+  BookOpen,
+  CreditCard,
+  Receipt,
+  TrendingUp,
+  AlertCircle,
   CheckCircle2,
-  AlertTriangle,
   Clock,
+  ArrowRight,
+  ShieldAlert,
+  ShieldCheck,
+  RefreshCw,
+  Layers,
   Sparkles,
 } from 'lucide-react';
 
-interface PlatformMetrics {
-  monthlyRecurringRevenue: string;
-  mrrNumeric: number;
-  totalBusinesses: number;
-  activeWorkspaces: number;
-  trialWorkspaces: number;
-  suspendedWorkspaces: number;
-  totalMonthlyInvoicesProcessed: number;
-  totalPlatformUsers: number;
-  platformUptime: string;
-}
-
-interface TenantBusiness {
-  id: string;
-  businessName: string;
-  legalName: string;
-  tradeType: string;
-  gstin: string;
-  state: string;
-  ownerName: string;
-  ownerEmail: string;
-  ownerPhone: string;
-  plan: string;
-  subscriptionStatus: string;
-  monthlyPrice: number;
-  trialDaysRemaining: number;
-  invoiceCount: number;
-  customerCount: number;
-  itemCount: number;
-  createdAt: string;
+interface OverviewData {
+  kpis: {
+    totalUsers: number;
+    totalBusinesses: number;
+    activeUsers: number;
+    activePaidSubscriptions: number;
+    freeKhataAccounts: number;
+    trialWorkspaces: number;
+    suspendedWorkspaces: number;
+    pendingPayments: number;
+    successfulPayments: number;
+    failedPayments: number;
+    renewalsDue: number;
+    monthlyRecurringRevenue: number;
+    grossRevenue: number;
+    totalRefunds: number;
+    netCollections: number;
+    totalInvoices: number;
+    totalKhataTransactions: number;
+  };
+  recentAuditLogs: Array<{
+    id: string;
+    adminName: string;
+    adminEmail: string;
+    action: string;
+    targetType: string;
+    targetName: string | null;
+    reason: string | null;
+    outcome: string;
+    createdAt: string;
+  }>;
+  recentUsers: Array<{
+    id: string;
+    name: string;
+    email: string;
+    platformRole: string;
+    isSuspended: boolean;
+    createdAt: string;
+  }>;
 }
 
 export default function PlatformAdminOverviewPage() {
   const toast = useToast();
   const [loading, setLoading] = useState(true);
-  const [metrics, setMetrics] = useState<PlatformMetrics | null>(null);
-  const [businesses, setBusinesses] = useState<TenantBusiness[]>([]);
-  const [actionId, setActionId] = useState<string | null>(null);
+  const [data, setData] = useState<OverviewData | null>(null);
 
   useEffect(() => {
-    fetchMetrics();
+    fetchOverview();
   }, []);
 
-  const fetchMetrics = async () => {
+  const fetchOverview = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/platform-admin/metrics');
-      if (!res.ok) throw new Error('Failed to load platform metrics');
-      const data = await res.json();
-      setMetrics(data.metrics);
-      setBusinesses(data.businesses || []);
+      const res = await fetch('/api/platform-admin/overview');
+      if (!res.ok) throw new Error('Failed to load platform overview');
+      const json = await res.json();
+      setData(json);
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Error fetching platform metrics');
+      toast.error(err instanceof Error ? err.message : 'Error fetching overview');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleToggleStatus = async (businessId: string, currentStatus: string, businessName: string) => {
-    const newStatus = currentStatus === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
-    try {
-      setActionId(businessId);
-      const res = await fetch(`/api/platform-admin/tenants/${businessId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to update tenant status');
-
-      toast.success(`${businessName} is now ${newStatus}`);
-      fetchMetrics();
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Error updating status');
-    } finally {
-      setActionId(null);
-    }
-  };
+  const kpis = data?.kpis;
 
   return (
-    <ModulePageShell
-      title="Platform Administration Overview"
-      badgeText="Super Admin Scope"
-      description="Global multi-tenant platform oversight for the Lenden platform owner & developers. Monitor paying client workspaces, SaaS subscription revenue, plan allocations, and system health."
-      targetPhase="Platform Operations"
-    >
-      <div className="space-y-6">
-        {/* Security & Architectural Boundary Notice */}
-        <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950 to-slate-900 border border-purple-800 text-white shadow-sm space-y-2">
-          <div className="flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-purple-400" />
-            <span className="font-bold text-xs uppercase tracking-wider text-purple-300">
-              Architecture Rule: Platform Owner vs. Business Workspace
+    <div className="space-y-6">
+      {/* Top Banner & Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+            <span>Platform Overview & Command Center</span>
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+              Live Neon DB
             </span>
-          </div>
-          <p className="text-xs text-purple-100/90 leading-relaxed">
-            This module is strictly isolated to <strong>SUPER_ADMIN</strong> platform developers/owners. Unlike business users who are siloed strictly to their own workspace data, the Platform Admin Panel provides cross-tenant subscription management, client account controls, and plan configuration.
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Authoritative multi-tenant metrics, subscription revenue, payment audits, and platform controls.
           </p>
         </div>
 
-        {/* Global Platform KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500 mb-1.5">
-              <span className="text-xs font-semibold">Monthly Recurring Revenue</span>
-              <CreditCard className="w-4 h-4 text-purple-600" />
-            </div>
-            <div className="text-2xl font-black text-slate-900 tracking-tight font-mono">
-              {metrics?.monthlyRecurringRevenue || '₹0'}
-            </div>
-            <div className="text-[11px] font-medium text-emerald-600 mt-1 flex items-center gap-1">
-              <span>{metrics?.activeWorkspaces || 0} active subscriptions</span>
+        <button
+          onClick={fetchOverview}
+          disabled={loading}
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 shadow-2xs self-start transition-all"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-emerald-600' : ''}`} />
+          <span>Refresh Data</span>
+        </button>
+      </div>
+
+      {/* Security Architecture Box */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-[#071F38] to-[#0A2E52] border border-slate-800 text-white shadow-sm flex items-start gap-3">
+        <ShieldAlert className="w-5 h-5 text-[#00B887] shrink-0 mt-0.5" />
+        <div className="text-xs space-y-1">
+          <div className="font-bold text-[#00B887] uppercase tracking-wider text-[11px]">
+            Super Admin Authoritative Boundary
+          </div>
+          <p className="text-slate-300 leading-relaxed">
+            All statistics shown below are derived in real-time from active PostgreSQL records. Client requests cannot bypass server-side entitlement checks or forge payment confirmations.
+          </p>
+        </div>
+      </div>
+
+      {/* Primary Financial & Volume KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* MRR */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Monthly Recurring Revenue</span>
+            <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+              <TrendingUp className="w-4 h-4" />
             </div>
           </div>
-
-          <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500 mb-1.5">
-              <span className="text-xs font-semibold">Total Client Workspaces</span>
-              <Building2 className="w-4 h-4 text-blue-600" />
-            </div>
-            <div className="text-2xl font-black text-slate-900 tracking-tight font-mono">
-              {metrics?.totalBusinesses || 0}
-            </div>
-            <div className="text-[11px] text-slate-500 mt-1">
-              <span>
-                {metrics?.trialWorkspaces || 0} in trial • {metrics?.suspendedWorkspaces || 0} suspended
-              </span>
-            </div>
+          <div className="my-3">
+            <span className="text-2xl font-black text-slate-900 tracking-tight">
+              {loading ? '...' : `₹${(kpis?.monthlyRecurringRevenue || 0).toLocaleString('en-IN')}`}
+            </span>
+            <span className="text-[11px] text-slate-500 block mt-0.5">
+              from {kpis?.activePaidSubscriptions || 0} active paid subscriptions
+            </span>
           </div>
-
-          <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500 mb-1.5">
-              <span className="text-xs font-semibold">Invoices Processed</span>
-              <Users className="w-4 h-4 text-emerald-600" />
-            </div>
-            <div className="text-2xl font-black text-slate-900 tracking-tight font-mono">
-              {(metrics?.totalMonthlyInvoicesProcessed || 0).toLocaleString('en-IN')}
-            </div>
-            <div className="text-[11px] text-slate-500 mt-1">
-              <span>Across all business tenants this month</span>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500 mb-1.5">
-              <span className="text-xs font-semibold">Platform Availability</span>
-              <Activity className="w-4 h-4 text-emerald-600" />
-            </div>
-            <div className="text-2xl font-black text-slate-900 tracking-tight text-emerald-600">
-              {metrics?.platformUptime || '99.98%'}
-            </div>
-            <div className="text-[11px] text-slate-500 mt-1">
-              <span>Zero critical incidents in 30 days</span>
-            </div>
+          <div className="text-[11px] text-emerald-700 font-bold flex items-center gap-1 pt-2 border-t border-slate-100">
+            <span>₹199 Starter • ₹499 Growth • ₹999 Scale</span>
           </div>
         </div>
 
-        {/* Tenant Business Accounts Table Preview */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <div>
-              <span className="font-bold text-sm text-slate-900 block">
-                Tenant Workspaces & Live Subscription Status
-              </span>
-              <span className="text-xs text-slate-500">
-                Registered tenants and multi-tenant isolation status
-              </span>
+        {/* Total Collections */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Net Collections</span>
+            <div className="p-2 rounded-xl bg-teal-50 text-teal-600">
+              <Receipt className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="my-3">
+            <span className="text-2xl font-black text-slate-900 tracking-tight">
+              {loading ? '...' : `₹${(kpis?.netCollections || 0).toLocaleString('en-IN')}`}
+            </span>
+            <span className="text-[11px] text-slate-500 block mt-0.5">
+              Gross: ₹{(kpis?.grossRevenue || 0).toLocaleString('en-IN')} (Refunds: ₹{(kpis?.totalRefunds || 0).toLocaleString('en-IN')})
+            </span>
+          </div>
+          <div className="text-[11px] text-slate-600 font-medium flex items-center justify-between pt-2 border-t border-slate-100">
+            <span>Successful: {kpis?.successfulPayments || 0}</span>
+            <span className="text-amber-600 font-semibold">Pending: {kpis?.pendingPayments || 0}</span>
+          </div>
+        </div>
+
+        {/* Free Khata Accounts */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Free Khata Accounts</span>
+            <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
+              <BookOpen className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="my-3">
+            <span className="text-2xl font-black text-slate-900 tracking-tight">
+              {loading ? '...' : (kpis?.freeKhataAccounts || 0).toLocaleString('en-IN')}
+            </span>
+            <span className="text-[11px] text-blue-600 font-semibold block mt-0.5">
+              Permanently Free Ledger Tier
+            </span>
+          </div>
+          <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+            {kpis?.totalKhataTransactions || 0} ledger transactions recorded
+          </div>
+        </div>
+
+        {/* Total Workspaces */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Workspaces & Users</span>
+            <div className="p-2 rounded-xl bg-purple-50 text-purple-600">
+              <Building2 className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="my-3">
+            <span className="text-2xl font-black text-slate-900 tracking-tight">
+              {loading ? '...' : (kpis?.totalBusinesses || 0).toLocaleString('en-IN')}
+            </span>
+            <span className="text-[11px] text-slate-500 block mt-0.5">
+              {kpis?.totalUsers || 0} total registered platform users
+            </span>
+          </div>
+          <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 flex items-center justify-between">
+            <span>Active: {kpis?.activeUsers || 0}</span>
+            <span className="text-red-500 font-medium">Suspended: {kpis?.suspendedWorkspaces || 0}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Secondary Operational Stats Bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs text-xs">
+        <div>
+          <span className="text-slate-500 block text-[11px]">Renewals Due (&lt; 14d)</span>
+          <span className="font-extrabold text-base text-amber-700">
+            {loading ? '...' : kpis?.renewalsDue || 0}
+          </span>
+        </div>
+        <div>
+          <span className="text-slate-500 block text-[11px]">Trial Workspaces</span>
+          <span className="font-extrabold text-base text-slate-800">
+            {loading ? '...' : kpis?.trialWorkspaces || 0}
+          </span>
+        </div>
+        <div>
+          <span className="text-slate-500 block text-[11px]">Commercial Invoices</span>
+          <span className="font-extrabold text-base text-slate-800">
+            {loading ? '...' : (kpis?.totalInvoices || 0).toLocaleString('en-IN')}
+          </span>
+        </div>
+        <div>
+          <span className="text-slate-500 block text-[11px]">Payment Failure Rate</span>
+          <span className="font-extrabold text-base text-slate-800">
+            {loading
+              ? '...'
+              : `${(
+                  ((kpis?.failedPayments || 0) /
+                    Math.max(1, (kpis?.successfulPayments || 0) + (kpis?.failedPayments || 0))) *
+                  100
+                ).toFixed(1)}%`}
+          </span>
+        </div>
+      </div>
+
+      {/* Navigation Quick Action Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Link
+          href="/platform-admin/users"
+          className="group bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-emerald-300 hover:shadow-sm transition-all flex items-start gap-3.5"
+        >
+          <div className="p-3 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+            <Users className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-sm text-slate-900">User Management</span>
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 group-hover:text-emerald-600 transition-all" />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Search directory, suspend/reactivate accounts, correct plan assignments.
+            </p>
+          </div>
+        </Link>
+
+        <Link
+          href="/platform-admin/payments"
+          className="group bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-teal-300 hover:shadow-sm transition-all flex items-start gap-3.5"
+        >
+          <div className="p-3 rounded-xl bg-teal-50 text-teal-700 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+            <Receipt className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-sm text-slate-900">Payments & Collections</span>
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 group-hover:text-teal-600 transition-all" />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Track successful, pending and failed SaaS transactions. Manual reconciliation workflow.
+            </p>
+          </div>
+        </Link>
+
+        <Link
+          href="/platform-admin/free-khata"
+          className="group bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-300 hover:shadow-sm transition-all flex items-start gap-3.5"
+        >
+          <div className="p-3 rounded-xl bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+            <BookOpen className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-sm text-slate-900">Free Khata Control</span>
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 group-hover:text-blue-600 transition-all" />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Permanent free ledger metrics, abuse monitoring, and contact counts.
+            </p>
+          </div>
+        </Link>
+      </div>
+
+      {/* Split Grids: Recent Activity & Recent Users */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Audit Log Feed */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <h2 className="font-bold text-sm text-slate-900">Recent Platform Audit Log</h2>
             </div>
             <Link
-              href="/platform-admin/businesses"
-              className="text-xs font-semibold text-purple-700 hover:text-purple-800 flex items-center gap-1 hover:underline"
+              href="/platform-admin/audit-logs"
+              className="text-xs font-semibold text-emerald-700 hover:text-emerald-800"
             >
-              Manage all client accounts ({businesses.length})
-              <ArrowRight className="w-3.5 h-3.5" />
+              View All Logs &rarr;
             </Link>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50/80 text-slate-500 uppercase text-[10px] font-semibold border-b border-slate-200">
-                <tr>
-                  <th className="py-3 px-4">Business Workspace</th>
-                  <th className="py-3 px-4">Owner Contact</th>
-                  <th className="py-3 px-4">Assigned Plan</th>
-                  <th className="py-3 px-4">Subscription Status</th>
-                  <th className="py-3 px-4">Invoices Created</th>
-                  <th className="py-3 px-4 text-right">Quick Super Admin Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400">
-                      Loading platform tenant roster...
-                    </td>
-                  </tr>
-                ) : businesses.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400">
-                      No business accounts found.
-                    </td>
-                  </tr>
-                ) : (
-                  businesses.slice(0, 5).map((b) => (
-                    <tr key={b.id} className="hover:bg-slate-50/80">
-                      <td className="py-3.5 px-4">
-                        <div className="font-semibold text-slate-900">{b.businessName}</div>
-                        <div className="text-[10px] text-slate-400 font-mono">
-                          {b.tradeType} • {b.state}
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <div className="font-medium text-slate-800">{b.ownerName}</div>
-                        <div className="text-[10px] text-slate-500 font-mono">{b.ownerEmail}</div>
-                      </td>
-                      <td className="py-3.5 px-4 font-semibold text-slate-800">
-                        {b.plan.replace('_', ' ')}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        {b.subscriptionStatus === 'ACTIVE' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            ACTIVE
-                          </span>
-                        )}
-                        {b.subscriptionStatus === 'SUSPENDED' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">
-                            <AlertTriangle className="w-3 h-3 text-rose-600" />
-                            SUSPENDED
-                          </span>
-                        )}
-                        {b.subscriptionStatus === 'TRIALING' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
-                            <Clock className="w-3 h-3 text-amber-600" />
-                            TRIALING ({b.trialDaysRemaining}d)
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-4 font-mono text-slate-700">
-                        {b.invoiceCount} invoices
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => handleToggleStatus(b.id, b.subscriptionStatus, b.businessName)}
-                            disabled={actionId === b.id}
-                            className={`px-3 py-1 text-[11px] font-semibold rounded border transition-colors ${
-                              b.subscriptionStatus === 'SUSPENDED'
-                                ? 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
-                                : 'text-rose-700 bg-rose-50 border-rose-200 hover:bg-rose-100'
-                            }`}
-                          >
-                            {actionId === b.id
-                              ? 'Updating...'
-                              : b.subscriptionStatus === 'SUSPENDED'
-                              ? 'Activate'
-                              : 'Suspend'}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+          <div className="space-y-2.5">
+            {(!data?.recentAuditLogs || data.recentAuditLogs.length === 0) ? (
+              <div className="p-6 text-center text-xs text-slate-500 bg-slate-50 rounded-xl">
+                No recent administrative actions recorded.
+              </div>
+            ) : (
+              data.recentAuditLogs.map((log) => (
+                <div
+                  key={log.id}
+                  className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-start justify-between text-xs"
+                >
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-800">{log.action}</span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-mono">
+                        {log.targetType}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-600">
+                      Target: {log.targetName || 'N/A'} • {log.reason || 'No reason provided'}
+                    </p>
+                    <span className="text-[10px] text-slate-400">By {log.adminName} ({log.adminEmail})</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 whitespace-nowrap">
+                    {new Date(log.createdAt).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
-        {/* Quick Links to other Platform Admin modules */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link
-            href="/platform-admin/plans"
-            className="p-4 rounded-xl bg-white border border-slate-200 hover:border-purple-300 shadow-2xs hover:shadow-xs transition-all flex items-center justify-between group"
-          >
-            <div>
-              <span className="font-bold text-xs text-slate-900 group-hover:text-purple-700 transition-colors block">
-                Subscription Plan Limits & Feature Matrix
-              </span>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                Configure counters, branches, staff seats, and GST e-invoicing entitlements.
-              </p>
+        {/* Recent Platform Registrations */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-purple-600" />
+              <h2 className="font-bold text-sm text-slate-900">Recent User Registrations</h2>
             </div>
-            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-colors shrink-0 ml-3" />
-          </Link>
+            <Link
+              href="/platform-admin/users"
+              className="text-xs font-semibold text-purple-700 hover:text-purple-800"
+            >
+              View Directory &rarr;
+            </Link>
+          </div>
 
-          <Link
-            href="/platform-admin/settings"
-            className="p-4 rounded-xl bg-white border border-slate-200 hover:border-purple-300 shadow-2xs hover:shadow-xs transition-all flex items-center justify-between group"
-          >
-            <div>
-              <span className="font-bold text-xs text-slate-900 group-hover:text-purple-700 transition-colors block">
-                Platform Security & Global Environment Settings
-              </span>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                Manage payment gateway keys, NIC e-invoicing API secrets & audit log policies.
-              </p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-colors shrink-0 ml-3" />
-          </Link>
+          <div className="space-y-2.5">
+            {(!data?.recentUsers || data.recentUsers.length === 0) ? (
+              <div className="p-6 text-center text-xs text-slate-500 bg-slate-50 rounded-xl">
+                No recent user registrations.
+              </div>
+            ) : (
+              data.recentUsers.map((u) => (
+                <div
+                  key={u.id}
+                  className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs"
+                >
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-800">{u.name}</span>
+                      {u.isSuspended && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-100 text-red-700 font-bold">
+                          SUSPENDED
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[11px] text-slate-500">{u.email}</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400">
+                    {new Date(u.createdAt).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                    })}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
-    </ModulePageShell>
+    </div>
   );
 }

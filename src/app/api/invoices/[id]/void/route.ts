@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireTenantAccess } from '@/lib/auth/guards';
+import { requireCommercialAccess, AuthError } from '@/lib/auth/guards';
 import { voidInvoice } from '@/lib/services/invoiceService';
 
 export async function POST(
@@ -7,7 +7,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { business, session } = await requireTenantAccess();
+    const { business, session } = await requireCommercialAccess();
     const { id } = await params;
     const body = await req.json();
 
@@ -23,6 +23,9 @@ export async function POST(
       invoice: cancelledInvoice,
     });
   } catch (error: unknown) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ success: false, error: error.message }, { status: error.statusCode });
+    }
     const message = error instanceof Error ? error.message : 'Failed to void invoice.';
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }

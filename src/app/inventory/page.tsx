@@ -23,6 +23,8 @@ import {
   Boxes,
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
+import { useEntitlements } from '@/hooks/useEntitlements';
+import { FeatureNotAvailable } from '@/components/shared/FeatureNotAvailable';
 
 interface Product {
   id: string;
@@ -76,6 +78,7 @@ const GST_RATES = [0, 5, 12, 18, 28];
 
 function InventoryContent() {
   const { toast } = useToast();
+  const { canAccessCommercial } = useEntitlements();
   const [products, setProducts] = useState<Product[]>([]);
   const [valuation, setValuation] = useState<ValuationData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -125,6 +128,7 @@ function InventoryContent() {
   const [csvSuccess, setCsvSuccess] = useState<string | null>(null);
 
   const fetchInventory = useCallback(async () => {
+    if (!canAccessCommercial) return;
     setLoading(true);
     setError(null);
     try {
@@ -283,6 +287,16 @@ function InventoryContent() {
       setCsvCommitting(false);
     }
   };
+
+  if (!canAccessCommercial) {
+    return (
+      <FeatureNotAvailable
+        featureName="Product Catalog & Stock Management"
+        requiredPlanName="Starter, Growth or Scale"
+        description="Inventory management, stock tracking, and pricing catalogues are commercial features available on Starter, Growth, and Scale plans."
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

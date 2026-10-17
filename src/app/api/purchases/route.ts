@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireCommercialAccess } from '@/lib/auth/guards';
+import { requireGrowthAccess } from '@/lib/auth/guards';
 import { getPurchases, createPurchase } from '@/lib/services/purchaseService';
 import { checkFeatureEntitlement } from '@/lib/subscription/entitlements';
 import { PurchaseStatus } from '@prisma/client';
 
 export async function GET(req: NextRequest) {
   try {
-    const { business } = await requireCommercialAccess();
+    const { business } = await requireGrowthAccess();
     const { searchParams } = new URL(req.url);
 
     const supplierId = searchParams.get('supplierId') || undefined;
@@ -30,14 +30,14 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to fetch purchases.';
-    const status = message.includes('Authentication') ? 401 : message.includes('Access Denied') || message.includes('Commercial plan required') ? 403 : 500;
+    const status = message.includes('Authentication') ? 401 : message.includes('Access Denied') || message.includes('Feature not available') || message.includes('Commercial plan required') ? 403 : 500;
     return NextResponse.json({ success: false, error: message }, { status });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { business, session } = await requireCommercialAccess();
+    const { business, session } = await requireGrowthAccess();
 
     const entitlement = await checkFeatureEntitlement(business.id, 'canManagePurchases');
     if (!entitlement.allowed) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireTenantAccess } from '@/lib/auth/guards';
+import { requireGrowthAccess } from '@/lib/auth/guards';
 import { receivePurchase } from '@/lib/services/purchaseService';
 
 export async function POST(
@@ -7,7 +7,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { business, session } = await requireTenantAccess();
+    const { business, session } = await requireGrowthAccess();
     const { id } = await params;
 
     const purchase = await receivePurchase(business.id, id, session.user.name || 'Staff');

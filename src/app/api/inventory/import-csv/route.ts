@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireTenantAccess } from '@/lib/auth/guards';
+import { requireCommercialAccess, AuthError } from '@/lib/auth/guards';
 import {
   parseAndValidateCsv,
   commitCsvImport,
@@ -8,7 +8,7 @@ import {
 
 export async function POST(req: NextRequest) {
   try {
-    const { business, session } = await requireTenantAccess();
+    const { business, session } = await requireCommercialAccess();
     const body = await req.json();
     const { csvText, action } = body;
 
@@ -64,6 +64,9 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   } catch (error: unknown) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ success: false, error: error.message }, { status: error.statusCode });
+    }
     const message = error instanceof Error ? error.message : 'CSV operation failed.';
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }

@@ -20,8 +20,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 import { useAuth } from '@/context/AuthContext';
-import { UpgradeGateBanner } from '@/components/subscription/UpgradeGateBanner';
-import { normalizePlanKey } from '@/lib/subscription/plans';
+import { useEntitlements } from '@/hooks/useEntitlements';
+import { FeatureNotAvailable } from '@/components/shared/FeatureNotAvailable';
 
 interface SupplierItem {
   id: string;
@@ -42,8 +42,9 @@ interface SupplierItem {
 
 function SuppliersContent() {
   const toast = useToast();
-  const { activeBusiness } = useAuth();
-  const currentPlanKey = normalizePlanKey(activeBusiness?.subscription?.plan);
+  const { isAllowed } = useEntitlements();
+  const canManageSuppliers = isAllowed('canManageSuppliers');
+
   const [suppliers, setSuppliers] = useState<SupplierItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,6 +64,7 @@ function SuppliersContent() {
   });
 
   const fetchSuppliers = useCallback(async () => {
+    if (!canManageSuppliers) return;
     setLoading(true);
     setError(null);
     try {
@@ -133,6 +135,16 @@ function SuppliersContent() {
   const totalOutstandingAll = suppliers.reduce((sum, s) => sum + s.totalOutstanding, 0);
   const totalPurchasesAll = suppliers.reduce((sum, s) => sum + s.totalPurchasesAmount, 0);
 
+  if (!canManageSuppliers) {
+    return (
+      <FeatureNotAvailable
+        featureName="Suppliers & Vendor Management"
+        requiredPlanName="Growth or Scale"
+        description="Supplier directory, purchase orders, and vendor payable tracking require a Lenden Growth or Scale subscription."
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Top Banner & Header */}
@@ -168,15 +180,6 @@ function SuppliersContent() {
           </button>
         </div>
       </div>
-
-      {/* Plan Feature Gate Banner for Starter */}
-      {currentPlanKey === 'STARTER' && (
-        <UpgradeGateBanner
-          featureName="Supplier Management & Vendor Khata"
-          requiredPlan="GROWTH"
-          description="Lenden Starter focuses on customer ledgers and sales. Supplier directory, purchases, and vendor payable tracking require Lenden Growth or Scale."
-        />
-      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

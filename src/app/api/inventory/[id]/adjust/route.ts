@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireTenantAccess } from '@/lib/auth/guards';
+import { requireCommercialAccess, AuthError } from '@/lib/auth/guards';
 import { adjustStock } from '@/lib/services/inventoryService';
 
 export async function POST(
@@ -7,7 +7,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { business, session } = await requireTenantAccess();
+    const { business, session } = await requireCommercialAccess();
     const { id } = await params;
     const body = await req.json();
 
@@ -23,6 +23,9 @@ export async function POST(
       movement: result.movement,
     });
   } catch (error: unknown) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ success: false, error: error.message }, { status: error.statusCode });
+    }
     const message = error instanceof Error ? error.message : 'Failed to adjust stock.';
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }

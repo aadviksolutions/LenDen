@@ -31,6 +31,14 @@
     outline: 2px solid #071F38;
     outline-offset: 2px;
   }
+
+  /* Mobile safe area utility support */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
 }
 
 /* Indian Rupee tabular formatting and numbers */

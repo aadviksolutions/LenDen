@@ -28,6 +28,8 @@ import {
 import { calculateInvoiceTotals, LineItemInput, GstType } from '@/lib/billing/calculator';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { useEntitlements } from '@/hooks/useEntitlements';
+import { FeatureNotAvailable } from '@/components/shared/FeatureNotAvailable';
 import { sanitizePhoneNumber } from '@/lib/whatsapp/formatters';
 
 interface CustomerOption {
@@ -60,6 +62,7 @@ function InvoiceCreationForm() {
 
   const { activeBusiness } = useAuth();
   const { toast } = useToast();
+  const { canAccessCommercial } = useEntitlements();
 
   // 1. Invoice Numbering & Date State
   const [estimatedInvoiceNumber, setEstimatedInvoiceNumber] = useState('INV-Loading...');
@@ -134,6 +137,7 @@ function InvoiceCreationForm() {
 
   // Initial Date Setup
   useEffect(() => {
+    if (!canAccessCommercial) return;
     const today = new Date();
     setInvoiceDate(today.toISOString().split('T')[0]);
     setDueDate(new Date(today.getTime() + 15 * 86400000).toISOString().split('T')[0]);
@@ -147,10 +151,11 @@ function InvoiceCreationForm() {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [canAccessCommercial]);
 
   // Load Customers & Inventory Catalog
   useEffect(() => {
+    if (!canAccessCommercial) return;
     fetch('/api/customers')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -572,6 +577,16 @@ function InvoiceCreationForm() {
       setLoading(false);
     }
   };
+
+  if (!canAccessCommercial) {
+    return (
+      <FeatureNotAvailable
+        featureName="Create New Tax Invoice"
+        requiredPlanName="Starter, Growth or Scale"
+        description="Commercial invoicing is not available on Free Khata accounts."
+      />
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-24 md:pb-8">

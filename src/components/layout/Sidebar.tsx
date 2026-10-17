@@ -3,7 +3,12 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { NAVIGATION_GROUPS, FREE_KHATA_NAVIGATION_ITEMS } from '@/data/navigation';
+import {
+  NAVIGATION_GROUPS,
+  FREE_KHATA_NAVIGATION_ITEMS,
+  BUSINESS_NAVIGATION_ITEMS,
+  NavigationItem,
+} from '@/data/navigation';
 import { BusinessProfileArea } from './BusinessProfileArea';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -59,6 +64,8 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Store,
 };
 
+import { useEntitlements } from '@/hooks/useEntitlements';
+
 export function Sidebar({
   mobileOpen,
   onCloseMobile,
@@ -67,8 +74,16 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const { user, activeBusiness } = useAuth();
-  const isSuperAdmin = user?.platformRole === 'SUPER_ADMIN';
-  const isFreeKhata = activeBusiness?.subscription?.plan === 'FREE_KHATA';
+  const { isFreeKhata, isAllowed, planName, isSuperAdmin } = useEntitlements();
+
+  // Filter business items dynamically based on plan entitlements
+  const filteredBusinessItems = BUSINESS_NAVIGATION_ITEMS.filter((item: NavigationItem) => {
+    if (item.id === 'purchases') return isAllowed('canManagePurchases');
+    if (item.id === 'suppliers') return isAllowed('canManageSuppliers');
+    if (item.id === 'reports') return isAllowed('canAdvancedReports');
+    if (item.id === 'staff') return isAllowed('canManageStaff');
+    return true;
+  });
 
   // Construct visible navigation groups based on plan and role
   const visibleGroups = isFreeKhata
@@ -85,20 +100,19 @@ export function Sidebar({
           ? NAVIGATION_GROUPS.filter((g) => g.scope === 'PLATFORM_ADMIN')
           : []),
       ]
-    : NAVIGATION_GROUPS.filter((group) => {
-        if (group.scope === 'PLATFORM_ADMIN') {
-          return isSuperAdmin;
-        }
-        return true;
-      });
-
-  const planName = activeBusiness?.subscription?.plan
-    ? activeBusiness.subscription.plan === 'FREE_KHATA'
-      ? 'Free Khata'
-      : activeBusiness.subscription.plan.replace('_', ' ')
-    : isSuperAdmin
-    ? 'Super Admin'
-    : 'Free Trial';
+    : [
+        {
+          id: 'business_workspace',
+          title: 'Business Workspace',
+          scope: 'BUSINESS_WORKSPACE' as const,
+          description: 'Client workspace operations',
+          badge: planName,
+          items: filteredBusinessItems,
+        },
+        ...(isSuperAdmin
+          ? NAVIGATION_GROUPS.filter((g) => g.scope === 'PLATFORM_ADMIN')
+          : []),
+      ];
 
   const planStatus = activeBusiness?.subscription?.status || (isSuperAdmin ? 'ACTIVE' : 'TRIAL');
 
@@ -219,7 +233,7 @@ export function Sidebar({
 
                 {/* Group Nav Items */}
                 <div className="space-y-0.5">
-                  {group.items.map((item) => {
+                  {group.items.map((item: NavigationItem) => {
                     const Icon = ICON_MAP[item.iconName] || LayoutDashboard;
                     const isActive =
                       item.href === '/'

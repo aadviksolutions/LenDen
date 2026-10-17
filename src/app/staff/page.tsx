@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { ModulePageShell } from '@/components/shared/ModulePageShell';
 import { useToast } from '@/context/ToastContext';
 import { useAuth } from '@/context/AuthContext';
-import { UpgradeGateBanner } from '@/components/subscription/UpgradeGateBanner';
+import { useEntitlements } from '@/hooks/useEntitlements';
+import { FeatureNotAvailable } from '@/components/shared/FeatureNotAvailable';
 import { UpgradeGateModal } from '@/components/subscription/UpgradeGateModal';
 import { normalizePlanKey, OFFICIAL_PLANS } from '@/lib/subscription/plans';
 import { ShieldCheck, UserPlus, Trash2, X, Info, UserCheck, KeyRound } from 'lucide-react';
@@ -48,6 +49,9 @@ const ROLE_INFO: Record<
 export default function StaffPage() {
   const toast = useToast();
   const { activeBusiness } = useAuth();
+  const { isAllowed } = useEntitlements();
+  const canManageStaff = isAllowed('canManageStaff');
+
   const currentPlanKey = normalizePlanKey(activeBusiness?.subscription?.plan);
   const planLimits = OFFICIAL_PLANS[currentPlanKey]?.limits || { maxUsers: 1, maxLocations: 1 };
 
@@ -67,10 +71,12 @@ export default function StaffPage() {
   const [formPassword, setFormPassword] = useState('');
 
   useEffect(() => {
+    if (!canManageStaff) return;
     fetchStaff();
-  }, []);
+  }, [canManageStaff]);
 
   const fetchStaff = async () => {
+    if (!canManageStaff) return;
     try {
       setLoading(true);
       const res = await fetch('/api/staff');
@@ -141,6 +147,16 @@ export default function StaffPage() {
 
   const isOwner = currentUserRole === 'BUSINESS_OWNER';
 
+  if (!canManageStaff) {
+    return (
+      <FeatureNotAvailable
+        featureName="Staff Accounts & Roles"
+        requiredPlanName="Growth or Scale"
+        description="Adding team members (billing operators, accountants, inventory managers) requires a Lenden Growth (up to 3 users) or Scale (up to 10 users) subscription."
+      />
+    );
+  }
+
   return (
     <ModulePageShell
       title="Business Staff & Delegated Permissions"
@@ -160,15 +176,6 @@ export default function StaffPage() {
             </p>
           </div>
         </div>
-
-        {/* Plan Feature Gate Banner for Starter */}
-        {currentPlanKey === 'STARTER' && (
-          <UpgradeGateBanner
-            featureName="Staff Roles & Additional Users"
-            requiredPlan="GROWTH"
-            description="Lenden Starter is single-user (Owner only). To add billing operators, accountants, or inventory managers, upgrade to Growth (up to 3 users) or Scale (up to 10 users)."
-          />
-        )}
 
         {/* Action Header */}
         <div className="flex items-center justify-between">

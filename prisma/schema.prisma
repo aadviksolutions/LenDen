@@ -88,6 +88,8 @@ model User {
   passwordHash String
   platformRole PlatformRole @default(USER)
   isDemo       Boolean      @default(false)
+  isSuspended  Boolean      @default(false)
+  suspendedReason String?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
@@ -144,6 +146,7 @@ model Business {
   khataContacts      KhataContact[]
   khataTransactions  KhataTransaction[]
   khataRepayments    KhataRepayment[]
+  subscriptionPayments SubscriptionPayment[]
 
   @@index([name])
 }
@@ -182,6 +185,7 @@ model Subscription {
   updatedAt          DateTime           @updatedAt
 
   business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  subscriptionPayments SubscriptionPayment[]
 
   @@index([businessId])
 }
@@ -696,4 +700,68 @@ model KhataRepayment {
   @@index([date])
 }
 
+model SubscriptionPayment {
+  id               String           @id @default(cuid())
+  businessId       String
+  subscriptionId   String?
+  amount           Float
+  currency         String           @default("INR")
+  plan             SubscriptionPlan
+  status           String           @default("SUCCESS") // "PENDING", "SUCCESS", "FAILED", "CANCELLED", "REFUNDED"
+  gateway          String           @default("RAZORPAY") // "RAZORPAY", "CASHFREE", "MANUAL_UPI", "BANK_TRANSFER"
+  gatewayPaymentId String?
+  gatewayOrderId   String?
+  idempotencyKey   String?          @unique
+  notes            String?
+  billingPeriod    String           @default("MONTHLY") // "MONTHLY", "ANNUAL"
+  paidAt           DateTime?
+  refundedAt       DateTime?
+  refundAmount     Float?           @default(0)
+  reconciledBy     String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
+  business         Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  subscription     Subscription?    @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([businessId])
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model PlatformAuditLog {
+  id         String   @id @default(cuid())
+  adminId    String
+  adminEmail String
+  adminName  String
+  action     String   // e.g. "USER_SUSPEND", "USER_REACTIVATE", "TENANT_SUSPEND", "TENANT_REACTIVATE", "PLAN_CORRECTION", "TRIAL_EXTENSION", "PAYMENT_RECONCILE", "SETTINGS_UPDATE"
+  targetType String   // e.g. "USER", "BUSINESS", "SUBSCRIPTION", "PAYMENT", "SETTING"
+  targetId   String?
+  targetName String?
+  reason     String?
+  outcome    String   @default("SUCCESS") // "SUCCESS" | "FAILED"
+  metadata   Json?    // Extra contextual data or diff
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([adminId])
+  @@index([action])
+  @@index([targetType])
+  @@index([createdAt])
+}
+
+model PlatformSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  category    String   @default("GENERAL") // "GENERAL", "BILLING", "SECURITY", "NOTIFICATIONS"
+  description String?
+  isSecret    Boolean  @default(false)
+  updatedBy   String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  @@index([key])
+  @@index([category])
+}

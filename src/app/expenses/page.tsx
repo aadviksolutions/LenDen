@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { ModulePageShell } from '@/components/shared/ModulePageShell';
 import { useToast } from '@/context/ToastContext';
+import { useEntitlements } from '@/hooks/useEntitlements';
+import { FeatureNotAvailable } from '@/components/shared/FeatureNotAvailable';
 import { Plus, Search, Trash2, Receipt, Calendar, CreditCard, Tag, X } from 'lucide-react';
 
 interface Expense {
@@ -30,6 +32,7 @@ const CATEGORIES = [
 
 export default function ExpensesPage() {
   const toast = useToast();
+  const { canAccessCommercial } = useEntitlements();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
@@ -52,10 +55,12 @@ export default function ExpensesPage() {
   }, []);
 
   useEffect(() => {
+    if (!canAccessCommercial) return;
     fetchExpenses();
-  }, [categoryFilter, search]);
+  }, [categoryFilter, search, canAccessCommercial]);
 
   const fetchExpenses = async () => {
+    if (!canAccessCommercial) return;
     try {
       setLoading(true);
       const params = new URLSearchParams();
@@ -129,6 +134,16 @@ export default function ExpensesPage() {
       toast.error(err instanceof Error ? err.message : 'Error deleting expense');
     }
   };
+
+  if (!canAccessCommercial) {
+    return (
+      <FeatureNotAvailable
+        featureName="Business Expense Management"
+        requiredPlanName="Starter, Growth or Scale"
+        description="Overheads, utility payments, and petty cash voucher management are commercial tools available on Starter, Growth, and Scale plans."
+      />
+    );
+  }
 
   return (
     <ModulePageShell

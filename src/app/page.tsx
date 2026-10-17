@@ -13,34 +13,36 @@ import { SubscriptionUsageCard } from '@/components/dashboard/SubscriptionUsageC
 import { GstOverviewCard } from '@/components/dashboard/GstOverviewCard';
 import { useActionModal } from '@/context/ActionModalContext';
 import { useAuth } from '@/context/AuthContext';
-import { Shield, AlertTriangle, PlusCircle, Building2 } from 'lucide-react';
+import { useEntitlements } from '@/hooks/useEntitlements';
+import { Shield, AlertTriangle, PlusCircle } from 'lucide-react';
 
 function DashboardContent() {
   const router = useRouter();
   const { openAction } = useActionModal();
   const { activeBusiness, user } = useAuth();
+  const { isFreeKhata, isAllowed, isSuperAdmin } = useEntitlements();
   const searchParams = useSearchParams();
   const hasForbiddenError = searchParams.get('error') === 'forbidden_admin_access';
 
-  const isSuperAdmin = user?.platformRole === 'SUPER_ADMIN';
-
   React.useEffect(() => {
-    if (activeBusiness?.subscription?.plan === 'FREE_KHATA') {
+    if (isFreeKhata) {
       router.replace('/free-khata');
     }
-  }, [activeBusiness, router]);
+  }, [isFreeKhata, router]);
 
-  if (activeBusiness?.subscription?.plan === 'FREE_KHATA') {
+  // If user is on permanent Free Khata, strictly route them to the Free Khata ledger dashboard
+  if (isFreeKhata) {
     return (
-      <div className="flex items-center justify-center p-12 text-slate-500 text-xs">
-        <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mr-2" />
-        <span>Loading your Free Udhaar Khata...</span>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] p-8 text-center text-slate-500 text-xs">
+        <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-3" />
+        <span className="font-semibold text-slate-700">Opening your Free Udhaar Khata...</span>
+        <p className="text-[11px] text-slate-400 mt-1">Taking you to your personal lending & borrowing ledger.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="space-y-5 pb-8">
       {/* Forbidden access notice if redirected from platform admin */}
       {hasForbiddenError && (
         <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-2.5">
@@ -69,27 +71,29 @@ function DashboardContent() {
         </div>
       )}
 
-      {/* Page Header */}
+      {/* Welcome Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
         <div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-black text-[#071F38] tracking-tight">
-              Dashboard
+              Hello, {user?.name ? user.name.split(' ')[0] : 'Vyapari'} 👋
             </h1>
             <span className="text-[11px] font-bold text-[#00B887] bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
               {activeBusiness ? 'Workspace Active' : 'Ready'}
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
-            <span>Overview for</span>
-            <strong className="text-[#071F38] font-bold">
-              {activeBusiness?.name || 'My Business'}
-            </strong>
+          <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+            <span className="font-medium text-slate-600">Aaj ka business kaisa chal raha hai?</span>
+            <span className="text-slate-300 hidden xs:inline">•</span>
+            <span className="text-slate-500">
+              Workspace: <strong className="text-[#071F38]">{activeBusiness?.name || 'My Business'}</strong>
+            </span>
             {activeBusiness?.gstin && (
               <>
                 <span className="text-slate-300">•</span>
-                <span>GSTIN:</span>
-                <span className="font-mono text-slate-700 font-semibold">{activeBusiness.gstin}</span>
+                <span className="font-mono text-slate-700 font-semibold text-[11px]">
+                  GSTIN: {activeBusiness.gstin}
+                </span>
               </>
             )}
           </p>
@@ -98,10 +102,10 @@ function DashboardContent() {
         <div className="flex items-center gap-2">
           <Link
             href="/invoices/new"
-            className="inline-flex items-center gap-1.5 bg-[#00B887] hover:bg-[#009E74] text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 bg-[#00B887] hover:bg-[#009E74] text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-sm shadow-emerald-500/20 active:scale-[0.98] transition-all cursor-pointer min-h-[44px]"
           >
             <PlusCircle className="w-4 h-4 text-white" />
-            <span>Create Bill</span>
+            <span>Add Sale Bill</span>
           </Link>
         </div>
       </div>
@@ -109,19 +113,23 @@ function DashboardContent() {
       {/* 4 Summary KPI Cards */}
       <SummaryCards />
 
-      {/* Quick Action Buttons */}
+      {/* Quick Action Buttons (Adapted to assigned plan) */}
       <QuickActions
         onTriggerAction={(type) => {
           if (type === 'new_invoice') {
             router.push('/invoices/new');
           } else if (type === 'add_customer') {
             router.push('/customers?action=new');
-          } else if (type === 'record_udhaar') {
-            router.push('/invoices?view=payments');
+          } else if (type === 'record_udhaar' || type === 'record_payment') {
+            openAction('record_udhaar');
+          } else if (type === 'new_purchase') {
+            router.push('/purchases/new');
           } else if (type === 'new_item') {
             router.push('/inventory?action=new');
           } else if (type === 'whatsapp_reminder') {
             router.push('/whatsapp');
+          } else if (type === 'view_reports') {
+            router.push('/reports');
           } else {
             openAction(type);
           }
@@ -129,9 +137,9 @@ function DashboardContent() {
       />
 
       {/* Main Two-Column Grid: Charts & Tables on Left, Widgets on Right */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Left Column (2 spans): Sales & Collections Chart + Recent Invoices Table */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-5">
           {/* Sales & Collections Chart */}
           <SalesCollectionsChart />
 
@@ -164,13 +172,13 @@ function DashboardContent() {
             }
           />
 
-          {/* Low Stock Alerts */}
-          <LowStockAlertCard />
+          {/* Low Stock Alerts (Growth & Scale Plans Only) */}
+          {isAllowed('canLowStockAlerts') && <LowStockAlertCard />}
         </div>
       </div>
 
-      {/* GST Filing & Tax Overview */}
-      <GstOverviewCard />
+      {/* GST Filing & Tax Overview (Growth & Scale Plans Only) */}
+      {isAllowed('canAdvancedReports') && <GstOverviewCard />}
     </div>
   );
 }

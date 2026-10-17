@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import { OFFICIAL_PLANS, normalizePlanKey, PlanKey, OfficialPlan } from './plans';
+import { SubscriptionStatus } from '@prisma/client';
 
 export interface BusinessEntitlementsResult {
   businessId: string;
@@ -7,6 +8,8 @@ export interface BusinessEntitlementsResult {
   isDemo: boolean;
   planKey: PlanKey;
   planName: string;
+  status: SubscriptionStatus;
+  isExpired: boolean;
   limits: OfficialPlan['limits'];
   entitlements: OfficialPlan['entitlements'];
   features: string[];
@@ -26,14 +29,16 @@ export async function getBusinessEntitlements(
   });
 
   if (!business) {
-    // Default fallback to Starter
-    const defaultPlan = OFFICIAL_PLANS.STARTER;
+    // Safe default to FREE_KHATA (never grant paid access to an unresolved workspace)
+    const defaultPlan = OFFICIAL_PLANS.FREE_KHATA;
     return {
       businessId,
       businessName: 'Unknown Workspace',
       isDemo: false,
-      planKey: 'STARTER',
+      planKey: 'FREE_KHATA',
       planName: defaultPlan.name,
+      status: SubscriptionStatus.ACTIVE,
+      isExpired: false,
       limits: defaultPlan.limits,
       entitlements: defaultPlan.entitlements,
       features: defaultPlan.features,
@@ -44,6 +49,19 @@ export async function getBusinessEntitlements(
   const activeSub = business.subscriptions[0];
   const planKey = normalizePlanKey(activeSub?.plan);
   const planConfig = OFFICIAL_PLANS[planKey];
+  const status = activeSub?.status || SubscriptionStatus.ACTIVE;
+  const isExpired =
+    status === SubscriptionStatus.EXPIRED || status === SubscriptionStatus.SUSPENDED;
+  const isPastDue = status === SubscriptionStatus.PAST_DUE;
+
+  // If a paid subscription is expired, suspended, or payment is unpaid/past_due, restrict paid write entitlements safely
+  const effectiveEntitlements = { ...planConfig.entitlements };
+  if ((isExpired || isPastDue) && planKey !== 'FREE_KHATA') {
+    // Expired or unpaid subscriptions cannot create new invoices, purchases, or add staff
+    effectiveEntitlements.canCreateInvoices = false;
+    effectiveEntitlements.canManagePurchases = false;
+    effectiveEntitlements.canManageStaff = false;
+  }
 
   return {
     businessId: business.id,
@@ -51,8 +69,10 @@ export async function getBusinessEntitlements(
     isDemo,
     planKey,
     planName: planConfig.name,
+    status,
+    isExpired,
     limits: planConfig.limits,
-    entitlements: planConfig.entitlements,
+    entitlements: effectiveEntitlements,
     features: planConfig.features,
   };
 }

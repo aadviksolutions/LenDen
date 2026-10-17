@@ -1,40 +1,387 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Lock,
   Mail,
   ArrowRight,
-  ShieldCheck,
-  AlertCircle,
   Eye,
   EyeOff,
-  UserPlus,
-  BarChart2,
   FileText,
-  Users,
   Package,
+  Users,
   BarChart3,
+  BarChart2,
   Store,
-  Building2,
   UtensilsCrossed,
+  Building2,
   Factory,
   Truck,
   Briefcase,
   HelpCircle,
   X,
-  Sparkles,
-  Check,
+  Phone,
+  Info,
   Menu,
-  ChevronRight,
-  Zap,
-  MessageSquare,
-  Clock,
-  Smartphone,
+  Play,
 } from 'lucide-react';
+import { WelcomeVideoIntro } from '@/components/welcome/WelcomeVideoIntro';
 
+/* =====================================================================
+   REALISTIC 3D DASHBOARD PREVIEW
+   Positioned centrally, tilted with 3D perspective, extending behind login card
+   ===================================================================== */
+function DashboardTabletMockup() {
+  return (
+    <div
+      className="relative select-none pointer-events-none rounded-2xl shadow-[0_25px_65px_-12px_rgba(0,0,0,0.7)] transition-transform duration-500"
+      style={{
+        transform: 'perspective(1200px) rotateY(-13deg) rotateX(2.5deg) rotateZ(-0.5deg)',
+      }}
+    >
+      {/* Outer tablet frame */}
+      <div
+        className="bg-[#071F38] rounded-2xl p-2.5 xl:p-3 border border-slate-700/60 backdrop-blur-md"
+        style={{ width: '680px' }}
+      >
+        {/* Screen inner area */}
+        <div className="flex bg-[#F8FAFC] rounded-xl overflow-hidden min-h-[350px] border border-slate-200/60 shadow-inner">
+          {/* Mockup Left Dark Sidebar */}
+          <div className="w-36 xl:w-40 bg-[#071F38] p-3 text-white flex flex-col justify-between shrink-0">
+            <div>
+              {/* App logo in sidebar */}
+              <div className="flex items-center gap-1.5 px-1 py-1 mb-3.5 border-b border-slate-800 pb-2.5">
+                <div className="w-5 h-5 rounded-md bg-[#00B887] flex items-center justify-center font-black text-[11px] text-[#071F38]">
+                  ₹
+                </div>
+                <span className="font-bold text-[13px] tracking-tight">Lenden</span>
+              </div>
+
+              {/* Sidebar Navigation items */}
+              <div className="space-y-1 text-[10px] font-medium text-slate-300">
+                <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-[#00B887]/20 text-[#00E5A3] font-semibold">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#00B887]" />
+                  <span>Dashboard</span>
+                </div>
+                <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white/5 text-slate-400">
+                  <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                  <span>Invoices</span>
+                </div>
+                <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white/5 text-slate-400">
+                  <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                  <span>Customers</span>
+                </div>
+                <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white/5 text-slate-400">
+                  <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                  <span>Inventory</span>
+                </div>
+                <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white/5 text-slate-400">
+                  <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                  <span>Udhaar Khata</span>
+                </div>
+                <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white/5 text-slate-400">
+                  <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                  <span>Reports</span>
+                </div>
+                <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white/5 text-slate-400">
+                  <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                  <span>Settings</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mockup Main Screen Content */}
+          <div className="flex-1 p-3.5 flex flex-col justify-between text-slate-800 overflow-hidden bg-gradient-to-br from-white to-slate-50">
+            <div>
+              {/* Header */}
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-bold text-xs text-[#071F38]">Dashboard</span>
+                <span className="text-[9.5px] font-semibold text-slate-400">Oct 2026</span>
+              </div>
+
+              {/* Two KPI cards */}
+              <div className="grid grid-cols-2 gap-2 mb-2.5">
+                <div className="bg-white p-2 rounded-lg border border-slate-200/80 shadow-2xs flex items-center justify-between">
+                  <div>
+                    <div className="text-[9px] font-semibold text-slate-500">Total Sales</div>
+                    <div className="text-xs sm:text-sm font-black text-[#071F38] mt-0.5">
+                      ₹ 48,250
+                    </div>
+                    <div className="text-[8.5px] font-bold text-emerald-600 flex items-center gap-0.5 mt-0.5">
+                      <span>↑ +12%</span>
+                      <span className="text-slate-400 font-normal">from last month</span>
+                    </div>
+                  </div>
+                  <BarChart2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                </div>
+
+                <div className="bg-white p-2 rounded-lg border border-slate-200/80 shadow-2xs flex items-center justify-between">
+                  <div>
+                    <div className="text-[9px] font-semibold text-slate-500">Outstanding</div>
+                    <div className="text-xs sm:text-sm font-black text-[#071F38] mt-0.5">
+                      ₹ 12,400
+                    </div>
+                    <div className="text-[8.5px] font-medium text-sky-600 mt-0.5">
+                      5 customers
+                    </div>
+                  </div>
+                  <Users className="w-5 h-5 text-sky-500 shrink-0" />
+                </div>
+              </div>
+
+              {/* Sales Overview Chart (SVG) */}
+              <div className="bg-white p-2 rounded-lg border border-slate-200/80 shadow-2xs mb-2.5">
+                <div className="flex items-center justify-between text-[9px] font-semibold text-slate-600 mb-1">
+                  <span>Sales Overview</span>
+                  <span className="text-emerald-600 font-bold">Trend</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex flex-col justify-between text-[7.5px] text-slate-400 h-13 shrink-0 font-medium">
+                    <span>40</span>
+                    <span>30</span>
+                    <span>20</span>
+                    <span>10</span>
+                    <span>0</span>
+                  </div>
+                  <div className="h-13 flex-1">
+                    <svg viewBox="0 0 200 60" className="w-full h-full" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="mockGradFull" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor="#00B887" stopOpacity="0.45" />
+                          <stop offset="100%" stopColor="#00B887" stopOpacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      <path
+                        d="M0,50 Q30,45 60,35 T120,20 T160,25 T200,10 L200,60 L0,60 Z"
+                        fill="url(#mockGradFull)"
+                      />
+                      <path
+                        d="M0,50 Q30,45 60,35 T120,20 T160,25 T200,10"
+                        fill="none"
+                        stroke="#00B887"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex justify-between text-[7.5px] text-slate-400 font-medium px-4 mt-0.5">
+                  <span>Jan</span>
+                  <span>Feb</span>
+                  <span>Mar</span>
+                  <span>Apr</span>
+                  <span>May</span>
+                  <span>Jun</span>
+                  <span>Aug</span>
+                </div>
+              </div>
+
+              {/* Recent Invoices mini table */}
+              <div className="bg-white p-2 rounded-lg border border-slate-200/80 shadow-2xs">
+                <div className="text-[9px] font-semibold text-slate-600 mb-1">Recent Invoices</div>
+                <div className="flex items-center justify-between text-[8px] font-semibold text-slate-400 border-b border-slate-100 pb-1 mb-1">
+                  <span>Invoice No.</span>
+                  <span>Customer</span>
+                  <span>Amount</span>
+                </div>
+                <div className="space-y-1 text-[8.5px]">
+                  <div className="flex items-center justify-between text-slate-700">
+                    <span className="font-semibold text-emerald-600">INV-001</span>
+                    <span>Rajesh Kumar</span>
+                    <span className="font-bold">₹2,450</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-700">
+                    <span className="font-semibold text-emerald-600">INV-002</span>
+                    <span>Sharma Traders</span>
+                    <span className="font-bold">₹8,120</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-700">
+                    <span className="font-semibold text-emerald-600">INV-003</span>
+                    <span>Patel Enterprises</span>
+                    <span className="font-bold">₹5,600</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =====================================================================
+   PURE CSS & SVG GLOSSY TRANSLUCENT HERO BACKGROUND
+   Layered gradients, luminous curved ribbons, soft ambient glows and matrix dots
+   ===================================================================== */
+function GlossyHeroBackground() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+      {/* 1. Base Rich Multi-stop Background Gradient */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(125deg, #071F38 0%, #06233F 22%, #003756 42%, #00566E 60%, #007C7D 75%, #009E7B 88%, #00B887 100%)',
+        }}
+      />
+
+      {/* 2. Soft Ambient Radial Glows */}
+      {/* Top-Right Emerald Aurora Glow */}
+      <div
+        className="absolute -top-20 -right-20 w-[720px] h-[600px] rounded-full opacity-45 mix-blend-screen pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(circle at 65% 35%, rgba(0, 229, 163, 0.75) 0%, rgba(0, 184, 135, 0.4) 40%, rgba(0, 143, 145, 0.15) 70%, transparent 90%)',
+          filter: 'blur(45px)',
+        }}
+      />
+
+      {/* Center Behind-Dashboard Teal Glow */}
+      <div
+        className="absolute top-1/2 left-[52%] -translate-x-1/2 -translate-y-1/2 w-[850px] h-[550px] rounded-full opacity-35 mix-blend-screen pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, rgba(0, 184, 135, 0.4) 0%, rgba(0, 143, 145, 0.25) 38%, rgba(7, 31, 56, 0.0) 70%)',
+          filter: 'blur(55px)',
+        }}
+      />
+
+      {/* Bottom Center Teal Accent */}
+      <div
+        className="absolute -bottom-20 left-[45%] w-[650px] h-[380px] rounded-full opacity-30 mix-blend-screen pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, rgba(0, 229, 163, 0.45) 0%, rgba(0, 143, 145, 0.2) 50%, transparent 80%)',
+          filter: 'blur(50px)',
+        }}
+      />
+
+      {/* 3. Luminous Sweeping Ribbons (Pure Vector Paths matching reference) */}
+      <svg
+        className="absolute inset-0 w-full h-full"
+        viewBox="0 0 1664 615"
+        preserveAspectRatio="none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <linearGradient id="waveGradPrimary" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#004D61" stopOpacity="0.1" />
+            <stop offset="40%" stopColor="#008F91" stopOpacity="0.32" />
+            <stop offset="75%" stopColor="#00B887" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="#00E5A3" stopOpacity="0.65" />
+          </linearGradient>
+
+          <linearGradient id="waveGradSecondary" x1="15%" y1="90%" x2="100%" y2="20%">
+            <stop offset="0%" stopColor="#003550" stopOpacity="0.0" />
+            <stop offset="50%" stopColor="#008F91" stopOpacity="0.22" />
+            <stop offset="85%" stopColor="#00B887" stopOpacity="0.42" />
+            <stop offset="100%" stopColor="#00E5A3" stopOpacity="0.55" />
+          </linearGradient>
+
+          <linearGradient id="waveGradTertiary" x1="40%" y1="100%" x2="95%" y2="40%">
+            <stop offset="0%" stopColor="#071F38" stopOpacity="0.0" />
+            <stop offset="45%" stopColor="#00727B" stopOpacity="0.25" />
+            <stop offset="80%" stopColor="#00B887" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#00E5A3" stopOpacity="0.5" />
+          </linearGradient>
+
+          <linearGradient id="edgeGlow1" x1="0%" y1="80%" x2="100%" y2="10%">
+            <stop offset="0%" stopColor="#00E5A3" stopOpacity="0.05" />
+            <stop offset="40%" stopColor="#00E5A3" stopOpacity="0.4" />
+            <stop offset="75%" stopColor="#00FFA8" stopOpacity="0.75" />
+            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.9" />
+          </linearGradient>
+
+          <linearGradient id="edgeGlow2" x1="20%" y1="100%" x2="100%" y2="30%">
+            <stop offset="0%" stopColor="#00E5A3" stopOpacity="0.0" />
+            <stop offset="50%" stopColor="#00E5A3" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#A3FFDF" stopOpacity="0.7" />
+          </linearGradient>
+
+          <linearGradient id="edgeGlow3" x1="10%" y1="100%" x2="100%" y2="60%">
+            <stop offset="0%" stopColor="#00B887" stopOpacity="0.0" />
+            <stop offset="60%" stopColor="#00E5A3" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#00FFA8" stopOpacity="0.6" />
+          </linearGradient>
+        </defs>
+
+        {/* Deep background soft wave: sweeps up through upper right */}
+        <path
+          d="M 850 615 C 1050 540 1220 380 1420 180 C 1510 90 1590 35 1664 0 L 1664 615 Z"
+          fill="url(#waveGradSecondary)"
+          opacity="0.6"
+        />
+
+        {/* Primary sweeping translucent wave with graceful curve */}
+        <path
+          d="M 680 615 C 880 570 1080 480 1260 340 C 1420 215 1550 110 1664 50 L 1664 615 Z"
+          fill="url(#waveGradPrimary)"
+          opacity="0.75"
+        />
+
+        {/* Luminous crest line on Primary Wave */}
+        <path
+          d="M 680 615 C 880 570 1080 480 1260 340 C 1420 215 1550 110 1664 50"
+          stroke="url(#edgeGlow1)"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+
+        {/* Foreground flowing translucent ribbon along bottom right */}
+        <path
+          d="M 920 615 C 1100 585 1280 520 1440 430 C 1540 370 1615 310 1664 260 L 1664 615 Z"
+          fill="url(#waveGradTertiary)"
+          opacity="0.8"
+        />
+
+        {/* Luminous crest line on Foreground Wave */}
+        <path
+          d="M 920 615 C 1100 585 1280 520 1440 430 C 1540 370 1615 310 1664 260"
+          stroke="url(#edgeGlow2)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+
+        {/* Subtle low swoop curve in bottom center-left */}
+        <path
+          d="M 400 615 C 560 590 720 540 880 490 C 1040 440 1200 420 1380 470"
+          stroke="url(#edgeGlow3)"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity="0.4"
+        />
+      </svg>
+
+      {/* 4. Subtle Dotted Matrix Accent in Upper-Left Corner */}
+      <div
+        className="absolute top-6 left-6 w-48 h-48 opacity-25 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(#00E5A3 1.2px, transparent 1.2px)',
+          backgroundSize: '18px 18px',
+          maskImage: 'radial-gradient(ellipse at 25% 25%, black 40%, transparent 80%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at 25% 25%, black 40%, transparent 80%)',
+        }}
+      />
+
+      {/* 5. Delicate Glass Reflection Overlay */}
+      <div
+        className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 35%)',
+        }}
+      />
+    </div>
+  );
+}
+
+/* =====================================================================
+   MAIN PAGE COMPONENT
+   ===================================================================== */
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -45,52 +392,69 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [demoLoading, setDemoLoading] = useState<'STARTER' | 'GROWTH' | 'SCALE' | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showForgotModal, setShowForgotModal] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleEnterDemo = async (plan: 'STARTER' | 'GROWTH' | 'SCALE') => {
+  // Modals for functional links
+  const [showAboutModal, setShowAboutModal] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
+
+  const emailInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
     try {
-      setDemoLoading(plan);
-      setError(null);
-      const res = await fetch('/api/demo/enter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to enter demo workspace');
+      const savedEmail = localStorage.getItem('lenden_remembered_email');
+      if (savedEmail) {
+        setEmail(savedEmail);
+        setRememberMe(true);
       }
-      window.location.href = data.redirectUrl || '/';
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error launching demo workspace');
-      setDemoLoading(null);
+    } catch {
+      // Ignore
     }
+  }, []);
+
+  const handleSignInFocus = () => {
+    emailInputRef.current?.focus();
+    emailInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+
+    if (!email.trim() || !password) {
+      setError('Please enter both your email address and password.');
+      return;
+    }
+
     setError(null);
     setLoading(true);
 
     try {
+      if (rememberMe) {
+        localStorage.setItem('lenden_remembered_email', email.trim());
+      } else {
+        localStorage.removeItem('lenden_remembered_email');
+      }
+
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
 
       const data = await res.json();
 
       if (!res.ok || !data.success) {
         throw new Error(
-          data.error || 'Invalid credentials. Please verify your email and password.'
+          data.error || 'Invalid credentials. Please verify your email/mobile and password.'
         );
       }
 
-      // If user is SUPER_ADMIN, redirect to /platform-admin unless redirect query was set
       if (data.user?.platformRole === 'SUPER_ADMIN' && redirectUrl === '/') {
         router.push('/platform-admin');
       } else if (data.business?.plan === 'FREE_KHATA' && redirectUrl === '/') {
@@ -101,623 +465,432 @@ function LoginForm() {
       router.refresh();
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : 'An error occurred during login.'
+        err instanceof Error ? err.message : 'An error occurred during login. Please try again.'
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const scrollToLogin = () => {
-    const el = document.getElementById('login-card');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-    setMobileMenuOpen(false);
-  };
-
-  const scrollToDemo = () => {
-    const el = document.getElementById('demo-section');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-    setMobileMenuOpen(false);
+  const handleGoogleSignIn = () => {
+    setShowGoogleModal(true);
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F9FC] text-slate-800 relative overflow-x-hidden selection:bg-[#00B887]/20 selection:text-[#071F38] flex flex-col justify-between">
-      
-      {/* ================= BACKGROUND DECORATIVE ELEMENTS ================= */}
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-white font-sans selection:bg-[#00B887] selection:text-white flex flex-col justify-between">
+      {/* Welcome Video Intro: plays from 00:02 to 00:08, then smoothly opens the website */}
+      {showIntro && <WelcomeVideoIntro onComplete={() => setShowIntro(false)} />}
 
-      {/* Top-Right Restrained Abstract Curved Waves (Hidden or low-contrast on small screens) */}
-      <div className="absolute top-0 right-0 w-[300px] sm:w-[480px] md:w-[600px] lg:w-[720px] xl:w-[780px] h-[360px] sm:h-[540px] lg:h-[720px] pointer-events-none overflow-hidden z-0 select-none opacity-40 sm:opacity-90">
-        <svg
-          viewBox="0 0 500 700"
-          className="w-full h-full object-cover object-top-right"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+      {/* =========================================================
+          1. HEADER (70px Tall, clean white, fully aligned)
+          ========================================================= */}
+      <header className="w-full bg-white border-b border-slate-200/80 sticky top-0 z-40 h-[70px] shrink-0">
+        <div
+          className="mx-auto px-6 sm:px-10 h-full flex items-center justify-between"
+          style={{ maxWidth: '1580px', width: '100%' }}
         >
-          {/* Emerald Green Ribbon Wave (Innermost) */}
-          <path
-            d="M500 70 C 340 120, 230 270, 255 450 C 275 590, 380 670, 500 695 Z"
-            fill="url(#emeraldRibbon)"
-            opacity="0.92"
-          />
-          {/* Deep Teal Ribbon Wave (Middle) */}
-          <path
-            d="M500 150 C 370 200, 280 340, 305 490 C 325 610, 410 680, 500 705 Z"
-            fill="url(#tealRibbon)"
-            opacity="0.96"
-          />
-          {/* Deep Navy Curved Wave Accent (Outer edge) */}
-          <path
-            d="M500 240 C 420 280, 345 400, 365 530 C 385 630, 440 690, 500 715 Z"
-            fill="url(#navyRibbon)"
-            opacity="0.88"
-          />
+          {/* Left: Official Lenden Logo */}
+          <Link href="/" className="flex items-center gap-2 group shrink-0">
+            <img
+              src="/logo-horizontal.png"
+              alt="Lenden"
+              className="w-36 sm:w-44 lg:w-48 h-auto object-contain transition-transform group-hover:scale-[1.02]"
+              loading="eager"
+            />
+          </Link>
 
-          <defs>
-            <linearGradient id="emeraldRibbon" x1="250" y1="70" x2="500" y2="695" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#00B887" />
-              <stop offset="1" stopColor="#008F91" />
-            </linearGradient>
-            <linearGradient id="tealRibbon" x1="280" y1="150" x2="500" y2="705" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#008F91" />
-              <stop offset="1" stopColor="#071F38" />
-            </linearGradient>
-            <linearGradient id="navyRibbon" x1="345" y1="240" x2="500" y2="715" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#0D2C4D" />
-              <stop offset="1" stopColor="#071F38" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-
-      {/* Bottom-Left Botanical Leaves Motif (Desktop & Tablet only to avoid mobile overlapping) */}
-      <div className="hidden md:block absolute bottom-0 left-0 w-48 sm:w-60 md:w-72 lg:w-80 xl:w-92 h-48 sm:h-60 md:h-72 lg:h-80 xl:h-92 pointer-events-none z-0 select-none opacity-80 lg:opacity-100">
-        <svg viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-          {/* Deep Forest Green Base Leaf */}
-          <path
-            d="M-20 280 C -10 170, 50 100, 150 85 C 130 150, 90 220, -20 280 Z"
-            fill="#062F24"
-            fillOpacity="0.92"
-          />
-          {/* Mid Layer Leaf */}
-          <path
-            d="M-30 280 C 15 190, 95 130, 200 120 C 155 185, 80 240, -30 280 Z"
-            fill="#005A44"
-            fillOpacity="0.95"
-          />
-          {/* Rich Emerald Main Leaf */}
-          <path
-            d="M-10 280 C 35 200, 120 160, 240 170 C 185 225, 95 255, -10 280 Z"
-            fill="#00B887"
-          />
-          {/* Central Leaf Vein Accent */}
-          <path
-            d="M-10 280 C 50 230, 130 195, 240 170"
-            stroke="#A7F3D0"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            opacity="0.8"
-          />
-          {/* Foreground Petite Sprout Leaf */}
-          <path
-            d="M0 280 C 15 235, 60 205, 135 210 C 95 245, 45 268, 0 280 Z"
-            fill="#008F91"
-          />
-          {/* Accent Leaf Blade */}
-          <path
-            d="M-25 210 C 10 160, 65 130, 125 140 C 80 180, 30 200, -25 210 Z"
-            fill="#10B981"
-            fillOpacity="0.95"
-          />
-        </svg>
-      </div>
-
-      {/* Soft Ambient Corner Glow */}
-      <div className="absolute top-1/4 right-0 w-[360px] sm:w-[500px] h-[360px] sm:h-[500px] rounded-full bg-gradient-to-tr from-[#00B887]/8 via-[#008F91]/4 to-transparent blur-3xl pointer-events-none z-0" />
-
-      {/* ================= MOBILE / DESKTOP HEADER ================= */}
-      <header className="w-full relative z-30 pt-4 sm:pt-6 px-5 sm:px-6 lg:px-8 xl:px-12 max-w-[1280px] mx-auto">
-        <div className="flex items-center justify-between">
-          {/* Logo & Tagline */}
-          <div className="space-y-0.5">
-            <Link href="/" className="inline-flex items-center group focus:outline-hidden">
-              <img
-                src="/logo-horizontal.png"
-                alt="Lenden"
-                className="h-8.5 sm:h-9.5 lg:h-10.5 w-auto object-contain transition-transform group-hover:scale-[1.01]"
-                loading="eager"
-              />
-            </Link>
-            <p className="text-[11px] sm:text-xs font-medium text-slate-500 tracking-tight pl-0.5 hidden xs:block">
-              Billing • Inventory • Customers • Growing Business
-            </p>
-          </div>
-
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-5 text-xs font-bold text-slate-600">
+          {/* Center: Navigation Links on One Line */}
+          <nav className="hidden md:flex items-center gap-7 lg:gap-9 text-[14px] font-semibold text-slate-700">
+            <button
+              onClick={() => setShowHelpModal(true)}
+              className="hover:text-[#00B887] transition-colors cursor-pointer"
+            >
+              Features
+            </button>
             <Link href="/pricing" className="hover:text-[#00B887] transition-colors">
               Pricing
             </Link>
-            <button
-              onClick={scrollToDemo}
-              className="hover:text-[#00B887] transition-colors cursor-pointer"
-            >
-              Live Demo
-            </button>
             <Link
               href="/register?plan=free_khata"
-              className="px-3.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-colors font-bold flex items-center gap-1.5 shadow-2xs"
+              className="hover:text-[#00B887] transition-colors"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#00B887]" />
-              <span>Free Khata</span>
+              Free Khata
             </Link>
-            <Link
-              href="/register"
-              className="px-3.5 py-1.5 rounded-xl border border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 transition-colors font-bold"
+            <button
+              onClick={() => setShowAboutModal(true)}
+              className="hover:text-[#00B887] transition-colors cursor-pointer"
             >
-              Register Business
-            </Link>
+              About Us
+            </button>
+            <button
+              onClick={() => setShowContactModal(true)}
+              className="hover:text-[#00B887] transition-colors cursor-pointer"
+            >
+              Contact
+            </button>
+            <button
+              onClick={() => setShowHelpModal(true)}
+              className="hover:text-[#00B887] transition-colors cursor-pointer"
+            >
+              Help
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowIntro(true)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 text-[#008F91] hover:text-[#00B887] text-xs font-semibold transition-all cursor-pointer border border-[#00B887]/25 shadow-2xs"
+              title="Watch Welcome Video"
+            >
+              <Play className="w-3 h-3 fill-current text-[#00B887]" />
+              <span>Intro</span>
+            </button>
           </nav>
 
-          {/* Mobile Hamburger Menu Button */}
-          <div className="lg:hidden">
+          {/* Right: Outlined Sign In + Filled Emerald Get Started */}
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={handleSignInFocus}
+              className="px-4 sm:px-5 py-2 rounded-lg border border-[#00B887] hover:bg-emerald-50 text-[#071F38] hover:text-[#00B887] font-semibold text-xs sm:text-sm transition-colors cursor-pointer shadow-2xs"
+            >
+              Sign In
+            </button>
+            <Link
+              href="/register"
+              className="px-4 sm:px-5 py-2 rounded-lg bg-[#00B887] hover:bg-[#009E74] text-white font-semibold text-xs sm:text-sm transition-colors shadow-xs"
+            >
+              Get Started
+            </Link>
+
+            {/* Mobile Toggle */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="w-10 h-10 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-700 hover:text-[#00B887] hover:border-emerald-300 focus:outline-hidden transition-all cursor-pointer"
-              aria-label="Toggle navigation menu"
+              className="md:hidden p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Tagline (for ultra-compact screens where hidden above) */}
-        <p className="text-[10.5px] font-medium text-slate-500 tracking-tight mt-1 xs:hidden">
-          Billing • Inventory • Customers • Growing Business
-        </p>
-
-        {/* Mobile Dropdown Menu Drawer */}
+        {/* Mobile Dropdown */}
         {mobileMenuOpen && (
-          <div className="lg:hidden mt-3 p-4 rounded-2xl bg-white border border-slate-200 shadow-xl space-y-2.5 animate-in fade-in slide-in-from-top-2">
-            <button
-              onClick={scrollToLogin}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl bg-emerald-50/80 text-[#008F91] font-bold text-xs cursor-pointer hover:bg-emerald-100/80 transition-colors text-left"
-            >
-              <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-[#00B887]" />
-                <span>Sign in to Workspace</span>
-              </div>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-
-            <Link
-              href="/register?plan=free_khata"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#00B887]" />
-                <span>Open Free Udhaar Khata (100% Free)</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-emerald-600" />
-            </Link>
-
-            <Link
-              href="/register"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl text-slate-700 hover:bg-slate-50 font-bold text-xs transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <UserPlus className="w-4 h-4 text-[#00B887]" />
-                <span>Register Business Workspace</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
-            </Link>
-
-            <button
-              onClick={scrollToDemo}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl text-slate-700 hover:bg-slate-50 font-bold text-xs cursor-pointer transition-colors text-left"
-            >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#00B887]" />
-                <span>Explore Live Demo Plans</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
-            </button>
-
-            <Link
-              href="/pricing"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl text-slate-700 hover:bg-slate-50 font-bold text-xs transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-[#00B887]" />
-                <span>Pricing & Plans (Starter, Growth, Scale)</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
-            </Link>
+          <div className="md:hidden absolute top-[70px] left-0 right-0 bg-white border-b border-slate-200 px-6 py-4 space-y-3 z-50 shadow-xl animate-in fade-in slide-in-from-top-2">
+            <div className="flex flex-col space-y-2.5 text-sm font-semibold text-slate-700">
+              <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
+                Pricing
+              </Link>
+              <Link
+                href="/register?plan=free_khata"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Free Khata
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setShowAboutModal(true);
+                }}
+                className="text-left"
+              >
+                About Us
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setShowContactModal(true);
+                }}
+                className="text-left"
+              >
+                Contact
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setShowHelpModal(true);
+                }}
+                className="text-left"
+              >
+                Help
+              </button>
+            </div>
           </div>
         )}
       </header>
 
-      {/* ================= HERO TWO-COLUMN EXPERIENCE ================= */}
-      {/* Mobile-first layout with 20px padding (px-5), adapting to 12-col layout on desktop */}
-      <section className="relative w-full max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-8 xl:px-12 pt-5 sm:pt-7 lg:pt-9 pb-6 sm:pb-8 z-10 flex-1 flex flex-col justify-center">
+      {/* =========================================================
+          2. HERO — THREE DISTINCT VISUAL ZONES (Exact Reference Match)
+          Height approximately 610px at 1664x936 Viewport
+          ========================================================= */}
+      <section className="relative w-full overflow-hidden min-h-[580px] lg:h-[610px] shrink-0 py-6 lg:py-0">
+        {/* Pure CSS & SVG Glossy, Translucent Background */}
+        <GlossyHeroBackground />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 xl:gap-14 items-center relative z-10">
-          
-          {/* ================= LEFT SECTION (Mobile: Full Width | Desktop: 7 Cols ~55%) ================= */}
-          <div className="lg:col-span-7 space-y-4 sm:space-y-4.5">
-            
-            {/* 1. Compact Outlined Pill: ALL-IN-ONE BUSINESS MANAGEMENT */}
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6F7F0] border border-[#A7F3D0] text-[10px] sm:text-[11px] font-bold tracking-wider text-[#008F91] uppercase shadow-2xs">
-                <BarChart2 className="w-3.5 h-3.5 text-[#00B887]" />
-                <span>ALL-IN-ONE BUSINESS MANAGEMENT</span>
-              </div>
+        {/* Hero Content Container: 3 coordinated zones */}
+        <div
+          className="mx-auto px-6 sm:px-10 h-full relative"
+          style={{
+            maxWidth: '1580px',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          {/* ZONE 1: LEFT MARKETING CONTENT (Strictly bounded left width: 450px) */}
+          <div
+            className="shrink-0 relative z-20 flex flex-col justify-center text-left items-start py-4 lg:py-0"
+            style={{ width: '450px', maxWidth: '100%' }}
+          >
+            {/* Small uppercase label with accent line */}
+            <div className="inline-flex items-center gap-2 mb-2">
+              <span className="text-[11px] xl:text-xs font-bold tracking-[0.2em] text-slate-200 uppercase">
+                BUSINESS MANAGEMENT MADE SIMPLE
+              </span>
+              <div className="h-[2px] w-12 bg-[#00B887] rounded-full" />
             </div>
 
-            {/* 2. Main Headline (Bold, prominent, responsive) */}
-            <div>
-              <h1 className="text-3xl sm:text-4xl lg:text-[46px] xl:text-[52px] font-black tracking-tight leading-[1.06]">
-                <span className="text-[#071F38] block">Har Hisab,</span>
-                <span className="text-[#00B887] block">Ab Aasaan.</span>
-              </h1>
-            </div>
+            {/* Headline on exactly TWO lines */}
+            <h1 className="text-4xl sm:text-5xl lg:text-[54px] xl:text-[62px] font-black tracking-tight leading-[1.05] text-white mt-1">
+              Har Hisab,
+              <br />
+              <span className="text-[#00E5A3]">Ab Aasaan.</span>
+            </h1>
 
-            {/* 3. Supporting Description */}
-            <p className="text-xs sm:text-sm lg:text-[14.5px] text-slate-600 font-normal leading-relaxed max-w-xl">
-              Billing, inventory, customer ledgers and payments — designed for growing Indian businesses.
+            {/* Description */}
+            <p
+              className="mt-3.5 leading-relaxed max-w-[420px]"
+              style={{ color: '#E2E8F0', fontSize: '19px', fontWeight: 400 }}
+            >
+              Billing, inventory aur customer payments —
+              <br className="hidden sm:inline" />
+              {' '}sab ek jagah.
             </p>
 
-            {/* 4. Quick Mobile CTA Buttons (Mobile only) */}
-            <div className="flex flex-wrap items-center gap-2.5 pt-1 lg:hidden">
-              <button
-                type="button"
-                onClick={scrollToLogin}
-                className="flex-1 min-w-[140px] flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#00B887] text-white font-bold text-xs shadow-md shadow-emerald-500/20 active:scale-[0.98] transition-all cursor-pointer"
-              >
-                <Lock className="w-3.5 h-3.5" />
-                <span>Sign In Now</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={scrollToDemo}
-                className="flex-1 min-w-[140px] flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs shadow-2xs active:scale-[0.98] transition-all cursor-pointer"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#00B887]" />
-                <span>Try Free Demo</span>
-              </button>
-            </div>
-
-            {/* 5. 4 Equally Styled Feature Cards */}
-            {/* Compact cards with ~18px rounded corners, 48-56px icon container on left, title & desc, chevron */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5 max-w-xl pt-1">
-              {/* Card 1: Simple Billing */}
-              <div className="p-3.5 sm:p-4 rounded-[18px] bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-center justify-between gap-3 group">
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-[#E6F7F0] text-[#00B887] border border-[#A7F3D0]/60 flex items-center justify-center shrink-0">
-                    <FileText className="w-5 h-5 text-[#00B887]" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
-                      Simple Billing
-                    </h3>
-                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
-                      Create professional invoices in seconds.
-                    </p>
-                  </div>
+            {/* FOUR Feature Tiles in ONE Horizontal Row */}
+            <div className="flex items-center gap-3 sm:gap-4 mt-6 w-full max-w-[420px]">
+              {/* 1. Simple Billing */}
+              <div className="flex flex-col items-center text-center w-[80px] shrink-0">
+                <div
+                  className="flex items-center justify-center transition-transform hover:scale-105"
+                  style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '16px',
+                    background: 'rgba(0, 184, 135, 0.25)',
+                    border: '2px solid #00E5A3',
+                    boxShadow: '0 0 16px rgba(0, 229, 163, 0.35)',
+                    backdropFilter: 'blur(4px)',
+                  }}
+                >
+                  <FileText className="w-6 h-6 text-[#00FFA8] stroke-[2.2]" />
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 shrink-0" />
-              </div>
-
-              {/* Card 2: Udhaar & Payments */}
-              <div className="p-3.5 sm:p-4 rounded-[18px] bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-center justify-between gap-3 group">
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]/60 flex items-center justify-center shrink-0">
-                    <Users className="w-5 h-5 text-[#2563EB]" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
-                      Udhaar & Payments
-                    </h3>
-                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
-                      Track outstanding balances and collections.
-                    </p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 shrink-0" />
-              </div>
-
-              {/* Card 3: Inventory Control */}
-              <div className="p-3.5 sm:p-4 rounded-[18px] bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-center justify-between gap-3 group">
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-[#F5F3FF] text-[#7C3AED] border border-[#DDD6FE]/60 flex items-center justify-center shrink-0">
-                    <Package className="w-5 h-5 text-[#7C3AED]" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
-                      Inventory Control
-                    </h3>
-                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
-                      Manage stock, purchases and suppliers.
-                    </p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 shrink-0" />
-              </div>
-
-              {/* Card 4: Business Insights */}
-              <div className="p-3.5 sm:p-4 rounded-[18px] bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-200 transition-all flex items-center justify-between gap-3 group">
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]/60 flex items-center justify-center shrink-0">
-                    <BarChart3 className="w-5 h-5 text-[#D97706]" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-xs sm:text-sm text-[#071F38] leading-tight">
-                      Business Insights
-                    </h3>
-                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
-                      Understand sales, expenses and profit at a glance.
-                    </p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 shrink-0" />
-              </div>
-            </div>
-
-            {/* 6. Built for Growing Indian Businesses (6 Categories in clean 2-column mobile grid) */}
-            <div className="pt-3 max-w-xl">
-              {/* Divider with centered title */}
-              <div className="relative flex items-center justify-center mb-3">
-                <div className="w-full border-t border-slate-200/90" />
-                <span className="absolute px-3 bg-[#F6F9FC] text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  BUILT FOR GROWING INDIAN BUSINESSES
+                <span className="text-white font-semibold text-xs mt-2 leading-tight">
+                  Simple
+                  <br />
+                  Billing
                 </span>
               </div>
 
-              {/* 6 Categories: Retail, Wholesalers, Restaurants, Manufacturers, Distributors, Service */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 text-center">
-                {/* 1. Retail Stores */}
-                <div className="flex flex-col items-center p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                  <div className="w-8.5 h-8.5 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-slate-700 mb-1">
-                    <Store className="w-4 h-4 text-[#00B887]" />
-                  </div>
-                  <span className="text-[11px] font-semibold text-slate-700 leading-tight">
-                    Retail Stores
-                  </span>
+              {/* 2. Inventory Control */}
+              <div className="flex flex-col items-center text-center w-[80px] shrink-0">
+                <div
+                  className="flex items-center justify-center transition-transform hover:scale-105"
+                  style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '16px',
+                    background: 'rgba(2, 132, 199, 0.25)',
+                    border: '2px solid #38BDF8',
+                    boxShadow: '0 0 16px rgba(56, 189, 248, 0.35)',
+                    backdropFilter: 'blur(4px)',
+                  }}
+                >
+                  <Package className="w-6 h-6 text-[#7DD3FC] stroke-[2.2]" />
                 </div>
+                <span className="text-white font-semibold text-xs mt-2 leading-tight">
+                  Inventory
+                  <br />
+                  Control
+                </span>
+              </div>
 
-                {/* 2. Wholesalers */}
-                <div className="flex flex-col items-center p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                  <div className="w-8.5 h-8.5 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-slate-700 mb-1">
-                    <Building2 className="w-4 h-4 text-[#2563EB]" />
-                  </div>
-                  <span className="text-[11px] font-semibold text-slate-700 leading-tight">
-                    Wholesalers
-                  </span>
+              {/* 3. Udhaar & Payments */}
+              <div className="flex flex-col items-center text-center w-[80px] shrink-0">
+                <div
+                  className="flex items-center justify-center transition-transform hover:scale-105"
+                  style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '16px',
+                    background: 'rgba(217, 119, 6, 0.25)',
+                    border: '2px solid #FBBF24',
+                    boxShadow: '0 0 16px rgba(251, 191, 36, 0.35)',
+                    backdropFilter: 'blur(4px)',
+                  }}
+                >
+                  <Users className="w-6 h-6 text-[#FDE68A] stroke-[2.2]" />
                 </div>
+                <span className="text-white font-semibold text-xs mt-2 leading-tight">
+                  Udhaar &amp;
+                  <br />
+                  Payments
+                </span>
+              </div>
 
-                {/* 3. Restaurants & Cafes */}
-                <div className="flex flex-col items-center p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                  <div className="w-8.5 h-8.5 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-slate-700 mb-1">
-                    <UtensilsCrossed className="w-4 h-4 text-[#D97706]" />
-                  </div>
-                  <span className="text-[11px] font-semibold text-slate-700 leading-tight">
-                    Restaurants & Cafes
-                  </span>
+              {/* 4. Business Reports */}
+              <div className="flex flex-col items-center text-center w-[80px] shrink-0">
+                <div
+                  className="flex items-center justify-center transition-transform hover:scale-105"
+                  style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '16px',
+                    background: 'rgba(147, 51, 234, 0.25)',
+                    border: '2px solid #C084FC',
+                    boxShadow: '0 0 16px rgba(192, 132, 252, 0.35)',
+                    backdropFilter: 'blur(4px)',
+                  }}
+                >
+                  <BarChart3 className="w-6 h-6 text-[#E9D5FF] stroke-[2.2]" />
                 </div>
-
-                {/* 4. Manufacturers */}
-                <div className="flex flex-col items-center p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                  <div className="w-8.5 h-8.5 rounded-lg bg-purple-50 border border-purple-100 flex items-center justify-center text-slate-700 mb-1">
-                    <Factory className="w-4 h-4 text-[#7C3AED]" />
-                  </div>
-                  <span className="text-[11px] font-semibold text-slate-700 leading-tight">
-                    Manufacturers
-                  </span>
-                </div>
-
-                {/* 5. Distributors */}
-                <div className="flex flex-col items-center p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                  <div className="w-8.5 h-8.5 rounded-lg bg-teal-50 border border-teal-100 flex items-center justify-center text-slate-700 mb-1">
-                    <Truck className="w-4 h-4 text-[#008F91]" />
-                  </div>
-                  <span className="text-[11px] font-semibold text-slate-700 leading-tight">
-                    Distributors
-                  </span>
-                </div>
-
-                {/* 6. Service Businesses */}
-                <div className="flex flex-col items-center p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                  <div className="w-8.5 h-8.5 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-slate-700 mb-1">
-                    <Briefcase className="w-4 h-4 text-[#4F46E5]" />
-                  </div>
-                  <span className="text-[11px] font-semibold text-slate-700 leading-tight">
-                    Service Businesses
-                  </span>
-                </div>
+                <span className="text-white font-semibold text-xs mt-2 leading-tight">
+                  Business
+                  <br />
+                  Reports
+                </span>
               </div>
             </div>
-
           </div>
 
-          {/* ================= RIGHT SECTION (Mobile: Below left | Desktop: 5 Cols ~45%) ================= */}
-          <div className="lg:col-span-5 flex justify-center lg:justify-end relative mt-4 lg:mt-0" id="login-card">
-            
-            {/* Desktop Accents Anchored to Login Card */}
-            
-            {/* 1. Dot Grid Matrix (Top-Right Shoulder of Card) */}
-            <div className="absolute -top-11 -right-2 sm:-right-4 w-22 h-22 pointer-events-none opacity-30 z-0 hidden lg:block select-none">
-              <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                <pattern id="card-dot-grid" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-                  <circle cx="2" cy="2" r="1.25" fill="#008F91" />
-                </pattern>
-                <rect width="100%" height="100%" fill="url(#card-dot-grid)" />
-              </svg>
+          {/* ZONE 2: CENTER 3D DASHBOARD PREVIEW
+              Positioned centrally, starts to the right of Zone 1, extends behind login card */}
+          <div
+            className="hidden lg:block absolute top-1/2 -translate-y-1/2 z-10 pointer-events-none"
+            style={{
+              left: 'clamp(460px, 31vw, 550px)',
+            }}
+          >
+            <div className="scale-[0.80] xl:scale-[0.92] 2xl:scale-100 origin-left">
+              <DashboardTabletMockup />
             </div>
+          </div>
 
-            {/* 2. "Trusted by Indian Businesses" Callout (Top-Right of Card) */}
-            <div className="absolute -top-11 right-1 sm:right-4 z-20 pointer-events-none hidden lg:block text-right select-none">
-              <div className="inline-block transform -rotate-3">
-                <span className="font-serif italic text-[11px] text-slate-700 font-medium tracking-wide">
-                  Trusted by
-                </span>
-                <br />
-                <span className="font-serif italic font-bold text-xs text-[#00B887] tracking-wide">
-                  Indian Businesses
-                </span>
-                {/* Curved green flourish underline */}
-                <svg className="w-20 h-2 text-[#00B887] mt-0.5 ml-auto" viewBox="0 0 100 8" fill="none">
-                  <path d="M2 6C30 1 70 1 98 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                </svg>
-              </div>
-            </div>
-
-            {/* 3. Floating Emerald Petal Accent (Top-Left Shoulder of Card) */}
-            <div className="absolute top-1 -left-7 w-9 h-11 pointer-events-none hidden xl:block z-20 transform -rotate-12 select-none">
-              <svg viewBox="0 0 60 70" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full filter drop-shadow-xs">
-                <path
-                  d="M8 58 C 4 32, 24 8, 54 4 C 54 32, 38 52, 8 58 Z"
-                  fill="url(#cardFloatingLeafGrad)"
-                />
-                <defs>
-                  <linearGradient id="cardFloatingLeafGrad" x1="8" y1="58" x2="54" y2="4" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#00B887" />
-                    <stop offset="1" stopColor="#008F91" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-
-            {/* White Floating Login Card (Proportionate, clean, premium on both mobile and desktop) */}
-            <div className="w-full max-w-[420px] sm:max-w-[440px] lg:max-w-[460px] xl:max-w-[475px] bg-white rounded-3xl p-5 sm:p-7 lg:p-8 shadow-[0_20px_50px_-10px_rgba(7,31,56,0.08)] border border-slate-100 relative z-10">
-              
-              {/* Top: Actual Lenden Horizontal Logo Centered */}
-              <div className="flex justify-center mb-3">
+          {/* ZONE 3: RIGHT LOGIN CARD (Prominent White Card Layered in Front) */}
+          <div
+            className="py-4 lg:py-0"
+            style={{ width: '425px', maxWidth: '100%', flexShrink: 0, position: 'relative', zIndex: 30 }}
+          >
+            <div
+              className="bg-white rounded-[22px] p-5 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-slate-100 text-slate-800"
+              style={{ width: '100%' }}
+            >
+              {/* Actual Lenden Logo Centered at Top */}
+              <div className="flex items-center justify-center">
                 <img
                   src="/logo-horizontal.png"
                   alt="Lenden"
-                  className="h-8.5 sm:h-9 w-auto object-contain"
+                  className="h-7 sm:h-8 w-auto object-contain"
                 />
               </div>
 
-              {/* Heading & Subtitle */}
-              <div className="text-center mb-4 sm:mb-5">
-                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-[#071F38]">
-                  Welcome back
-                </h2>
-                <p className="text-xs sm:text-[12.5px] text-slate-500 mt-0.5 font-normal">
-                  Sign in to continue to your Lenden workspace.
-                </p>
-              </div>
+              {/* Welcome back Heading */}
+              <h2 className="text-2xl sm:text-[25px] font-bold text-[#071F38] text-center mt-2.5 tracking-tight">
+                Welcome back
+              </h2>
+              <p className="text-slate-500 text-xs sm:text-[13px] text-center mt-1">
+                Please enter your details to sign in
+              </p>
 
-              {/* Error Message */}
+              {/* Error Banner */}
               {error && (
-                <div className="mb-3.5 p-2.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2 text-rose-800 text-xs animate-in fade-in">
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                  <span className="leading-tight">{error}</span>
+                <div className="mt-2.5 p-2 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-start gap-2 animate-in fade-in">
+                  <span className="font-bold shrink-0 mt-0.5">⚠️</span>
+                  <span className="flex-1 leading-snug">{error}</span>
                 </div>
               )}
 
-              {/* Login Form */}
-              <form className="space-y-3.5" onSubmit={handleSubmit}>
-                {/* Email Address Field */}
+              {/* Sign In Form */}
+              <form onSubmit={handleSubmit} className="mt-3.5 space-y-3">
+                {/* Email address field */}
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-xs font-bold text-slate-700 mb-1"
-                  >
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Email address
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Mail className="h-4 w-4" />
-                    </div>
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      required
+                      ref={emailInputRef}
+                      type="text"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@yourbusiness.com"
-                      className="block w-full pl-10 pr-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#00B887]/30 focus:border-[#00B887] transition-all"
+                      placeholder="Enter your email"
+                      disabled={loading}
+                      required
+                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00B887]/25 focus:border-[#00B887] text-sm text-slate-900 placeholder:text-slate-400 bg-white transition-all disabled:opacity-60"
                     />
                   </div>
                 </div>
 
-                {/* Password Field */}
+                {/* Password field with show/hide control */}
                 <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-xs font-bold text-slate-700 mb-1"
-                  >
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Password
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Lock className="h-4 w-4" />
-                    </div>
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
-                      id="password"
-                      name="password"
                       type={showPassword ? 'text' : 'password'}
-                      autoComplete="current-password"
-                      required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
-                      className="block w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#00B887]/30 focus:border-[#00B887] transition-all"
+                      disabled={loading}
+                      required
+                      className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00B887]/25 focus:border-[#00B887] text-sm text-slate-900 placeholder:text-slate-400 bg-white transition-all disabled:opacity-60"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
-                      title={showPassword ? 'Hide password' : 'Show password'}
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                      tabIndex={-1}
                     >
                       {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
+                        <Eye className="w-4 h-4" />
                       ) : (
-                        <Eye className="h-4 w-4" />
+                        <EyeOff className="w-4 h-4" />
                       )}
                     </button>
                   </div>
                 </div>
 
-                {/* Remember Me & Forgot Password Row */}
+                {/* Remember me & Forgot password row */}
                 <div className="flex items-center justify-between text-xs pt-0.5">
-                  <label className="flex items-center gap-1.5 cursor-pointer select-none text-slate-600">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="w-3.5 h-3.5 rounded border-slate-300 text-[#00B887] focus:ring-[#00B887] cursor-pointer"
+                      className="w-4 h-4 rounded border-slate-300 text-[#00B887] focus:ring-[#00B887] cursor-pointer"
                     />
-                    <span>Remember me</span>
+                    <span className="text-slate-600 font-medium">Remember me</span>
                   </label>
 
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(true)}
-                    className="text-xs font-bold text-[#00B887] hover:underline cursor-pointer"
+                    className="font-medium text-[#00B887] hover:text-[#009E74] transition-colors cursor-pointer"
                   >
                     Forgot password?
                   </button>
                 </div>
 
-                {/* Primary Action Button: Sign In -> */}
+                {/* Full-width Sign In Button with navy-to-emerald gradient */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl shadow-md shadow-emerald-500/20 text-xs sm:text-sm font-bold text-white bg-[#00B887] hover:bg-[#009E74] focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-[#00B887] transition-all disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed mt-1.5 active:scale-[0.99]"
+                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#071F38] via-[#004D61] to-[#00B887] hover:from-[#0a2745] hover:to-[#009E74] text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.99] mt-1.5"
                 >
                   {loading ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -730,403 +903,175 @@ function LoginForm() {
                 </button>
               </form>
 
-              {/* OR Divider */}
-              <div className="relative flex items-center justify-center my-3.5">
+              {/* Divider: Or continue with */}
+              <div className="relative flex items-center justify-center my-3">
                 <div className="w-full border-t border-slate-200" />
-                <span className="absolute px-2.5 bg-white text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">
-                  OR
+                <span className="absolute px-3 bg-white text-xs font-normal text-slate-400">
+                  Or continue with
                 </span>
               </div>
 
-              {/* Free Khata Prominent Action Button */}
-              <Link
-                href="/register?plan=free_khata"
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all text-center cursor-pointer active:scale-[0.99] mb-2"
+              {/* Continue with Google button */}
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                className="w-full py-2 px-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 flex items-center justify-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-700 transition-all shadow-2xs cursor-pointer active:scale-[0.99]"
               >
-                <Sparkles className="w-4 h-4 text-emerald-200" />
-                <span>Open 100% Free Udhaar Khata</span>
-              </Link>
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                  />
+                </svg>
+                <span>Continue with Google</span>
+              </button>
 
-              {/* Outlined Button: Register your business */}
-              <Link
-                href="/register"
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-50 font-bold text-xs sm:text-sm transition-all text-center cursor-pointer active:scale-[0.99]"
-              >
-                <Building2 className="w-4 h-4 text-[#00B887]" />
-                <span>Register Business (Invoicing & GST)</span>
-              </Link>
-
-              {/* Supporting Text */}
-              <p className="text-[10.5px] sm:text-[11px] text-slate-400 text-center mt-2 leading-relaxed">
-                New to Lenden? Start your free trial and manage your business with ease.
-              </p>
-
-              {/* Trust Indicators at Bottom of Card */}
-              <div className="mt-4 pt-3.5 border-t border-slate-100 grid grid-cols-3 gap-1.5 text-center">
-                <div className="flex flex-col items-center">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#00B887] mb-1" />
-                  <span className="text-[9.5px] sm:text-[10px] font-medium text-slate-600 leading-tight">
-                    Secure &<br />Encrypted
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center border-x border-slate-100 px-1">
-                  <Lock className="w-3.5 h-3.5 text-[#00B887] mb-1" />
-                  <span className="text-[9.5px] sm:text-[10px] font-medium text-slate-600 leading-tight">
-                    Your Data<br />Stays Private
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center">
-                  <Users className="w-3.5 h-3.5 text-[#00B887] mb-1" />
-                  <span className="text-[9.5px] sm:text-[10px] font-medium text-slate-600 leading-tight">
-                    Built for<br />Indian Businesses
-                  </span>
-                </div>
-              </div>
-
-              {/* Developed by Aadvik Solutions Attribution */}
-              <div className="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-center gap-1.5 text-[10.5px] text-slate-500">
-                <span>Developed by -</span>
-                <span className="font-bold text-[#071F38]">Aadvik Solutions</span>
-                <img
-                  src="/aadvik-solutions-logo.png"
-                  alt="Aadvik Solutions"
-                  className="h-4.5 w-auto object-contain inline-block rounded-xs"
-                />
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================= COMPACT "EVERYTHING IN ONE PLACE" BENEFITS SECTION ================= */}
-      <section className="w-full max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-8 xl:px-12 py-8 sm:py-10 border-t border-slate-200/90 relative z-10">
-        <div className="text-center max-w-xl mx-auto mb-6">
-          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#008F91] bg-[#E6F7F0] px-3 py-1 rounded-full border border-[#A7F3D0]">
-            POWERFUL FEATURES • ZERO COMPLEXITY
-          </span>
-          <h2 className="text-xl sm:text-2xl font-black text-[#071F38] tracking-tight mt-2.5">
-            Everything in One Place
-          </h2>
-          <p className="text-xs sm:text-[13px] text-slate-500 mt-1">
-            Replace multiple notebooks, complex spreadsheets, and expensive software with one easy app.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {/* Benefit 1 */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#00B887] border border-emerald-100 flex items-center justify-center shrink-0">
-              <Zap className="w-4.5 h-4.5 text-[#00B887]" />
-            </div>
-            <div>
-              <h4 className="font-bold text-xs text-[#071F38]">10-Second Billing</h4>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                GST & non-GST professional invoices printed or shared in seconds.
-              </p>
-            </div>
-          </div>
-
-          {/* Benefit 2 */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#2563EB] border border-blue-100 flex items-center justify-center shrink-0">
-              <MessageSquare className="w-4.5 h-4.5 text-[#2563EB]" />
-            </div>
-            <div>
-              <h4 className="font-bold text-xs text-[#071F38]">WhatsApp Invoices</h4>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                Send invoice PDFs & automated payment reminders on customer WhatsApp.
-              </p>
-            </div>
-          </div>
-
-          {/* Benefit 3 */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100 flex items-center justify-center shrink-0">
-              <Clock className="w-4.5 h-4.5 text-[#7C3AED]" />
-            </div>
-            <div>
-              <h4 className="font-bold text-xs text-[#071F38]">Live Udhaar Tracker</h4>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                Never lose track of who owes you with automated digital khata.
-              </p>
-            </div>
-          </div>
-
-          {/* Benefit 4 */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-teal-50 text-[#008F91] border border-teal-100 flex items-center justify-center shrink-0">
-              <Smartphone className="w-4.5 h-4.5 text-[#008F91]" />
-            </div>
-            <div>
-              <h4 className="font-bold text-xs text-[#071F38]">Mobile & Web Sync</h4>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                Access your shop data from your phone, tablet or desktop computer anytime.
+              {/* Don't have an account? Sign up */}
+              <p className="text-center text-xs text-slate-500 mt-3">
+                Don&apos;t have an account?{' '}
+                <Link
+                  href="/register"
+                  className="font-semibold text-[#00B887] hover:underline"
+                >
+                  Sign up
+                </Link>
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ================= EXPLORE DEMO WORKSPACES SECTION ================= */}
-      {/* Placed clearly beneath the main login experience with 3 isolated plans */}
-      <section className="w-full max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-8 xl:px-12 py-8 sm:py-12 border-t border-slate-200/90 relative z-10" id="demo-section">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/90 text-[10.5px] font-bold text-[#00B887] uppercase tracking-wider mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-[#00B887]" />
-              <span>INSTANT EVALUATION • NO REGISTRATION REQUIRED</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-black text-[#071F38] tracking-tight">
-              Explore Lenden Demo
-            </h2>
-            <p className="text-xs sm:text-[13px] text-slate-500 mt-1 max-w-xl leading-relaxed">
-              Test each plan separately in its own isolated demo workspace pre-populated with realistic
-              sample data. Zero payment, zero risk.
-            </p>
+      {/* =========================================================
+          3. BUSINESS CATEGORIES & AADVIK SOLUTIONS ATTRIBUTION
+          Shares remaining vertical space; guaranteed no-scroll at 1664x936
+          ========================================================= */}
+      <section className="w-full bg-white py-3 sm:py-4 border-t border-slate-100 flex-1 flex flex-col justify-center min-h-0">
+        <div
+          className="mx-auto px-6 sm:px-10 w-full"
+          style={{ maxWidth: '1580px' }}
+        >
+          {/* Section Divider with Headline */}
+          <div className="flex items-center justify-center gap-4 max-w-4xl mx-auto mb-3">
+            <div className="h-px bg-slate-200 flex-1 max-w-[200px]" />
+            <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-[0.2em] text-center whitespace-nowrap">
+              BUILT FOR GROWING INDIAN BUSINESSES
+            </span>
+            <div className="h-px bg-slate-200 flex-1 max-w-[200px]" />
           </div>
 
-          <Link
-            href="/pricing"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#008F91] hover:text-[#00B887] transition-colors self-start md:self-auto bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-xs"
+          {/* SIX Cards in ONE Horizontal Row */}
+          <div
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 max-w-[1540px] mx-auto"
           >
-            <span>View Full Pricing & Plans</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
-          {/* Card A: Starter Demo */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[10.5px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
-                  Starter Plan
-                </span>
-                <span className="text-xs text-slate-400 font-semibold">1 User • 1 Location</span>
+            {/* Card 1: Retail Stores */}
+            <div className="bg-white rounded-2xl p-2.5 sm:p-3 border border-slate-200/90 shadow-2xs hover:shadow-xs hover:border-[#00B887] transition-all flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#E6F8F3] text-[#00B887] flex items-center justify-center shrink-0">
+                <Store className="w-5 h-5" />
               </div>
-
-              <div className="mt-3.5 flex items-baseline gap-1">
-                <span className="text-2xl sm:text-3xl font-black text-[#071F38]">₹199</span>
-                <span className="text-xs text-slate-500 font-semibold">/ month</span>
-              </div>
-
-              <p className="text-xs text-slate-500 mt-2 min-h-[32px] leading-relaxed">
-                Single-counter billing, customer ledger & udhaar tracking for solo shop owners.
-              </p>
-
-              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
-                <div className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
-                  <span>Unlimited Invoices & GST Bills</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
-                  <span>Customer Ledger & Udhaar Tracking</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
-                  <span>Payment Recording & Receipts</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
-                  <span>Basic Stock & Expense Tracking</span>
-                </div>
-              </div>
+              <span className="text-xs sm:text-[13px] font-bold text-slate-800 leading-tight">
+                Retail Stores
+              </span>
             </div>
 
-            <div className="mt-5 pt-1">
-              <button
-                type="button"
-                onClick={() => handleEnterDemo('STARTER')}
-                disabled={demoLoading !== null}
-                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50 active:scale-[0.99]"
-              >
-                {demoLoading === 'STARTER' ? (
-                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <span>Try Starter Demo</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Card B: Growth Demo (Recommended) */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 border-2 border-[#00B887] shadow-lg shadow-emerald-500/10 flex flex-col justify-between transition-all relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#00B887] text-white px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-2xs">
-              Recommended
+            {/* Card 2: Restaurants & Cafes */}
+            <div className="bg-white rounded-2xl p-2.5 sm:p-3 border border-slate-200/90 shadow-2xs hover:shadow-xs hover:border-[#00B887] transition-all flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#FFF4E5] text-[#F97316] flex items-center justify-center shrink-0">
+                <UtensilsCrossed className="w-5 h-5" />
+              </div>
+              <span className="text-xs sm:text-[13px] font-bold text-slate-800 leading-tight">
+                Restaurants
+                <br />
+                &amp; Cafes
+              </span>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[10.5px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
-                  Growth Plan
-                </span>
-                <span className="text-xs text-slate-500 font-semibold">3 Users • 1 Location</span>
+            {/* Card 3: Wholesalers */}
+            <div className="bg-white rounded-2xl p-2.5 sm:p-3 border border-slate-200/90 shadow-2xs hover:shadow-xs hover:border-[#00B887] transition-all flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#E8F4FD] text-[#0284C7] flex items-center justify-center shrink-0">
+                <Building2 className="w-5 h-5" />
               </div>
-
-              <div className="mt-3.5 flex items-baseline gap-1">
-                <span className="text-2xl sm:text-3xl font-black text-[#071F38]">₹499</span>
-                <span className="text-xs text-slate-500 font-semibold">/ month</span>
-              </div>
-
-              <p className="text-xs text-slate-500 mt-2 min-h-[32px] leading-relaxed">
-                Multi-user commercial suite with purchases, supplier khata, and low-stock alerts.
-              </p>
-
-              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
-                <div className="flex items-center gap-2 text-emerald-700 font-medium">
-                  <Sparkles className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
-                  <span>Everything in Starter, plus:</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
-                  <span>Purchase Invoices & Suppliers</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
-                  <span>Low-Stock Alerts & Stock History</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
-                  <span>Staff Roles & Permissions (3 Users)</span>
-                </div>
-              </div>
+              <span className="text-xs sm:text-[13px] font-bold text-slate-800 leading-tight">
+                Wholesalers
+              </span>
             </div>
 
-            <div className="mt-5 pt-1">
-              <button
-                type="button"
-                onClick={() => handleEnterDemo('GROWTH')}
-                disabled={demoLoading !== null}
-                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-[#00B887] hover:bg-[#009E74] text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-500/20 transition-all cursor-pointer disabled:opacity-50 active:scale-[0.99]"
-              >
-                {demoLoading === 'GROWTH' ? (
-                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <span>Try Growth Demo</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </>
-                )}
-              </button>
+            {/* Card 4: Manufacturers */}
+            <div className="bg-white rounded-2xl p-2.5 sm:p-3 border border-slate-200/90 shadow-2xs hover:shadow-xs hover:border-[#00B887] transition-all flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F3E8FF] text-[#9333EA] flex items-center justify-center shrink-0">
+                <Factory className="w-5 h-5" />
+              </div>
+              <span className="text-xs sm:text-[13px] font-bold text-slate-800 leading-tight">
+                Manufacturers
+              </span>
+            </div>
+
+            {/* Card 5: Distributors */}
+            <div className="bg-white rounded-2xl p-2.5 sm:p-3 border border-slate-200/90 shadow-2xs hover:shadow-xs hover:border-[#00B887] transition-all flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#E6F8F3] text-[#008F91] flex items-center justify-center shrink-0">
+                <Truck className="w-5 h-5" />
+              </div>
+              <span className="text-xs sm:text-[13px] font-bold text-slate-800 leading-tight">
+                Distributors
+              </span>
+            </div>
+
+            {/* Card 6: Service Businesses */}
+            <div className="bg-white rounded-2xl p-2.5 sm:p-3 border border-slate-200/90 shadow-2xs hover:shadow-xs hover:border-[#00B887] transition-all flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#E8F4FD] text-[#2563EB] flex items-center justify-center shrink-0">
+                <Briefcase className="w-5 h-5" />
+              </div>
+              <span className="text-xs sm:text-[13px] font-bold text-slate-800 leading-tight">
+                Service
+                <br />
+                Businesses
+              </span>
             </div>
           </div>
 
-          {/* Card C: Scale Demo */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs hover:border-slate-300 flex flex-col justify-between transition-all">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[10.5px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded border border-purple-200">
-                  Scale Plan
-                </span>
-                <span className="text-xs text-slate-400 font-semibold">10 Users • 3 Branches</span>
-              </div>
-
-              <div className="mt-3.5 flex items-baseline gap-1">
-                <span className="text-2xl sm:text-3xl font-black text-[#071F38]">₹999</span>
-                <span className="text-xs text-slate-500 font-semibold">/ month</span>
-              </div>
-
-              <p className="text-xs text-slate-500 mt-2 min-h-[32px] leading-relaxed">
-                Multi-branch chain operations with consolidated reporting & granular staff roles.
-              </p>
-
-              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
-                <div className="flex items-center gap-2 text-purple-700 font-medium">
-                  <Sparkles className="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                  <span>Everything in Growth, plus:</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
-                  <span>Multi-Location Management (3 Branches)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
-                  <span>Consolidated Branch Reports</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#00B887] shrink-0" />
-                  <span>Granular Roles & Audit Trail</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-5 pt-1">
-              <button
-                type="button"
-                onClick={() => handleEnterDemo('SCALE')}
-                disabled={demoLoading !== null}
-                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-[#071F38] hover:bg-[#0D2C4D] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50 active:scale-[0.99]"
-              >
-                {demoLoading === 'SCALE' ? (
-                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <span>Try Scale Demo</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </>
-                )}
-              </button>
+          {/* =========================================================
+              4. POWERED BY AADVIK SOLUTIONS — BOTTOM CENTER
+              ========================================================= */}
+          <div className="flex flex-col items-center justify-center text-center mt-3">
+            <span className="text-[11px] font-medium text-slate-400 tracking-wide">
+              Powered by
+            </span>
+            <div className="flex items-center justify-center gap-3 mt-1">
+              <div className="h-px bg-slate-200 w-16 sm:w-28" />
+              <img
+                src="/aadvik-horizontal.png"
+                alt="Aadvik Solutions - Infinite Solutions. One Vision."
+                className="h-7 sm:h-8 w-auto object-contain transition-transform hover:scale-105"
+              />
+              <div className="h-px bg-slate-200 w-16 sm:w-28" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ================= PAGE FOOTER ================= */}
-      <footer className="w-full border-t border-slate-200/90 bg-white/80 backdrop-blur-xs py-5 px-5 sm:px-6 lg:px-8 relative z-10 mt-auto">
-        <div className="max-w-[1280px] mx-auto space-y-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <span className="font-bold text-[#071F38]">Lenden</span>
-              <span>•</span>
-              <span className="text-slate-500">Billing, Inventory & Business Management for India</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-[11.5px] sm:text-xs font-medium text-slate-500">
-                Developed by -
-              </span>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all">
-                <img
-                  src="/aadvik-solutions-logo.png"
-                  alt="Aadvik Solutions"
-                  className="h-5 sm:h-5.5 w-auto object-contain rounded-xs"
-                />
-                <span className="font-bold text-[#071F38] text-xs tracking-tight">
-                  Aadvik Solutions
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-[11px] text-slate-400 pt-2 border-t border-slate-100">
-            <Link href="/pricing" className="hover:text-slate-600 transition-colors">Pricing</Link>
-            <span>•</span>
-            <button onClick={scrollToDemo} className="hover:text-slate-600 transition-colors cursor-pointer">Live Demo</button>
-            <span>•</span>
-            <Link href="/register" className="hover:text-slate-600 transition-colors">Register Business</Link>
-            <span>•</span>
-            <button onClick={() => setShowForgotModal(true)} className="hover:text-slate-600 transition-colors cursor-pointer">Support</button>
-            <span>•</span>
-            <span>© {new Date().getFullYear()} Lenden. All rights reserved.</span>
-          </div>
-        </div>
-      </footer>
+      {/* =========================================================
+          5. MODALS FOR FULL FUNCTIONALITY
+          ========================================================= */}
 
       {/* Forgot Password Modal */}
       {showForgotModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-5 sm:p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <HelpCircle className="w-4 h-4 text-[#00B887]" />
-                <h3 className="font-bold text-sm text-[#071F38]">Password Assistance</h3>
+                <h3 className="font-bold text-sm text-[#071F38]">Forgot Password?</h3>
               </div>
               <button
                 type="button"
@@ -1137,15 +1082,18 @@ function LoginForm() {
               </button>
             </div>
 
-            <div className="py-3.5 space-y-2.5 text-xs text-slate-600">
+            <div className="py-4 space-y-3 text-xs text-slate-600">
               <p>
-                To maintain tenant isolation and security, password resets are handled directly by your business workspace administrator.
+                To maintain database security and strict multi-tenant privacy, password recoveries are verified securely.
               </p>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <p className="font-semibold text-slate-800">Are you a Business Owner?</p>
-                <p className="text-[11px] text-slate-500 mt-1">
-                  Contact Lenden technical support at{' '}
-                  <span className="font-mono font-medium text-[#071F38]">admin@lenden.local</span> for account recovery.
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+                <p className="font-semibold text-slate-800">Workspace Administrator Support</p>
+                <p className="text-[11px] text-slate-500">
+                  Email support at:{' '}
+                  <span className="font-mono font-medium text-[#071F38]">admin@lenden.local</span>
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Or contact your business owner to generate an administrative password reset.
                 </p>
               </div>
             </div>
@@ -1154,9 +1102,185 @@ function LoginForm() {
               <button
                 type="button"
                 onClick={() => setShowForgotModal(false)}
-                className="px-3.5 py-1.5 bg-[#071F38] text-white rounded-xl text-xs font-semibold hover:bg-[#0D2C4D] transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#071F38] text-white rounded-xl text-xs font-semibold hover:bg-[#0D2C4D] transition-colors cursor-pointer"
               >
-                Understood
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Google Sign-in Notification Modal */}
+      {showGoogleModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-[#00B887]" />
+                <h3 className="font-bold text-sm text-[#071F38]">Google Authentication</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowGoogleModal(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="py-4 space-y-2.5 text-xs text-slate-600">
+              <p>
+                Single Sign-On with Google connects with your configured Google Cloud OAuth credentials in platform settings.
+              </p>
+              <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-800">
+                You can currently sign in directly using your registered email and password.
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowGoogleModal(false)}
+                className="px-4 py-2 bg-[#071F38] text-white rounded-xl text-xs font-semibold hover:bg-[#0D2C4D] transition-colors cursor-pointer"
+              >
+                Got It
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* About Us Modal */}
+      {showAboutModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-[#00B887]" />
+                <h3 className="font-bold text-base text-[#071F38]">About Lenden</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAboutModal(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="py-4 space-y-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <p>
+                <strong>Lenden</strong> is India&apos;s modern commercial billing and credit-management platform built specifically for retail stores, wholesalers, manufacturers, and growing businesses.
+              </p>
+              <p>
+                From professional GST invoicing to permanent Free Udhaar Khata, Lenden streamlines your entire business bookkeeping.
+              </p>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500">
+                Powered and maintained by <strong>Aadvik Solutions</strong>.
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowAboutModal(false)}
+                className="px-4 py-2 bg-[#071F38] text-white rounded-xl text-xs font-semibold hover:bg-[#0D2C4D] transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contact Modal */}
+      {showContactModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-[#00B887]" />
+                <h3 className="font-bold text-base text-[#071F38]">Contact Support</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowContactModal(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="py-4 space-y-3 text-xs sm:text-sm text-slate-600">
+              <p>
+                Our engineering and customer support team is here to assist your business setup and onboarding:
+              </p>
+              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-[#00B887]" />
+                  <span>support@lenden.local / admin@lenden.local</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-[#00B887]" />
+                  <span>+91 (Helpline - Available Mon-Sat)</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowContactModal(false)}
+                className="px-4 py-2 bg-[#071F38] text-white rounded-xl text-xs font-semibold hover:bg-[#0D2C4D] transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Help Modal */}
+      {showHelpModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-[#00B887]" />
+                <h3 className="font-bold text-base text-[#071F38]">Help &amp; Quick FAQs</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowHelpModal(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="py-4 space-y-3 text-xs text-slate-600">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                <p className="font-bold text-slate-800">What is Free Khata?</p>
+                <p className="text-[11px] text-slate-500">
+                  Free Khata gives you a permanent, lifetime-free personal lending and borrowing ledger.
+                </p>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                <p className="font-bold text-slate-800">What are the commercial plans?</p>
+                <p className="text-[11px] text-slate-500">
+                  Starter, Growth, and Scale plans include GST invoicing, multi-staff access, and inventory tracking.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowHelpModal(false)}
+                className="px-4 py-2 bg-[#071F38] text-white rounded-xl text-xs font-semibold hover:bg-[#0D2C4D] transition-colors cursor-pointer"
+              >
+                Close
               </button>
             </div>
           </div>
@@ -1168,7 +1292,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#F6F9FC]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#071F38]" />}>
       <LoginForm />
     </Suspense>
   );
